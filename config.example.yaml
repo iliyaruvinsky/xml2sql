@@ -1,0 +1,52 @@
+# Example configuration file for xml-to-sql conversion
+# Copy this to config.yaml and customize for your environment
+
+defaults:
+  client: "PROD"
+  language: "EN"
+
+paths:
+  source: "Source (XML Files)"
+  target: "Target (SQL Scripts)"
+
+schema_overrides:
+  # Override schema names if needed
+  # SAPK5D: "PRODUCTION_SCHEMA"
+
+currency:
+  udf_name: "CONVERT_CURRENCY"
+  rates_table: "EXCHANGE_RATES"
+  schema: "UTILITY"
+
+scenarios:
+  - id: "Sold_Materials"
+    output: "V_C_SOLD_MATERIALS"
+    enabled: true
+    overrides:
+      client: "100"
+
+  - id: "SALES_BOM"
+    output: "V_C_SALES_BOM"
+    enabled: true
+
+  - id: "Recently_created_products"
+    output: "V_C_RECENTLY_CREATED_PRODUCTS"
+    enabled: true
+
+  - id: "Material Details"
+    source: "Material Details.XML"
+    output: "V_C_MATERIAL_DETAILS"
+    enabled: true
+
+  - id: "KMDM_Materials"
+    output: "V_C_KMDM_MATERIALS"
+    enabled: true
+
+  - id: "CURRENT_MAT_SORT"
+    output: "V_C_CURRENT_MAT_SORT"
+    enabled: true
+
+  - id: "Sold_Materials_PROD"
+    output: "V_C_SOLD_MATERIALS_PROD"
+    enabled: true
+
