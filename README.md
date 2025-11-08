@@ -2,6 +2,8 @@
 
 Convert SAP HANA calculation view XML definitions into Snowflake SQL artifacts.
 
+> **👋 New to this project?** If you're a client deploying views to Snowflake, **[START HERE](START_HERE.md)** - This guide will walk you through the repository step-by-step.
+
 ## Overview
 
 This tool parses SAP HANA calculation view XML files and generates Snowflake-compatible SQL queries. It supports complex calculation views with projections, joins, aggregations, unions, filters, and calculated expressions.
@@ -49,62 +51,9 @@ This tool parses SAP HANA calculation view XML files and generates Snowflake-com
 
 ## Quick Start
 
-### 1. Create Configuration File
+For developers who want to use the converter tool, see [QUICK_START.md](QUICK_START.md) for a 5-minute setup guide.
 
-Copy the example configuration:
-```bash
-copy config.example.yaml config.yaml
-```
-
-Edit `config.yaml` to match your environment:
-```yaml
-defaults:
-  client: "PROD"
-  language: "EN"
-
-paths:
-  source: "Source (XML Files)"
-  target: "Target (SQL Scripts)"
-
-currency:
-  udf_name: "CONVERT_CURRENCY"
-  rates_table: "EXCHANGE_RATES"
-  schema: "UTILITY"
-
-scenarios:
-  - id: "Sold_Materials"
-    output: "V_C_SOLD_MATERIALS"
-    enabled: true
-```
-
-### 2. List Available Scenarios
-
-```bash
-xml-to-sql list --config config.yaml
-```
-
-### 3. Convert XML to SQL
-
-Convert a single scenario:
-```bash
-xml-to-sql convert --config config.yaml --scenario Sold_Materials
-```
-
-Convert all enabled scenarios:
-```bash
-xml-to-sql convert --config config.yaml
-```
-
-### 4. Check Generated SQL
-
-Generated SQL files will be in the `target` directory specified in your config:
-```bash
-# Windows
-type "Target (SQL Scripts)\V_C_SOLD_MATERIALS.sql"
-
-# Linux/Mac
-cat "Target (SQL Scripts)/V_C_SOLD_MATERIALS.sql"
-```
+**For clients deploying views to Snowflake:** Start with [START_HERE.md](START_HERE.md) instead.
 
 ## Configuration
 
@@ -293,9 +242,14 @@ pip install -e ".[dev]"
 
 ### Getting Help
 
-1. Check the [documentation](docs/) directory for detailed guides
-2. Review [TESTING.md](docs/TESTING.md) for testing procedures
-3. Check [QUICK_START.md](QUICK_START.md) for quick reference
+**For clients deploying views:**
+- Start with [START_HERE.md](START_HERE.md) - Navigation guide
+- See [CLIENT_DEPLOYMENT_GUIDE.md](CLIENT_DEPLOYMENT_GUIDE.md) - Step-by-step deployment instructions
+
+**For developers:**
+- Check [QUICK_START.md](QUICK_START.md) - Quick setup guide
+- Review [docs/TESTING.md](docs/TESTING.md) - Testing procedures
+- Browse [docs/](docs/) - Technical documentation
 
 ## Contributing
 
