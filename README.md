@@ -51,9 +51,9 @@ This tool parses SAP HANA calculation view XML files and generates Snowflake-com
 
 ## Quick Start
 
-For developers who want to use the converter tool, see [QUICK_START.md](QUICK_START.md) for a 5-minute setup guide.
+**For clients deploying views to Snowflake:** Start with [START_HERE.md](START_HERE.md) - Client deployment guide.
 
-**For clients deploying views to Snowflake:** Start with [START_HERE.md](START_HERE.md) instead.
+**For developers:** Start with [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) - Developer navigation guide, or [QUICK_START.md](QUICK_START.md) for a 5-minute setup.
 
 ## Configuration
 
@@ -247,9 +247,10 @@ pip install -e ".[dev]"
 - See [CLIENT_DEPLOYMENT_GUIDE.md](CLIENT_DEPLOYMENT_GUIDE.md) - Step-by-step deployment instructions
 
 **For developers:**
-- Check [QUICK_START.md](QUICK_START.md) - Quick setup guide
-- Review [docs/TESTING.md](docs/TESTING.md) - Testing procedures
-- Browse [docs/](docs/) - Technical documentation
+- Start with [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) - Complete developer navigation guide
+- Quick setup: [QUICK_START.md](QUICK_START.md) - 5-minute setup guide
+- Testing: [docs/TESTING.md](docs/TESTING.md) - Testing procedures
+- Technical docs: [docs/](docs/) - Architecture and design documentation
 
 ## Contributing
 

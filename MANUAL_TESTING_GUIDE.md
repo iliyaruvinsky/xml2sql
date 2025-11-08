@@ -1,5 +1,7 @@
 # Manual Testing Guide - Step by Step
 
+> **Note:** This is a very detailed, step-by-step manual testing walkthrough. For the main testing guide, see [docs/TESTING.md](docs/TESTING.md). This guide provides exhaustive manual verification steps for thorough testing.
+
 Follow these steps in order to verify the entire system works correctly.
 
 ## Prerequisites Check

@@ -1,10 +1,14 @@
 # Testing Instructions
 
+> **For Developers:** This guide covers testing procedures for the XML to SQL converter tool.
+
 ## Prerequisites
 
 1. **Python 3.11+** installed
 2. **Virtual environment** activated (if using one)
 3. **Project dependencies** installed
+
+> **Note:** For a very detailed step-by-step manual testing walkthrough, see [MANUAL_TESTING_GUIDE.md](../MANUAL_TESTING_GUIDE.md) in the project root.
 
 ## Step 1: Verify Installation
 

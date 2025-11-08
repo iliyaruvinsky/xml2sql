@@ -68,5 +68,9 @@ REM Dry run (see what would be converted)
 venv\Scripts\python -m xml_to_sql.cli convert --config config.yaml --list-only
 ```
 
-For detailed testing instructions, see [docs/TESTING.md](docs/TESTING.md).
+## Next Steps
+
+- **For complete developer documentation:** See [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)
+- **For detailed testing instructions:** See [docs/TESTING.md](docs/TESTING.md)
+- **For technical architecture:** See [docs/](docs/)
 
