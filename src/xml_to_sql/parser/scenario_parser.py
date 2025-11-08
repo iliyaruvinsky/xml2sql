@@ -504,9 +504,23 @@ def _parse_logical_calculated_attribute(calc_el: etree._Element) -> Optional[Log
         return None
     description = _get_default_description(calc_el)
     order = calc_el.get("order")
-    expression_el = _find_child(calc_el, "expression")
-    expression_text = (expression_el.text or "").strip() if expression_el is not None else ""
-    data_type = _parse_type_spec(calc_el.get("datatype"), calc_el.get("length"), calc_el.get("scale"))
+    
+    # Try keyCalculation/formula first (common in logical model), then expression
+    formula_el = _find_child(calc_el, "keyCalculation", "formula")
+    if formula_el is None:
+        formula_el = _find_child(calc_el, "expression")
+    if formula_el is None:
+        formula_el = _find_child(calc_el, "formula")
+    
+    expression_text = (formula_el.text or "").strip() if formula_el is not None else ""
+    
+    # Get datatype from keyCalculation or from calc_el directly
+    key_calc_el = _find_child(calc_el, "keyCalculation")
+    if key_calc_el is not None:
+        data_type = _parse_type_spec(key_calc_el.get("datatype"), key_calc_el.get("length"), key_calc_el.get("scale"))
+    else:
+        data_type = _parse_type_spec(calc_el.get("datatype"), calc_el.get("length"), calc_el.get("scale"))
+    
     expression = Expression(ExpressionType.RAW, expression_text, data_type=data_type)
     return LogicalCalculatedAttribute(
         name=attr_id,

@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:AccessControl="http://www.sap.com/ndb/SQLCoreModelAccessControl.ecore" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="KMDM_Materials" applyPrivilegeType="ANALYTIC_PRIVILEGE" checkAnalyticPrivileges="true" defaultClient="crossClient" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="TREE_BASED" dataCategory="DIMENSION" enforceSqlExecution="false" executionSemantic="UNDEFINED" outputViewType="Projection">
+  <descriptions defaultDescription="KMDM_Materials"/>
+  <metadata changedAt="2025-03-23 19:20:49.713"/>
+  <localVariables/>
+  <variableMappings/>
+  <informationModelLayout relativeWidthScenario="51"/>
+  <dataSources>
+    <DataSource id="Sold_Materials" type="CALCULATION_VIEW">
+      <viewAttributes allViewAttributes="true"/>
+      <resourceUri>/KMDM/calculationviews/Sold_Materials</resourceUri>
+    </DataSource>
+    <DataSource id="Sold_Materials_PROD" type="CALCULATION_VIEW">
+      <viewAttributes allViewAttributes="true"/>
+      <resourceUri>/KMDM/calculationviews/Sold_Materials_PROD</resourceUri>
+    </DataSource>
+    <DataSource id="Recently_created_products" type="CALCULATION_VIEW">
+      <viewAttributes allViewAttributes="true"/>
+      <resourceUri>/KMDM/calculationviews/Recently_created_products</resourceUri>
+    </DataSource>
+    <DataSource id="CopyOfProjection_1$$$$Sold_Materials$$" type="CALCULATION_VIEW">
+      <viewAttributes allViewAttributes="true"/>
+      <resourceUri>/KMDM/calculationviews/Sold_Materials</resourceUri>
+    </DataSource>
+    <DataSource id="MATERIAL_DETAILS" type="CALCULATION_VIEW">
+      <viewAttributes allViewAttributes="true"/>
+      <resourceUri>/KMDM/calculationviews/MATERIAL_DETAILS</resourceUri>
+    </DataSource>
+    <DataSource id="SALES_BOM" type="CALCULATION_VIEW">
+      <viewAttributes allViewAttributes="true"/>
+      <resourceUri>/KMDM/calculationviews/SALES_BOM</resourceUri>
+    </DataSource>
+  </dataSources>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="ERDAT"/>
+        <viewAttribute id="MEINS"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Sold_Materials">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_2">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="LONG_OLD_NUMBER"/>
+        <viewAttribute id="ERDAT"/>
+        <viewAttribute id="MEINS"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Sold_Materials_PROD">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LONG_OLD_NUMBER" source="LONG_OLD_NUMBER"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_3">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="ERSDA"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Recently_created_products">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="CopyOfProjection_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="ERDAT"/>
+        <viewAttribute id="MEINS"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#CopyOfProjection_1$$$$Sold_Materials$$">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:JoinView" id="Join_2" cardinality="C1_1" joinOrder="OUTSIDE_IN" joinType="leftOuter">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="ERDAT"/>
+        <viewAttribute id="MEINS"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Projection_3">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+      </input>
+      <input node="#CopyOfProjection_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+      <joinAttribute name="MATNR"/>
+      <joinAttribute name="MANDT"/>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_4">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="MTART">
+          <filter xsi:type="AccessControl:ListValueFilter" operator="IN" including="true">
+            <operands value="FERT"/>
+            <operands value="PROD"/>
+            <operands value="HAWA"/>
+            <operands value="YNLG"/>
+          </filter>
+        </viewAttribute>
+        <viewAttribute id="MEINS"/>
+        <viewAttribute id="GEWEI"/>
+        <viewAttribute id="NTGEW"/>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="LAEDA"/>
+        <viewAttribute id="MSTAE">
+          <filter xsi:type="AccessControl:SingleValueFilter" including="true" value=""/>
+        </viewAttribute>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#MATERIAL_DETAILS">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MTART" source="MTART"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="GEWEI" source="GEWEI"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NTGEW" source="NTGEW"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LAEDA" source="LAEDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MSTAE" source="MSTAE"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_5">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="MENGE"/>
+        <viewAttribute id="MEINS"/>
+        <viewAttribute id="IDNRK"/>
+        <viewAttribute id="NUMGRP"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#SALES_BOM">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MENGE" source="MENGE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="IDNRK" source="IDNRK"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NUMGRP" source="NUMGRP"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:JoinView" id="Join_3" joinOrder="OUTSIDE_IN" joinType="leftOuter">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="MENGE"/>
+        <viewAttribute id="MEINS"/>
+        <viewAttribute id="IDNRK"/>
+        <viewAttribute id="NUMGRP"/>
+        <viewAttribute id="ERDAT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Projection_5">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MENGE" source="MENGE"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="IDNRK" source="IDNRK"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NUMGRP" source="NUMGRP"/>
+      </input>
+      <input node="#Projection_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+      </input>
+      <joinAttribute name="MANDT"/>
+      <joinAttribute name="MATNR"/>
+    </calculationView>
+    <calculationView xsi:type="Calculation:UnionView" id="Union_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR" transparentFilter="false"/>
+        <viewAttribute id="MEINS" transparentFilter="false"/>
+        <viewAttribute id="ERDAT" transparentFilter="false"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input emptyUnionBehavior="NO_ROW" node="#Projection_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+      </input>
+      <input emptyUnionBehavior="NO_ROW" node="#Join_2">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+      </input>
+      <input emptyUnionBehavior="NO_ROW" node="#Projection_2">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="LONG_OLD_NUMBER"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+      </input>
+      <input emptyUnionBehavior="NO_ROW" node="#Join_3">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="IDNRK"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:AggregationView" id="Aggregation_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="MATNR" transparentFilter="false"/>
+        <viewAttribute aggregationType="max" id="ERDAT" transparentFilter="false"/>
+        <viewAttribute id="MEINS" transparentFilter="false"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Union_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:JoinView" id="Join_1" joinOrder="OUTSIDE_IN" joinType="inner">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MATNR" transparentFilter="false"/>
+        <viewAttribute id="ERDAT" transparentFilter="false"/>
+        <viewAttribute id="MTART"/>
+        <viewAttribute id="MEINS"/>
+        <viewAttribute id="GEWEI"/>
+        <viewAttribute id="NTGEW"/>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="LAEDA"/>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute hidden="true" id="JOIN$MANDT$MANDT"/>
+        <viewAttribute hidden="true" id="JOIN$MATNR$MATNR"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Projection_4">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MTART" source="MTART"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MEINS" source="MEINS"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="GEWEI" source="GEWEI"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NTGEW" source="NTGEW"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LAEDA" source="LAEDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$MATNR$MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$MANDT$MANDT" source="MANDT"/>
+      </input>
+      <input node="#Aggregation_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERDAT" source="ERDAT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$MATNR$MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$MANDT$MANDT" source="MANDT"/>
+      </input>
+      <joinAttribute name="JOIN$MATNR$MATNR"/>
+      <joinAttribute name="JOIN$MANDT$MANDT"/>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Join_1">
+    <descriptions/>
+    <attributes>
+      <attribute id="MANDT" order="1" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="MANDT"/>
+        <keyMapping columnObjectName="Join_1" columnName="MANDT"/>
+      </attribute>
+      <attribute id="MATNR" order="2" attributeHierarchyActive="false" displayAttribute="false" transparentFilter="false">
+        <descriptions defaultDescription="MATNR"/>
+        <keyMapping columnObjectName="Join_1" columnName="MATNR"/>
+      </attribute>
+      <attribute id="ERDAT" order="3" attributeHierarchyActive="false" displayAttribute="false" transparentFilter="false">
+        <descriptions defaultDescription="ERDAT"/>
+        <keyMapping columnObjectName="Join_1" columnName="ERDAT"/>
+      </attribute>
+      <attribute id="MTART" order="4" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="MTART"/>
+        <keyMapping columnObjectName="Join_1" columnName="MTART"/>
+      </attribute>
+      <attribute id="MEINS" order="5" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Base Unit of Measure"/>
+        <keyMapping columnObjectName="Join_1" columnName="MEINS"/>
+      </attribute>
+      <attribute id="GEWEI" order="6" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Weight Unit"/>
+        <keyMapping columnObjectName="Join_1" columnName="GEWEI"/>
+      </attribute>
+      <attribute id="NTGEW" order="7" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Net Weight"/>
+        <keyMapping columnObjectName="Join_1" columnName="NTGEW"/>
+      </attribute>
+      <attribute id="ERSDA" order="8" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Created On"/>
+        <keyMapping columnObjectName="Join_1" columnName="ERSDA"/>
+      </attribute>
+      <attribute id="LAEDA" order="9" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Date of Last Change"/>
+        <keyMapping columnObjectName="Join_1" columnName="LAEDA"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures/>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="330" y="87"/>
+        <rectangleSize height="0" width="0"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="494" y="587"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_2" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="253" y="491"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_3" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="22" y="587"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="CopyOfProjection_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="176" y="587"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Join_2" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="99" y="491"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_4" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="253" y="261"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_5" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="340" y="587"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Join_3" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="407" y="491"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Union_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="407" y="339"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Aggregation_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="407" y="261"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="330" y="165"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

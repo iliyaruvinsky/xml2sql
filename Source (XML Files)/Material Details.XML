@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="MATERIAL_DETAILS" applyPrivilegeType="ANALYTIC_PRIVILEGE" checkAnalyticPrivileges="true" defaultClient="crossClient" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" historyEnabled="true" translationRelevant="true" visibility="internal" calculationScenarioType="TREE_BASED" dataCategory="DIMENSION" defaultMember="" enforceSqlExecution="false" executionSemantic="UNDEFINED" outputViewType="Projection">
+  <origin/>
+  <descriptions defaultDescription="Material Details"/>
+  <metadata changedAt="2025-01-02 12:47:55.387"/>
+  <localVariables>
+    <variable id="Material_Type">
+      <descriptions defaultDescription="Material_Type"/>
+      <variableProperties datatype="VARCHAR" defaultValue="FERT" mandatory="false">
+        <valueDomain type="AttributeValue">
+          <attribute name="MTART"/>
+        </valueDomain>
+        <selection multiLine="true" type="SingleValue"/>
+      </variableProperties>
+    </variable>
+    <variable id="Creation_date">
+      <descriptions defaultDescription="Creation_date"/>
+      <variableProperties datatype="VARCHAR" mandatory="false">
+        <valueDomain type="AttributeValue">
+          <attribute name="ERSDA"/>
+        </valueDomain>
+        <selection multiLine="false" type="Range"/>
+      </variableProperties>
+    </variable>
+    <variable id="Change_date">
+      <descriptions defaultDescription="Change_date"/>
+      <variableProperties datatype="VARCHAR" defaultValue="" mandatory="false">
+        <valueDomain type="AttributeValue">
+          <attribute name="LAEDA"/>
+        </valueDomain>
+        <selection multiLine="false" type="Range"/>
+      </variableProperties>
+    </variable>
+  </localVariables>
+  <variableMappings/>
+  <informationModelLayout relativeWidthScenario="38"/>
+  <dataSources>
+    <DataSource id="MARA" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SAPK5D" columnObjectName="MARA"/>
+    </DataSource>
+  </dataSources>
+  <calculationViews/>
+  <logicalModel id="MARA">
+    <descriptions/>
+    <attributes>
+      <attribute id="MANDT" key="true" order="1" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="MANDT"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="MANDT"/>
+      </attribute>
+      <attribute id="MATNR" key="true" order="2" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Material Number"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="MATNR"/>
+      </attribute>
+      <attribute id="ERSDA" order="3" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Created On"/>
+        <localVariable>#Creation_date</localVariable>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="ERSDA"/>
+      </attribute>
+      <attribute id="MTART" order="4" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Material Type"/>
+        <localVariable>#Material_Type</localVariable>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="MTART"/>
+      </attribute>
+      <attribute id="BISMT" order="5" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Old material number"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="BISMT"/>
+      </attribute>
+      <attribute id="MEINS" order="6" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Base Unit of Measure"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="MEINS"/>
+      </attribute>
+      <attribute id="NORMT" order="7" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Customer No."/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="NORMT"/>
+      </attribute>
+      <attribute id="LABOR" order="8" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Color"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="LABOR"/>
+      </attribute>
+      <attribute id="LAEDA" order="9" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Date of Last Change"/>
+        <localVariable>#Change_date</localVariable>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="LAEDA"/>
+      </attribute>
+      <attribute id="AENAM" order="10" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Name of Person Who Changed Object"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="AENAM"/>
+      </attribute>
+      <attribute id="MATKL" order="11" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Material Group"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="MATKL"/>
+      </attribute>
+      <attribute id="GROES" order="12" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Size/dimensions"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="GROES"/>
+      </attribute>
+      <attribute id="BRGEW" order="13" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Gross Weight"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="BRGEW"/>
+      </attribute>
+      <attribute id="NTGEW" order="14" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Net Weight"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="NTGEW"/>
+      </attribute>
+      <attribute id="GEWEI" order="15" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Weight Unit"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="GEWEI"/>
+      </attribute>
+      <attribute id="VOLUM" order="16" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Volume"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="VOLUM"/>
+      </attribute>
+      <attribute id="VOLEH" order="17" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Volume unit"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="VOLEH"/>
+      </attribute>
+      <attribute id="EAN11" order="18" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="International Article Number (EAN/UPC)"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="EAN11"/>
+      </attribute>
+      <attribute id="NUMTP" order="19" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Category of International Article Number (EAN)"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="NUMTP"/>
+      </attribute>
+      <attribute id="MSTAE" order="20" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Cross-Plant Material Status"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="MSTAE"/>
+      </attribute>
+      <attribute id="ZZIML_CODE" order="23" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="ZZIML_CODE"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="ZZIML_CODE"/>
+      </attribute>
+      <attribute id="WRKST" order="24" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="WRKST"/>
+        <keyMapping schemaName="SAPK5D" columnObjectName="MARA" columnName="WRKST"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes>
+      <calculatedAttribute id="LONG_OLD_NUMBER" hidden="false" order="21" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Long_old_number"/>
+        <keyCalculation datatype="VARCHAR" expressionLanguage="COLUMN_ENGINE" length="18">
+          <formula>'0000000000'+&quot;BISMT&quot;</formula>
+        </keyCalculation>
+      </calculatedAttribute>
+      <calculatedAttribute id="KUNNR" hidden="false" order="22" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="Customer Numer"/>
+        <keyCalculation datatype="NVARCHAR" expressionLanguage="COLUMN_ENGINE" length="10">
+          <formula>'0000'+&quot;NORMT&quot;</formula>
+        </keyCalculation>
+      </calculatedAttribute>
+    </calculatedAttributes>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures/>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="40" y="85"/>
+        <rectangleSize height="0" width="0"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

@@ -119,8 +119,16 @@ def _translate_string_concatenation(formula: str) -> str:
     """Translate HANA string concatenation to Snowflake || operator."""
 
     result = formula
-    result = re.sub(r"'\s*\+\s*", " || ", result)
-    result = re.sub(r"\s*\+\s*'", " || ", result)
+    # Handle 'string'+column and column+'string' patterns
+    # Replace '+ with || (string literal + something)
+    result = re.sub(r"'\s*\+\s*", "' || ", result)
+    # Replace +' with || (something + string literal)
+    result = re.sub(r"\s*\+\s*'", " || '", result)
+    # Replace + between non-string parts (column+column)
+    result = re.sub(r'"([^"]+)"\s*\+\s*"([^"]+)"', r'"\1" || "\2"', result)
+    result = re.sub(r'"([^"]+)"\s*\+\s*([^"+\s]+)', r'"\1" || \2', result)
+    # Handle non-quoted column references before quoted ones
+    result = re.sub(r"([^\"'\s]+)\s*\+\s*\"([^\"]+)\"", r'\1 || "\2"', result)
     return result
 
 

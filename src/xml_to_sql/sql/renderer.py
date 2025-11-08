@@ -122,7 +122,50 @@ def render_scenario(
     if final_node_id in scenario.data_sources:
         # Use the data source directly in FROM clause
         from_clause = _render_from(ctx, final_node_id)
-        final_select = f"SELECT * FROM {from_clause}"
+        
+        # If we have a logical model, select its attributes instead of *
+        if scenario.logical_model and scenario.logical_model.attributes:
+            select_items: List[str] = []
+            table_alias = final_node_id
+            
+            # Add regular attributes from logical model
+            for attr in scenario.logical_model.attributes:
+                if attr.column_name:
+                    col_expr = f"{from_clause}.{attr.column_name}"
+                    select_items.append(f"{col_expr} AS {_quote_identifier(attr.name)}")
+            
+            # Add calculated attributes from logical model
+            for calc_attr in scenario.logical_model.calculated_attributes:
+                # For RAW expressions, qualify column references with table name
+                if calc_attr.expression.expression_type == ExpressionType.RAW:
+                    formula = calc_attr.expression.value
+                    # Replace quoted column names with qualified table.column references
+                    import re
+                    def qualify_column(match):
+                        col_name = match.group(1)
+                        return f"{from_clause}.{_quote_identifier(col_name)}"
+                    formula = re.sub(r'"([^"]+)"', qualify_column, formula)
+                    # Translate HANA syntax to Snowflake
+                    from .function_translator import translate_raw_formula
+                    # Create a minimal context for translation
+                    class FormulaContext:
+                        def __init__(self, ctx):
+                            self.client = ctx.client
+                            self.language = ctx.language
+                    formula_ctx = FormulaContext(ctx)
+                    col_expr = translate_raw_formula(formula, formula_ctx)
+                else:
+                    col_expr = _render_expression(ctx, calc_attr.expression, from_clause)
+                select_items.append(f"{col_expr} AS {_quote_identifier(calc_attr.name)}")
+            
+            if select_items:
+                select_clause = ",\n    ".join(select_items)
+                final_select = f"SELECT\n    {select_clause}\nFROM {from_clause}"
+            else:
+                final_select = f"SELECT * FROM {from_clause}"
+        else:
+            final_select = f"SELECT * FROM {from_clause}"
+        
         return _assemble_sql(ctes, final_select, ctx.warnings)
 
     final_alias = ctx.cte_aliases.get(final_node_id, "final")

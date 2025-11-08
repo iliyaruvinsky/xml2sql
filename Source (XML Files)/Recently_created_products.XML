@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:AccessControl="http://www.sap.com/ndb/SQLCoreModelAccessControl.ecore" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="Recently_created_products" applyPrivilegeType="ANALYTIC_PRIVILEGE" checkAnalyticPrivileges="true" defaultClient="crossClient" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="TREE_BASED" dataCategory="DIMENSION" enforceSqlExecution="false" executionSemantic="UNDEFINED" outputViewType="Projection">
+  <descriptions defaultDescription="Recently_created_products"/>
+  <metadata changedAt="2025-02-13 16:52:09.599"/>
+  <localVariables/>
+  <variableMappings/>
+  <informationModelLayout relativeWidthScenario="46"/>
+  <dataSources>
+    <DataSource id="MARA" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SAPK5D" columnObjectName="MARA"/>
+    </DataSource>
+    <DataSource id="YGRPLNKF" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SAPK5D" columnObjectName="YGRPLNKF"/>
+    </DataSource>
+    <DataSource id="Sort_024$$$$YGRPLNKF$$" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SAPK5D" columnObjectName="YGRPLNKF"/>
+    </DataSource>
+    <DataSource id="Projection_2$$$$MARA$$" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SAPK5D" columnObjectName="MARA"/>
+    </DataSource>
+  </dataSources>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_1" filterExpressionLanguage="COLUMN_ENGINE">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="MTART"/>
+        <viewAttribute id="MANDT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#MARA">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MTART" source="MTART"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+      <filter>(&quot;ERSDA&quot;>=  now( ) - 365 ) and ( &quot;MTART&quot;='FERT' or  &quot;MTART&quot;='PROD' or  &quot;MTART&quot;='YNLG'  or  &quot;MTART&quot;='HAWA')</filter>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Sort_005" filterExpressionLanguage="COLUMN_ENGINE">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="CODAPL"/>
+        <viewAttribute id="LVLGRP"/>
+        <viewAttribute id="NUMGRP"/>
+        <viewAttribute id="ENTITY"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#YGRPLNKF">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NUMGRP" source="NUMGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+      </input>
+      <filter>(&quot;MANDT&quot; ='400') AND (&quot;CODAPL&quot; ='01') AND (&quot;LVLGRP&quot; ='005') AND (&quot;NUMGRP&quot; ='081')</filter>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Sort_024" filterExpressionLanguage="COLUMN_ENGINE">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="CODAPL"/>
+        <viewAttribute id="LVLGRP"/>
+        <viewAttribute id="NUMGRP"/>
+        <viewAttribute id="ENTITY"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Sort_024$$$$YGRPLNKF$$">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NUMGRP" source="NUMGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+      </input>
+      <filter>(&quot;MANDT&quot; ='400') AND (&quot;CODAPL&quot; ='01') AND (&quot;LVLGRP&quot; ='024') AND (&quot;NUMGRP&quot; ='081')</filter>
+    </calculationView>
+    <calculationView xsi:type="Calculation:UnionView" id="Union_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="ENTITY" transparentFilter="false"/>
+        <viewAttribute id="MANDT" transparentFilter="false"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input emptyUnionBehavior="NO_ROW" node="#Sort_005">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+      <input emptyUnionBehavior="NO_ROW" node="#Sort_024">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:AggregationView" id="Aggregation_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT" transparentFilter="false"/>
+        <viewAttribute id="ENTITY" transparentFilter="false"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Union_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_2">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT">
+          <filter xsi:type="AccessControl:SingleValueFilter" including="true" value="400"/>
+        </viewAttribute>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="MTART"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Projection_2$$$$MARA$$">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MTART" source="MTART"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:JoinView" id="Join_1" joinOrder="OUTSIDE_IN" joinType="leftOuter">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT" transparentFilter="false"/>
+        <viewAttribute id="MATNR" transparentFilter="false"/>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="MTART"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Aggregation_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="ENTITY"/>
+      </input>
+      <input node="#Projection_2">
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MTART" source="MTART"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+      <joinAttribute name="MATNR"/>
+      <joinAttribute name="MANDT"/>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_3" filterExpressionLanguage="COLUMN_ENGINE">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT" transparentFilter="false"/>
+        <viewAttribute id="MATNR" transparentFilter="false"/>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="MTART"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Join_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MTART" source="MTART"/>
+      </input>
+      <filter>&quot;MTART&quot;='FERT' or  &quot;MTART&quot;='PROD' or  &quot;MTART&quot;='YNLG'</filter>
+    </calculationView>
+    <calculationView xsi:type="Calculation:UnionView" id="Union_2">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MATNR"/>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="MANDT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input emptyUnionBehavior="NO_ROW" node="#Projection_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+      <input emptyUnionBehavior="NO_ROW" node="#Projection_3">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:AggregationView" id="Aggregation_2">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="ERSDA"/>
+        <viewAttribute id="MATNR"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Union_2">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ERSDA" source="ERSDA"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MATNR" source="MATNR"/>
+      </input>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Aggregation_2">
+    <descriptions/>
+    <attributes>
+      <attribute id="MANDT" order="1" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="MANDT"/>
+        <keyMapping columnObjectName="Aggregation_2" columnName="MANDT"/>
+      </attribute>
+      <attribute id="ERSDA" order="2" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="ERSDA"/>
+        <keyMapping columnObjectName="Aggregation_2" columnName="ERSDA"/>
+      </attribute>
+      <attribute id="MATNR" order="3" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="MATNR"/>
+        <keyMapping columnObjectName="Aggregation_2" columnName="MATNR"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures/>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="99" y="87"/>
+        <rectangleSize height="0" width="0"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="22" y="359"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Sort_005" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="22" y="727"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Sort_024" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="176" y="727"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Union_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="99" y="611"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Aggregation_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="99" y="533"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_2" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="253" y="533"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="176" y="437"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_3" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="176" y="359"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Union_2" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="99" y="243"/>
+        <rectangleSize height="0" width="0"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Aggregation_2" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="99" y="165"/>
+        <rectangleSize height="0" width="0"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Calculation:scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:AccessControl="http://www.sap.com/ndb/SQLCoreModelAccessControl.ecore" xmlns:Calculation="http://www.sap.com/ndb/BiModelCalculation.ecore" schemaVersion="2.3" id="CURRENT_MAT_SORT" applyPrivilegeType="ANALYTIC_PRIVILEGE" checkAnalyticPrivileges="true" defaultClient="crossClient" defaultLanguage="$$language$$" hierarchiesSQLEnabled="false" translationRelevant="true" visibility="internal" calculationScenarioType="TREE_BASED" dataCategory="DIMENSION" enforceSqlExecution="false" executionSemantic="UNDEFINED" outputViewType="Projection">
+  <origin/>
+  <descriptions defaultDescription="CURRENT_MAT_SORT"/>
+  <metadata changedAt="2025-01-02 16:52:30.8"/>
+  <localVariables>
+    <variable id="VAR_CODAPL">
+      <descriptions defaultDescription="VAR_CODAPL"/>
+      <variableProperties datatype="VARCHAR" mandatory="false">
+        <valueDomain type="empty"/>
+        <selection multiLine="false" type="SingleValue"/>
+      </variableProperties>
+    </variable>
+    <variable id="VAR_LVLGRP">
+      <descriptions defaultDescription="VAR_LVLGRP"/>
+      <variableProperties datatype="VARCHAR" mandatory="false">
+        <valueDomain type="empty"/>
+        <selection multiLine="false" type="SingleValue"/>
+      </variableProperties>
+    </variable>
+    <variable id="VAR_ENTITY">
+      <descriptions defaultDescription="VAR_ENTITY"/>
+      <variableProperties datatype="VARCHAR" mandatory="false">
+        <valueDomain type="empty"/>
+        <selection multiLine="false" type="SingleValue"/>
+      </variableProperties>
+    </variable>
+  </localVariables>
+  <variableMappings/>
+  <informationModelLayout relativeWidthScenario="43"/>
+  <dataSources>
+    <DataSource id="YGRPLNKF" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SAPK5D" columnObjectName="YGRPLNKF"/>
+    </DataSource>
+    <DataSource id="Projection_2$$$$YGRPLNKF$$" type="DATA_BASE_TABLE">
+      <viewAttributes allViewAttributes="true"/>
+      <columnObject schemaName="SAPK5D" columnObjectName="YGRPLNKF"/>
+    </DataSource>
+  </dataSources>
+  <calculationViews>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CODAPL">
+          <filter xsi:type="AccessControl:SingleValueFilter" including="true" value="01"/>
+        </viewAttribute>
+        <viewAttribute id="LVLGRP"/>
+        <viewAttribute id="DATENT"/>
+        <viewAttribute id="ENTITY"/>
+        <viewAttribute id="NUMGRP"/>
+        <viewAttribute id="MANDT"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#YGRPLNKF">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="DATENT" source="DATENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NUMGRP" source="NUMGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:AggregationView" id="Aggregation_1">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="CODAPL"/>
+        <viewAttribute aggregationType="max" id="DATENT"/>
+        <viewAttribute id="LVLGRP"/>
+        <viewAttribute id="ENTITY"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Projection_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="DATENT" source="DATENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:ProjectionView" id="Projection_2">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute id="CODAPL">
+          <filter xsi:type="AccessControl:SingleValueFilter" including="true" value="01"/>
+        </viewAttribute>
+        <viewAttribute id="LVLGRP"/>
+        <viewAttribute id="DATENT"/>
+        <viewAttribute id="ENTITY"/>
+        <viewAttribute id="NUMGRP"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Projection_2$$$$YGRPLNKF$$">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="DATENT" source="DATENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NUMGRP" source="NUMGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+    </calculationView>
+    <calculationView xsi:type="Calculation:JoinView" id="Join_1" joinOrder="OUTSIDE_IN" joinType="inner">
+      <descriptions/>
+      <viewAttributes>
+        <viewAttribute id="CODAPL"/>
+        <viewAttribute id="LVLGRP"/>
+        <viewAttribute id="DATENT"/>
+        <viewAttribute id="ENTITY"/>
+        <viewAttribute id="NUMGRP"/>
+        <viewAttribute id="MANDT"/>
+        <viewAttribute hidden="true" id="JOIN$DATENT$DATENT"/>
+        <viewAttribute hidden="true" id="JOIN$LVLGRP$LVLGRP"/>
+        <viewAttribute hidden="true" id="JOIN$CODAPL$CODAPL"/>
+        <viewAttribute hidden="true" id="JOIN$ENTITY$ENTITY"/>
+      </viewAttributes>
+      <calculatedViewAttributes/>
+      <input node="#Aggregation_1">
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CODAPL$CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$DATENT$DATENT" source="DATENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$LVLGRP$LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$ENTITY$ENTITY" source="ENTITY"/>
+      </input>
+      <input node="#Projection_2">
+        <mapping xsi:type="Calculation:AttributeMapping" target="CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="DATENT" source="DATENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="ENTITY" source="ENTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="NUMGRP" source="NUMGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$CODAPL$CODAPL" source="CODAPL"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$DATENT$DATENT" source="DATENT"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$LVLGRP$LVLGRP" source="LVLGRP"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="JOIN$ENTITY$ENTITY" source="ENTITY"/>
+        <mapping xsi:type="Calculation:AttributeMapping" target="MANDT" source="MANDT"/>
+      </input>
+      <joinAttribute name="JOIN$CODAPL$CODAPL"/>
+      <joinAttribute name="JOIN$DATENT$DATENT"/>
+      <joinAttribute name="JOIN$LVLGRP$LVLGRP"/>
+      <joinAttribute name="JOIN$ENTITY$ENTITY"/>
+      <joinAttribute name="MANDT"/>
+    </calculationView>
+  </calculationViews>
+  <logicalModel id="Join_1">
+    <descriptions/>
+    <attributes>
+      <attribute id="MANDT" order="1" semanticType="empty" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions/>
+        <keyMapping columnObjectName="Join_1" columnName="MANDT"/>
+      </attribute>
+      <attribute id="CODAPL" order="2" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="CODAPL"/>
+        <keyMapping columnObjectName="Join_1" columnName="CODAPL"/>
+      </attribute>
+      <attribute id="LVLGRP" order="3" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="LVLGRP"/>
+        <keyMapping columnObjectName="Join_1" columnName="LVLGRP"/>
+      </attribute>
+      <attribute id="DATENT" order="4" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="DATENT"/>
+        <keyMapping columnObjectName="Join_1" columnName="DATENT"/>
+      </attribute>
+      <attribute id="ENTITY" order="5" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="ENTITY"/>
+        <keyMapping columnObjectName="Join_1" columnName="ENTITY"/>
+      </attribute>
+      <attribute id="NUMGRP" order="6" attributeHierarchyActive="false" displayAttribute="false">
+        <descriptions defaultDescription="NUMGRP"/>
+        <keyMapping columnObjectName="Join_1" columnName="NUMGRP"/>
+      </attribute>
+    </attributes>
+    <calculatedAttributes/>
+    <privateDataFoundation>
+      <tableProxies/>
+      <joins/>
+      <layout>
+        <shapes/>
+      </layout>
+    </privateDataFoundation>
+    <baseMeasures/>
+    <calculatedMeasures/>
+    <restrictedMeasures/>
+    <localDimensions/>
+  </logicalModel>
+  <layout>
+    <shapes>
+      <shape expanded="true" modelObjectName="Output" modelObjectNameSpace="MeasureGroup">
+        <upperLeftCorner x="99" y="87"/>
+        <rectangleSize height="0" width="0"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="22" y="339"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Aggregation_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="22" y="261"/>
+        <rectangleSize height="0" width="0"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Projection_2" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="176" y="261"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+      <shape expanded="true" modelObjectName="Join_1" modelObjectNameSpace="CalculationView">
+        <upperLeftCorner x="99" y="165"/>
+        <rectangleSize height="-1" width="-1"/>
+      </shape>
+    </shapes>
+  </layout>
+</Calculation:scenario>

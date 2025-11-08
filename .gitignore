@@ -45,7 +45,7 @@ htmlcov/
 config.yaml
 config.test.yaml
 config.invalid.yaml
-Target (SQL Scripts)/*.sql
+# Note: Target (SQL Scripts)/*.sql and Source (XML Files)/ are committed as examples
 
 # Logs
 *.log
@@ -59,4 +59,23 @@ logs/
 # OS
 Thumbs.db
 .DS_Store
+
+# One-time release documentation (archived)
+GIT_SETUP_COMPLETE.md
+PUSH_TO_GITHUB.md
+RELEASE_COMPLETE.md
+RELEASE_TEST_GUIDE.md
+HOW_TO_CREATE_GITHUB_RELEASE.md
+HOW_TO_CREATE_RELEASE_STEP_BY_STEP.md
+CREATE_RELEASE_INSTRUCTIONS.md
+GITHUB_REPOSITORY_VERIFICATION.md
+
+# One-time release scripts
+create_release.py
+create_release_auto.py
+check_and_create_release.py
+
+# Unrelated projects
+skywind-plugin-marketplace/
+agent
 
