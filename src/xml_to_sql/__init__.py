@@ -1,4 +1,6 @@
 """XML to SQL conversion toolkit."""
 
-__all__ = []
+from .version import __version__
+
+__all__ = ["__version__"]
 

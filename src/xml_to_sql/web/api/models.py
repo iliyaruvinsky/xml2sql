@@ -113,6 +113,7 @@ class HistoryEntry(BaseModel):
     status: str
     created_at: datetime
     file_size: Optional[int] = None
+    error_message: Optional[str] = None
 
 
 class HistoryListResponse(BaseModel):

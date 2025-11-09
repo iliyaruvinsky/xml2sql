@@ -16,6 +16,7 @@ function HistoryPanel({ onClose }) {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [selectedIds, setSelectedIds] = useState([])
+  const [errorModal, setErrorModal] = useState(null) // { id, message }
   const pageSize = 20
 
   useEffect(() => {
@@ -228,7 +229,7 @@ function HistoryPanel({ onClose }) {
                     </span>
                   </div>
                   <div className="history-item-actions">
-                    {entry.status === 'success' && (
+                    {entry.status === 'success' ? (
                       <>
                         <button
                           className="action-btn view"
@@ -242,14 +243,32 @@ function HistoryPanel({ onClose }) {
                         >
                           Download
                         </button>
+                        <button
+                          className="action-btn delete"
+                          onClick={() => handleDelete(entry.id)}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {entry.error_message && (
+                          <button
+                            className="action-btn error-log"
+                            onClick={() => setErrorModal({ id: entry.id, message: entry.error_message })}
+                            title="View error details"
+                          >
+                            Error Log
+                          </button>
+                        )}
+                        <button
+                          className="action-btn delete"
+                          onClick={() => handleDelete(entry.id)}
+                        >
+                          Delete
+                        </button>
                       </>
                     )}
-                    <button
-                      className="action-btn delete"
-                      onClick={() => handleDelete(entry.id)}
-                    >
-                      Delete
-                    </button>
                   </div>
                 </div>
               ))}
@@ -279,6 +298,28 @@ function HistoryPanel({ onClose }) {
           </>
         )}
       </div>
+
+      {/* Error Modal */}
+      {errorModal && (
+        <div className="error-modal-overlay" onClick={() => setErrorModal(null)}>
+          <div className="error-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="error-modal-header">
+              <h3>Error Details</h3>
+              <button className="error-modal-close" onClick={() => setErrorModal(null)}>
+                ×
+              </button>
+            </div>
+            <div className="error-modal-content">
+              <pre className="error-message">{errorModal.message}</pre>
+            </div>
+            <div className="error-modal-footer">
+              <button className="error-modal-btn" onClick={() => setErrorModal(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

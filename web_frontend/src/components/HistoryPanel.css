@@ -212,6 +212,8 @@
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
+  min-width: 280px; /* Ensure consistent width for button alignment */
+  align-items: center;
 }
 
 @media (max-width: 768px) {
@@ -307,5 +309,136 @@
 .page-info {
   color: #666666;
   font-size: 0.9rem;
+}
+
+.action-btn.view {
+  background: #f8f9fa;
+  color: #333333;
+  border-color: #d0d0d0;
+}
+
+.action-btn.view:hover {
+  background: #e9ecef;
+  border-color: #4a90e2;
+  color: #1a1a1a;
+}
+
+.action-btn.error-log {
+  background: #fff3cd;
+  color: #856404;
+  border-color: #ffeaa7;
+  /* Same styling as View button for consistency */
+}
+
+.action-btn.error-log:hover {
+  background: #ffeaa7;
+  border-color: #fdcb6e;
+}
+
+/* Error Modal */
+.error-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.error-modal {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.error-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.error-modal-header h3 {
+  margin: 0;
+  color: #c33;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.error-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666666;
+  cursor: pointer;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.error-modal-close:hover {
+  background: #f0f0f0;
+  color: #1a1a1a;
+}
+
+.error-modal-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.error-message {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #333333;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.error-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.error-modal-btn {
+  padding: 0.5rem 1.5rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #4a90e2;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.error-modal-btn:hover {
+  background: #357abd;
+  border-color: #357abd;
 }
 

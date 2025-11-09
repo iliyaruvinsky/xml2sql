@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from ..version import __version__
 from .api.routes import router
 from .database import init_db
 
@@ -17,7 +18,7 @@ init_db()
 app = FastAPI(
     title="XML to SQL Converter",
     description="Convert SAP HANA calculation view XML definitions into Snowflake SQL artifacts",
-    version="0.1.0",
+    version=__version__,
 )
 
 # CORS middleware for development
@@ -56,4 +57,10 @@ else:
 async def health_check():
     """Health check endpoint."""
     return {"status": "ok"}
+
+
+@app.get("/api/version")
+async def get_version():
+    """Get application version."""
+    return {"version": __version__}
 

@@ -437,6 +437,7 @@ async def get_history(
             status=c.status,
             created_at=c.created_at,
             file_size=c.file_size,
+            error_message=c.error_message,
         )
         for c in conversions
     ]

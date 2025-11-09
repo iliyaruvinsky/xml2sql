@@ -1,11 +1,14 @@
 import './Layout.css'
 
+const APP_VERSION = '0.2.0'
+
 function Layout({ children }) {
   return (
     <div className="layout">
       <div className="layout-content">{children}</div>
       <footer className="app-footer">
-        Created by Iliya Ruvinsky and Codex
+        <span>Created by Iliya Ruvinsky and Codex</span>
+        <span className="app-version">v{APP_VERSION}</span>
       </footer>
     </div>
   )
