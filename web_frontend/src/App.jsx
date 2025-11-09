@@ -5,6 +5,7 @@ import ConfigForm from './components/ConfigForm'
 import SqlPreview from './components/SqlPreview'
 import HistoryPanel from './components/HistoryPanel'
 import BatchConverter from './components/BatchConverter'
+import BatchResults from './components/BatchResults'
 import './App.css'
 
 function App() {
@@ -13,6 +14,8 @@ function App() {
   const [singleResult, setSingleResult] = useState(null)
   const [singleLoading, setSingleLoading] = useState(false)
   const [batchFiles, setBatchFiles] = useState([])
+  const [batchResult, setBatchResult] = useState(null)
+  const [batchLoading, setBatchLoading] = useState(false)
   const [config, setConfig] = useState({
     client: 'PROD',
     language: 'EN',
@@ -83,18 +86,33 @@ function App() {
                     />
                   </>
                 ) : (
-                  <BatchConverter
-                    files={batchFiles}
-                    onFilesChange={setBatchFiles}
-                    config={config}
-                    onConfigChange={handleConfigChange}
-                  />
+                  <>
+                    <BatchConverter
+                      files={batchFiles}
+                      onFilesChange={(newFiles) => {
+                        setBatchFiles(newFiles)
+                        setBatchResult(null)
+                      }}
+                      config={config}
+                      onConfigChange={handleConfigChange}
+                      onConversionComplete={setBatchResult}
+                      loading={batchLoading}
+                      setLoading={setBatchLoading}
+                    />
+                    <ConfigForm
+                      config={config}
+                      onConfigChange={handleConfigChange}
+                    />
+                  </>
                 )}
               </div>
 
               <div className="right-panel">
-                {singleResult && mode === 'single' && (
+                {mode === 'single' && singleResult && (
                   <SqlPreview result={singleResult} />
+                )}
+                {mode === 'batch' && batchResult && (
+                  <BatchResults batchResult={batchResult} />
                 )}
               </div>
             </div>

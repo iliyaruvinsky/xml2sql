@@ -1,12 +1,9 @@
-import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import ConfigForm from './ConfigForm'
-import { convertBatch, downloadBatchZip } from '../services/api'
+import { convertBatch } from '../services/api'
 import './BatchConverter.css'
 
-function BatchConverter({ files, onFilesChange, config, onConfigChange }) {
-  const [loading, setLoading] = useState(false)
-  const [batchResult, setBatchResult] = useState(null)
+function BatchConverter({ files, onFilesChange, config, onConfigChange, onConversionComplete, loading, setLoading }) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -28,10 +25,14 @@ function BatchConverter({ files, onFilesChange, config, onConfigChange }) {
     if (files.length === 0) return
 
     setLoading(true)
-    setBatchResult(null)
+    if (onConversionComplete) {
+      onConversionComplete(null)
+    }
     try {
       const result = await convertBatch(files, config)
-      setBatchResult(result)
+      if (onConversionComplete) {
+        onConversionComplete(result)
+      }
     } catch (error) {
       alert(`Batch conversion failed: ${error.response?.data?.detail || error.message}`)
     } finally {
@@ -39,14 +40,6 @@ function BatchConverter({ files, onFilesChange, config, onConfigChange }) {
     }
   }
 
-  const handleDownloadZip = async () => {
-    if (!batchResult) return
-    try {
-      await downloadBatchZip(batchResult.batch_id)
-    } catch (error) {
-      alert(`Download failed: ${error.message}`)
-    }
-  }
 
   return (
     <div className="batch-converter-container">
@@ -69,79 +62,36 @@ function BatchConverter({ files, onFilesChange, config, onConfigChange }) {
         </div>
 
         {files.length > 0 && (
-          <div className="file-list">
-            <h3>Selected Files ({files.length}):</h3>
-            <div className="files-grid">
-              {files.map((file, index) => (
-                <div key={index} className="file-item">
-                  <span className="file-name">{file.name}</span>
-                  <span className="file-size">
-                    {(file.size / 1024).toFixed(2)} KB
-                  </span>
-                  <button
-                    className="remove-btn"
-                    onClick={() => removeFile(index)}
-                    disabled={loading}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          <>
+            <button
+              className="convert-btn convert-btn-top"
+              onClick={handleConvert}
+              disabled={files.length === 0 || loading}
+            >
+              {loading ? 'Converting...' : `Convert ${files.length} File${files.length !== 1 ? 's' : ''}`}
+            </button>
 
-        <button
-          className="convert-btn"
-          onClick={handleConvert}
-          disabled={files.length === 0 || loading}
-        >
-          {loading ? 'Converting...' : `Convert ${files.length} File${files.length !== 1 ? 's' : ''}`}
-        </button>
-
-        {batchResult && (
-          <div className="batch-results">
-            <div className="results-header">
-              <h3>Conversion Results</h3>
-              <div className="results-stats">
-                <span className="stat success">
-                  <span className="stat-icon">✓</span>
-                  {batchResult.successful} successful
-                </span>
-                {batchResult.failed > 0 && (
-                  <span className="stat error">
-                    <span className="stat-icon">✗</span>
-                    {batchResult.failed} failed
-                  </span>
-                )}
+            <div className="file-list">
+              <h3>Selected Files ({files.length}):</h3>
+              <div className="files-grid">
+                {files.map((file, index) => (
+                  <div key={index} className="file-item">
+                    <span className="file-name">{file.name}</span>
+                    <span className="file-size">
+                      {(file.size / 1024).toFixed(2)} KB
+                    </span>
+                    <button
+                      className="remove-btn"
+                      onClick={() => removeFile(index)}
+                      disabled={loading}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
-
-            {batchResult.successful > 0 && (
-              <button className="download-zip-btn" onClick={handleDownloadZip}>
-                Download All as ZIP
-              </button>
-            )}
-
-            <div className="results-list">
-              {batchResult.results.map((result, index) => (
-                <div
-                  key={index}
-                  className={`result-item ${result.status}`}
-                >
-                  <div className="result-item-header">
-                    <span className={`result-status ${result.status}`}>
-                      {result.status === 'success' ? '✓' : '✗'}
-                    </span>
-                    <span className="result-filename">{result.filename}</span>
-                  </div>
-                  {result.error_message && (
-                    <div className="result-error">{result.error_message}</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          </>
         )}
       </div>
     </div>
