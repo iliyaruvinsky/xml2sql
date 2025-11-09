@@ -80,8 +80,18 @@ def render_scenario(
     currency_udf: Optional[str] = None,
     currency_schema: Optional[str] = None,
     currency_table: Optional[str] = None,
-) -> str:
-    """Render a Scenario IR to Snowflake SQL."""
+    return_warnings: bool = False,
+    validate: bool = True,
+) -> str | tuple[str, list[str]]:
+    """Render a Scenario IR to Snowflake SQL.
+    
+    Args:
+        return_warnings: If True, returns (sql, warnings) tuple; otherwise returns sql string only.
+        validate: If True, validate the generated SQL (default: True).
+    
+    Returns:
+        SQL string, or (sql, warnings) tuple if return_warnings=True.
+    """
 
     ctx = RenderContext(
         scenario,
@@ -109,14 +119,25 @@ def render_scenario(
 
     final_node_id = _find_final_node(scenario, ordered_nodes)
     if not final_node_id:
-        ctx.warnings.append("No terminal node found for final SELECT")
+        # Critical error: Missing final node
+        error_msg = "No terminal node found - cannot generate valid SQL"
+        ctx.warnings.append(error_msg)
         # If no CTEs exist, create a placeholder to avoid invalid SQL
         if not ctes:
             placeholder_cte = "  final AS (\n    SELECT NULL AS placeholder\n  )"
             ctes.append(placeholder_cte)
             ctx.cte_aliases["final"] = "final"
         final_select = "SELECT * FROM final" if ctes else ""
-        return _assemble_sql(ctes, final_select, ctx.warnings)
+        sql = _assemble_sql(ctes, final_select, ctx.warnings)
+        # Note: We still return SQL with placeholder, but validation will catch this as error
+        if validate:
+            from .validator import ValidationResult
+            validation_result = ValidationResult()
+            validation_result.add_error(error_msg, "MISSING_FINAL_NODE")
+            if validation_result.has_errors:
+                error_msg_full = "; ".join([str(e) for e in validation_result.errors])
+                raise ValueError(f"SQL validation failed: {error_msg_full}")
+        return (sql, ctx.warnings) if return_warnings else sql
 
     # Check if final_node_id is a data source (not a rendered CTE)
     if final_node_id in scenario.data_sources:
@@ -166,7 +187,8 @@ def render_scenario(
         else:
             final_select = f"SELECT * FROM {from_clause}"
         
-        return _assemble_sql(ctes, final_select, ctx.warnings)
+        sql = _assemble_sql(ctes, final_select, ctx.warnings)
+        return (sql, ctx.warnings) if return_warnings else sql
 
     final_alias = ctx.cte_aliases.get(final_node_id, "final")
     # If final_node_id is not in cte_aliases, the node wasn't rendered as a CTE
@@ -185,9 +207,44 @@ def render_scenario(
 
     if create_view:
         view = view_name or scenario.metadata.scenario_id
-        return _assemble_sql(ctes, final_select, ctx.warnings, view_name=view)
-
-    return _assemble_sql(ctes, final_select, ctx.warnings)
+        sql = _assemble_sql(ctes, final_select, ctx.warnings, view_name=view)
+    else:
+        sql = _assemble_sql(ctes, final_select, ctx.warnings)
+    
+    # Validate SQL if enabled
+    if validate:
+        from .validator import (
+            analyze_query_complexity,
+            validate_performance,
+            validate_query_completeness,
+            validate_snowflake_specific,
+            validate_sql_structure,
+        )
+        
+        structure_result = validate_sql_structure(sql)
+        completeness_result = validate_query_completeness(scenario, sql, ctx)
+        performance_result = validate_performance(sql, scenario)
+        snowflake_result = validate_snowflake_specific(sql)
+        complexity_result = analyze_query_complexity(sql, scenario)
+        
+        # Merge validation results
+        all_results = [structure_result, completeness_result, performance_result, snowflake_result, complexity_result]
+        if any(r.has_errors for r in all_results):
+            # Collect all errors
+            all_errors = []
+            for r in all_results:
+                all_errors.extend(r.errors)
+            error_msg = "; ".join([str(e) for e in all_errors])
+            raise ValueError(f"SQL validation failed: {error_msg}")
+        
+        # Merge warnings into context warnings
+        for result in all_results:
+            for warning in result.warnings:
+                ctx.warnings.append(warning.message)
+            for info in result.info:
+                ctx.warnings.append(f"Info: {info.message}")
+    
+    return (sql, ctx.warnings) if return_warnings else sql
 
 
 def _topological_sort(scenario: Scenario) -> List[str]:
@@ -263,7 +320,10 @@ def _render_node(ctx: RenderContext, node: Node) -> str:
     if node.kind == NodeKind.CALCULATION:
         return _render_calculation(ctx, node)
 
-    ctx.warnings.append(f"Unsupported node kind: {node.kind}")
+    # Critical error: Unsupported node type
+    error_msg = f"Unsupported node type {node.kind} - conversion not possible"
+    ctx.warnings.append(error_msg)
+    # Still try to render something, but validation will catch this as error
     return "SELECT 1 AS placeholder"
 
 
@@ -320,7 +380,10 @@ def _render_join(ctx: RenderContext, node: JoinNode) -> str:
         conditions.append(f"{left_expr} = {right_expr}")
 
     if not conditions:
-        ctx.warnings.append(f"Join {node.node_id} has no join conditions")
+        # Critical error: Cartesian product
+        error_msg = f"Join {node.node_id} creates cartesian product (no join conditions)"
+        ctx.warnings.append(error_msg)
+        # Still generate SQL with 1=1 but mark as critical issue
         conditions = ["1=1"]
 
     on_clause = " AND ".join(conditions)

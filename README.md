@@ -4,6 +4,8 @@ Convert SAP HANA calculation view XML definitions into Snowflake SQL artifacts.
 
 > **👋 New to this project?** If you're a client deploying views to Snowflake, **[START HERE](START_HERE.md)** - This guide will walk you through the repository step-by-step.
 
+> **🌐 Web Interface Available!** Try the new web-based GUI - see [WEB_GUI_DEPLOYMENT_GUIDE.md](WEB_GUI_DEPLOYMENT_GUIDE.md) for deployment instructions.
+
 ## Overview
 
 This tool parses SAP HANA calculation view XML files and generates Snowflake-compatible SQL queries. It supports complex calculation views with projections, joins, aggregations, unions, filters, and calculated expressions.

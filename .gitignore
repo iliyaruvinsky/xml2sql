@@ -47,6 +47,11 @@ config.test.yaml
 config.invalid.yaml
 # Note: Target (SQL Scripts)/*.sql and Source (XML Files)/ are committed as examples
 
+# Database
+conversions.db
+*.db
+data/
+
 # Logs
 *.log
 logs/

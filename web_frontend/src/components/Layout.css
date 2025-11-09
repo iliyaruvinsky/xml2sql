@@ -1,0 +1,20 @@
+.layout {
+  width: 100%;
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-content {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 1rem 0 2rem;
+  color: #666666;
+  font-size: 0.95rem;
+}
+
