@@ -99,6 +99,27 @@ const fieldHelpContent = {
       </div>
     ),
   },
+  autoCorrection: {
+    tooltip:
+      'What it does: Automatically fixes common SQL syntax and semantic issues in the generated SQL.\n\nWhen to apply: Enable this BEFORE converting your XML to SQL if you want the system to automatically correct issues during conversion. This setting affects the conversion process itself.\n\nWhy to apply: Saves time by resolving frequent SQL errors, making the generated SQL more production-ready for Snowflake. Particularly useful for migrating legacy HANA SQL patterns that may have compatibility issues.\n\nExamples of fixes:\n• Reserved keywords: ORDER becomes `ORDER` (quoted)\n• String concatenation: "text1" + "text2" becomes "text1" || "text2"\n• Function translation: IF(condition, val1, val2) becomes IFF(condition, val1, val2)\n\nConfidence levels: The system applies high-confidence fixes automatically. All corrections are shown in the SQL Preview after conversion.',
+    content: (
+      <div className="field-help">
+        <strong>What it does:</strong> Automatically fixes common SQL syntax and semantic issues in the generated SQL.
+        <br /><br />
+        <strong>When to apply:</strong> Enable this <strong>BEFORE</strong> converting your XML to SQL if you want the system to automatically correct issues during conversion. This setting affects the conversion process itself, so it must be enabled before clicking "Convert to SQL".
+        <br /><br />
+        <strong>Why to apply:</strong> Saves time by resolving frequent SQL errors, making the generated SQL more production-ready for Snowflake. Particularly useful for migrating legacy HANA SQL patterns that may have compatibility issues.
+        <br /><br />
+        <strong>Examples of fixes:</strong>
+        <ul style={{ marginTop: '0.5rem', marginBottom: '0.5rem', paddingLeft: '1.5rem' }}>
+          <li><strong>Reserved keywords:</strong> <code>ORDER</code> becomes <code>`ORDER`</code> (quoted)</li>
+          <li><strong>String concatenation:</strong> <code>"text1" + "text2"</code> becomes <code>"text1" || "text2"</code></li>
+          <li><strong>Function translation:</strong> <code>IF(condition, val1, val2)</code> becomes <code>IFF(condition, val1, val2)</code></li>
+        </ul>
+        <strong>Confidence levels:</strong> The system applies <strong>high-confidence fixes</strong> automatically. All corrections are shown in the SQL Preview after conversion with before/after diffs.
+      </div>
+    ),
+  },
 }
 
 function ConfigForm({ config, onConfigChange }) {
@@ -208,6 +229,32 @@ function ConfigForm({ config, onConfigChange }) {
             onChange={(e) => updateConfig({ language: e.target.value })}
             placeholder="EN"
           />
+        </div>
+
+        <div className="form-section">
+          <h3>
+            Auto-Correction
+            <span 
+              className="help-icon" 
+              title={fieldHelpContent.autoCorrection.tooltip}
+            >
+              ℹ️
+            </span>
+          </h3>
+          {showHelp && fieldHelpContent.autoCorrection.content}
+          <div className="form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={config.auto_fix || false}
+                onChange={(e) => updateConfig({ auto_fix: e.target.checked })}
+              />
+              <span>Enable auto-correction of SQL issues</span>
+            </label>
+            <p className="field-hint">
+              Automatically fix common SQL issues such as reserved keywords, string concatenation, and function translations.
+            </p>
+          </div>
         </div>
 
         <div className="form-group">
@@ -320,23 +367,6 @@ function ConfigForm({ config, onConfigChange }) {
               onChange={(e) => updateConfig({ currency_schema: e.target.value || null })}
               placeholder="UTILITY"
             />
-          </div>
-        </div>
-
-        <div className="form-section">
-          <h3>Auto-Correction</h3>
-          <div className="form-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={config.auto_fix || false}
-                onChange={(e) => updateConfig({ auto_fix: e.target.checked })}
-              />
-              <span>Enable auto-correction of SQL issues</span>
-            </label>
-            <p className="field-hint">
-              Automatically fix common SQL issues such as reserved keywords, string concatenation, and function translations.
-            </p>
           </div>
         </div>
       </div>

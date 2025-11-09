@@ -77,6 +77,46 @@ def convert_xml_to_sql(
         tree = etree.parse(BytesIO(xml_content))
         root = tree.getroot()
 
+        # Validate that this is a SAP HANA calculation view XML
+        # Check for expected namespace and root element structure
+        hana_namespace = "http://www.sap.com/ndb/BiModelCalculation.ecore"
+        root_tag = root.tag
+        root_namespace = root.nsmap.get(root.prefix) if root.prefix else None
+        
+        # Check if root element is 'scenario' or 'Calculation:scenario'
+        is_hana_xml = False
+        if root_tag == "scenario" or root_tag.endswith("}scenario"):
+            # Check for HANA namespace
+            if hana_namespace in root.nsmap.values():
+                is_hana_xml = True
+            # Also check if root has 'id' attribute (typical of HANA calculation views)
+            if root.get("id") is not None:
+                is_hana_xml = True
+        
+        # Additional check: look for expected HANA calculation view elements
+        if not is_hana_xml:
+            # Try to find dataSources or calculationViews elements
+            has_data_sources = len(root.findall(".//{*}dataSources")) > 0 or len(root.findall(".//{*}DataSource")) > 0
+            has_calc_views = len(root.findall(".//{*}calculationViews")) > 0 or len(root.findall(".//{*}calculationView")) > 0
+            
+            if has_data_sources or has_calc_views:
+                is_hana_xml = True
+        
+        if not is_hana_xml:
+            return ConversionResult(
+                sql_content="",
+                error=(
+                    "This XML file does not appear to be a SAP HANA calculation view XML.\n\n"
+                    "Expected: A SAP HANA calculation view XML file with:\n"
+                    "  - Root element: <scenario> or <Calculation:scenario>\n"
+                    "  - Namespace: http://www.sap.com/ndb/BiModelCalculation.ecore\n"
+                    "  - Elements: <dataSources>, <calculationViews>, etc.\n\n"
+                    "The uploaded file appears to be a different type of XML.\n"
+                    "Please upload a valid SAP HANA calculation view XML file."
+                ),
+                validation_logs=[],
+            )
+
         # Extract scenario ID from XML
         scenario_id = root.get("id")
 
@@ -91,6 +131,35 @@ def convert_xml_to_sql(
         try:
             from ...parser.scenario_parser import parse_scenario
             scenario_ir = parse_scenario(tmp_path)
+        except (etree.XMLSyntaxError, etree.ParseError) as parse_error:
+            return ConversionResult(
+                sql_content="",
+                error=(
+                    f"Failed to parse the XML file as a SAP HANA calculation view.\n\n"
+                    f"Parse error: {str(parse_error)}\n\n"
+                    f"This could mean:\n"
+                    f"  - The XML file is malformed or corrupted\n"
+                    f"  - The XML file is not a SAP HANA calculation view\n"
+                    f"  - The XML structure doesn't match expected HANA calculation view format\n\n"
+                    f"Please verify that you're uploading a valid SAP HANA calculation view XML file."
+                ),
+                validation_logs=[],
+            )
+        except (KeyError, AttributeError, ValueError) as struct_error:
+            return ConversionResult(
+                sql_content="",
+                error=(
+                    f"Failed to parse the XML structure as a SAP HANA calculation view.\n\n"
+                    f"Error: {str(struct_error)}\n\n"
+                    f"This XML file appears to be missing required HANA calculation view elements:\n"
+                    f"  - <dataSources> section\n"
+                    f"  - <calculationViews> section\n"
+                    f"  - Or other required calculation view structure\n\n"
+                    f"Please verify that you're uploading a valid SAP HANA calculation view XML file.\n"
+                    f"If this is a HANA calculation view, it may be using an unsupported format or version."
+                ),
+                validation_logs=[],
+            )
         finally:
             # Clean up temp file
             tmp_path.unlink()
@@ -216,10 +285,47 @@ def convert_xml_to_sql(
             corrections=correction_result,
         )
 
-    except Exception as e:
+    except etree.XMLSyntaxError as xml_error:
         return ConversionResult(
             sql_content="",
-            error=str(e),
+            error=(
+                f"Invalid XML file format.\n\n"
+                f"Expected: A SAP HANA calculation view XML file\n\n"
+                f"XML parsing error: {str(xml_error)}\n\n"
+                f"This file is not valid XML. Please check:\n"
+                f"  - The file is not corrupted\n"
+                f"  - The file is actually an XML file\n"
+                f"  - The XML syntax is correct (matching tags, proper encoding, etc.)\n"
+                f"  - The file is a SAP HANA calculation view XML (not another type of XML)"
+            ),
+            validation_logs=[],
+        )
+    except Exception as e:
+        error_msg = str(e)
+        # Provide more context for common errors
+        if "scenario" in error_msg.lower() or "calculation" in error_msg.lower():
+            return ConversionResult(
+                sql_content="",
+                error=(
+                    f"Failed to process the XML file as a SAP HANA calculation view.\n\n"
+                    f"Error: {error_msg}\n\n"
+                    f"This could mean:\n"
+                    f"  - The XML file is not a SAP HANA calculation view\n"
+                    f"  - The XML structure doesn't match expected format\n"
+                    f"  - Required elements are missing or malformed\n\n"
+                    f"Please verify that you're uploading a valid SAP HANA calculation view XML file."
+                ),
+                validation_logs=[],
+            )
+        return ConversionResult(
+            sql_content="",
+            error=(
+                f"Conversion failed: {error_msg}\n\n"
+                f"If this is a SAP HANA calculation view XML file, please check:\n"
+                f"  - The file is not corrupted\n"
+                f"  - The file matches the expected HANA calculation view format\n"
+                f"  - All required elements are present"
+            ),
             validation_logs=[],
         )
 

@@ -1,0 +1,120 @@
+xml version=1.0
+catalog
+   book id=bk101
+      authorGambardella, Matthewauthor
+      titleXML Developer's Guidetitle
+      genreComputergenre
+      price44.95price
+      publish_date2000-10-01publish_date
+      descriptionAn in-depth look at creating applications 
+      with XML.description
+   book
+   book id=bk102
+      authorRalls, Kimauthor
+      titleMidnight Raintitle
+      genreFantasygenre
+      price5.95price
+      publish_date2000-12-16publish_date
+      descriptionA former architect battles corporate zombies, 
+      an evil sorceress, and her own childhood to become queen 
+      of the world.description
+   book
+   book id=bk103
+      authorCorets, Evaauthor
+      titleMaeve Ascendanttitle
+      genreFantasygenre
+      price5.95price
+      publish_date2000-11-17publish_date
+      descriptionAfter the collapse of a nanotechnology 
+      society in England, the young survivors lay the 
+      foundation for a new society.description
+   book
+   book id=bk104
+      authorCorets, Evaauthor
+      titleOberon's Legacytitle
+      genreFantasygenre
+      price5.95price
+      publish_date2001-03-10publish_date
+      descriptionIn post-apocalypse England, the mysterious 
+      agent known only as Oberon helps to create a new life 
+      for the inhabitants of London. Sequel to Maeve 
+      Ascendant.description
+   book
+   book id=bk105
+      authorCorets, Evaauthor
+      titleThe Sundered Grailtitle
+      genreFantasygenre
+      price5.95price
+      publish_date2001-09-10publish_date
+      descriptionThe two daughters of Maeve, half-sisters, 
+      battle one another for control of England. Sequel to 
+      Oberon's Legacy.description
+   book
+   book id=bk106
+      authorRandall, Cynthiaauthor
+      titleLover Birdstitle
+      genreRomancegenre
+      price4.95price
+      publish_date2000-09-02publish_date
+      descriptionWhen Carla meets Paul at an ornithology 
+      conference, tempers fly as feathers get ruffled.description
+   book
+   book id=bk107
+      authorThurman, Paulaauthor
+      titleSplish Splashtitle
+      genreRomancegenre
+      price4.95price
+      publish_date2000-11-02publish_date
+      descriptionA deep sea diver finds true love twenty 
+      thousand leagues beneath the sea.description
+   book
+   book id=bk108
+      authorKnorr, Stefanauthor
+      titleCreepy Crawliestitle
+      genreHorrorgenre
+      price4.95price
+      publish_date2000-12-06publish_date
+      descriptionAn anthology of horror stories about roaches,
+      centipedes, scorpions  and other insects.description
+   book
+   book id=bk109
+      authorKress, Peterauthor
+      titleParadox Losttitle
+      genreScience Fictiongenre
+      price6.95price
+      publish_date2000-11-02publish_date
+      descriptionAfter an inadvertant trip through a Heisenberg
+      Uncertainty Device, James Salway discovers the problems 
+      of being quantum.description
+   book
+   book id=bk110
+      authorO'Brien, Timauthor
+      titleMicrosoft .NET The Programming Bibletitle
+      genreComputergenre
+      price36.95price
+      publish_date2000-12-09publish_date
+      descriptionMicrosoft's .NET initiative is explored in 
+      detail in this deep programmer's reference.description
+   book
+   book id=bk111
+      authorO'Brien, Timauthor
+      titleMSXML3 A Comprehensive Guidetitle
+      genreComputergenre
+      price36.95price
+      publish_date2000-12-01publish_date
+      descriptionThe Microsoft MSXML3 parser is covered in 
+      detail, with attention to XML DOM interfaces, XSLT processing, 
+      SAX and more.description
+   book
+   book id=bk112
+      authorGalos, Mikeauthor
+      titleVisual Studio 7 A Comprehensive Guidetitle
+      genreComputergenre
+      price49.95price
+      publish_date2001-04-16publish_date
+      descriptionMicrosoft Visual Studio 7 is explored in depth,
+      looking at how Visual Basic, Visual C++, C#, and ASP+ are 
+      integrated into a comprehensive development 
+      environment.description
+   book
+catalog

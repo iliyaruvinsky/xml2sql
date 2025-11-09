@@ -43,7 +43,16 @@ function FileUpload({
       const result = await convertSingle(files[0], config)
       onConversionComplete(result)
     } catch (error) {
-      alert(`Conversion failed: ${error.response?.data?.detail || error.message}`)
+      // Extract error message from API response
+      const errorDetail = error.response?.data?.detail || error.message
+      // Show error in a more user-friendly way
+      // If error contains newlines, it's a detailed message - show it in alert
+      // Otherwise show a simple message
+      if (errorDetail && errorDetail.includes('\n')) {
+        alert(errorDetail)
+      } else {
+        alert(`Conversion failed: ${errorDetail || 'Unknown error occurred'}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -63,8 +72,8 @@ function FileUpload({
             <p>Drop the XML file here...</p>
           ) : (
             <div>
-              <p>Drag & drop an XML file here, or click to select</p>
-              <p className="hint">Supports .xml and .XML files</p>
+              <p>Drag & drop a SAP HANA calculation view XML file here, or click to select</p>
+              <p className="hint">Supports .xml and .XML files (SAP HANA calculation views only)</p>
             </div>
           )}
         </div>
