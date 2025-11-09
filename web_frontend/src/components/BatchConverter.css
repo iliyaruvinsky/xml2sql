@@ -12,25 +12,29 @@
 .batch-results {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #e0e0e0;
 }
 
 .results-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .results-header h3 {
-  color: white;
+  color: #1a1a1a;
   margin: 0;
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .results-stats {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .stat {
@@ -38,16 +42,27 @@
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-icon {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .stat.success {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4caf50;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
 }
 
 .stat.error {
-  background: rgba(244, 67, 54, 0.2);
-  color: #f44336;
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
 }
 
 .download-zip-btn {
@@ -64,9 +79,14 @@
   transition: all 0.3s ease;
 }
 
-.download-zip-btn:hover {
+.download-zip-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.download-zip-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .results-list {
@@ -77,48 +97,70 @@
 
 .result-item {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
 }
 
 .result-item.success {
-  border-color: rgba(76, 175, 80, 0.3);
+  border-color: #c8e6c9;
+  background: #f1f8f4;
 }
 
 .result-item.error {
-  border-color: rgba(244, 67, 54, 0.3);
+  border-color: #ffcdd2;
+  background: #fff5f5;
+}
+
+.result-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .result-filename {
   flex: 1;
-  color: white;
+  color: #1a1a1a;
   font-weight: 500;
+  font-size: 0.95rem;
 }
 
 .result-status {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: 600;
+  min-width: 28px;
+  text-align: center;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .result-status.success {
-  color: #4caf50;
+  color: #2e7d32;
 }
 
 .result-status.error {
-  color: #f44336;
+  color: #c62828;
 }
 
 .result-error {
   width: 100%;
   margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(244, 67, 54, 0.1);
-  border-radius: 4px;
-  color: #f44336;
+  padding: 0.75rem;
+  background: #ffebee;
+  border-radius: 6px;
+  border: 1px solid #ffcdd2;
+  color: #c62828;
   font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 200px;
+  overflow-y: auto;
 }
 

@@ -229,46 +229,45 @@ function HistoryPanel({ onClose }) {
                     </span>
                   </div>
                   <div className="history-item-actions">
+                    {/* Slot 1: View or Error Log */}
                     {entry.status === 'success' ? (
-                      <>
-                        <button
-                          className="action-btn view"
-                          onClick={() => handleViewDetails(entry.id)}
-                        >
-                          View
-                        </button>
-                        <button
-                          className="action-btn download"
-                          onClick={() => handleDownload(entry.id)}
-                        >
-                          Download
-                        </button>
-                        <button
-                          className="action-btn delete"
-                          onClick={() => handleDelete(entry.id)}
-                        >
-                          Delete
-                        </button>
-                      </>
+                      <button
+                        className="action-btn view"
+                        onClick={() => handleViewDetails(entry.id)}
+                      >
+                        View
+                      </button>
+                    ) : entry.error_message ? (
+                      <button
+                        className="action-btn error-log"
+                        onClick={() => setErrorModal({ id: entry.id, message: entry.error_message })}
+                        title="View error details"
+                      >
+                        Error Log
+                      </button>
                     ) : (
-                      <>
-                        {entry.error_message && (
-                          <button
-                            className="action-btn error-log"
-                            onClick={() => setErrorModal({ id: entry.id, message: entry.error_message })}
-                            title="View error details"
-                          >
-                            Error Log
-                          </button>
-                        )}
-                        <button
-                          className="action-btn delete"
-                          onClick={() => handleDelete(entry.id)}
-                        >
-                          Delete
-                        </button>
-                      </>
+                      <div className="action-btn-placeholder"></div>
                     )}
+                    
+                    {/* Slot 2: Download or placeholder */}
+                    {entry.status === 'success' ? (
+                      <button
+                        className="action-btn download"
+                        onClick={() => handleDownload(entry.id)}
+                      >
+                        Download
+                      </button>
+                    ) : (
+                      <div className="action-btn-placeholder"></div>
+                    )}
+                    
+                    {/* Slot 3: Delete (always present) */}
+                    <button
+                      className="action-btn delete"
+                      onClick={() => handleDelete(entry.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               ))}

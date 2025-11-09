@@ -86,5 +86,5 @@ agent
 
 # Distribution packages (keep only latest in Git)
 xml2sql-distribution-*.zip
-!xml2sql-distribution-20251109-104754.zip
+!xml2sql-distribution-20251109-110042.zip
 

@@ -105,11 +105,13 @@ function BatchConverter({ files, onFilesChange, config, onConfigChange }) {
               <h3>Conversion Results</h3>
               <div className="results-stats">
                 <span className="stat success">
-                  ✓ {batchResult.successful} successful
+                  <span className="stat-icon">✓</span>
+                  {batchResult.successful} successful
                 </span>
                 {batchResult.failed > 0 && (
                   <span className="stat error">
-                    ✗ {batchResult.failed} failed
+                    <span className="stat-icon">✗</span>
+                    {batchResult.failed} failed
                   </span>
                 )}
               </div>
@@ -127,10 +129,12 @@ function BatchConverter({ files, onFilesChange, config, onConfigChange }) {
                   key={index}
                   className={`result-item ${result.status}`}
                 >
-                  <span className="result-filename">{result.filename}</span>
-                  <span className={`result-status ${result.status}`}>
-                    {result.status === 'success' ? '✓' : '✗'}
-                  </span>
+                  <div className="result-item-header">
+                    <span className={`result-status ${result.status}`}>
+                      {result.status === 'success' ? '✓' : '✗'}
+                    </span>
+                    <span className="result-filename">{result.filename}</span>
+                  </div>
                   {result.error_message && (
                     <div className="result-error">{result.error_message}</div>
                   )}
