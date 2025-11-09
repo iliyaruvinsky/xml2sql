@@ -84,3 +84,7 @@ check_and_create_release.py
 skywind-plugin-marketplace/
 agent
 
+# Distribution packages (keep only latest in Git)
+xml2sql-distribution-*.zip
+!xml2sql-distribution-20251109-083213.zip
+
