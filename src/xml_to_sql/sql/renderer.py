@@ -389,8 +389,24 @@ def _render_join(ctx: RenderContext, node: JoinNode) -> str:
     on_clause = " AND ".join(conditions)
 
     columns: List[str] = []
+    seen_targets = set()  # Track columns already added to avoid duplicates
     for mapping in node.mappings:
-        source_expr = _render_expression(ctx, mapping.expression, left_alias)
+        # Skip hidden columns - only include if in view_attributes list
+        if node.view_attributes and mapping.target_name not in node.view_attributes:
+            continue
+        # Skip duplicate target names (keep first occurrence)
+        if mapping.target_name in seen_targets:
+            continue
+        seen_targets.add(mapping.target_name)
+        # Determine which alias to use based on source_node
+        if mapping.source_node:
+            # source_node is like "#Aggregation_1" or "#Projection_2"
+            source_node_id = mapping.source_node.lstrip("#")
+            source_alias = ctx.get_cte_alias(source_node_id)
+        else:
+            # Default to left alias if no source_node specified
+            source_alias = left_alias
+        source_expr = _render_expression(ctx, mapping.expression, source_alias)
         columns.append(f"{source_expr} AS {_quote_identifier(mapping.target_name)}")
 
     for calc_name, calc_attr in node.calculated_attributes.items():

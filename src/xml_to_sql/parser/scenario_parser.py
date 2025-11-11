@@ -352,7 +352,14 @@ def _parse_filters(node_el: etree._Element) -> List[Predicate]:
 
 
 def _iter_join_attributes(node_el: etree._Element) -> Iterable[str]:
+    """Extract join attribute names from a join node element."""
+    # Try with namespace first
     for join_attr in node_el.findall("./calc:joinAttribute", namespaces=_NS):
+        name = join_attr.get("name")
+        if name:
+            yield name
+    # Also try without namespace (some XML files may not use namespaces consistently)
+    for join_attr in node_el.findall(".//joinAttribute"):
         name = join_attr.get("name")
         if name:
             yield name
@@ -385,30 +392,63 @@ def _build_join_conditions(
 
 
 def _resolve_join_mapping(name: str, mappings: Dict[str, AttributeMapping]) -> Optional[AttributeMapping]:
+    """Resolve a join attribute name to an AttributeMapping.
+    
+    Tries multiple strategies:
+    1. Exact match by target name
+    2. Match by segments (for JOIN$X$Y patterns)
+    3. Match by removing JOIN$ prefix
+    """
+    # First try exact match
     if name in mappings:
         return mappings[name]
-    variants = [segment for segment in name.split("$") if segment]
-    for variant in reversed(variants):
-        if variant in mappings:
-            return mappings[variant]
-    collapsed = name.replace("JOIN$", "")
-    return mappings.get(collapsed)
+    
+    # For patterns like "JOIN$MATNR$MATNR", try matching segments
+    # Split by $ and try each segment in reverse order (most specific first)
+    if "$" in name:
+        segments = [s for s in name.split("$") if s]
+        # Try full segments in reverse order
+        for i in range(len(segments), 0, -1):
+            variant = "$".join(segments[:i])
+            if variant in mappings:
+                return mappings[variant]
+        # Try individual segments in reverse order
+        for segment in reversed(segments):
+            if segment in mappings:
+                return mappings[segment]
+    
+    # Try removing JOIN$ prefix
+    if name.startswith("JOIN$"):
+        collapsed = name.replace("JOIN$", "", 1)  # Only replace first occurrence
+        if collapsed in mappings:
+            return mappings[collapsed]
+        # Also try removing all JOIN$ prefixes
+        fully_collapsed = name.replace("JOIN$", "")
+        if fully_collapsed in mappings:
+            return mappings[fully_collapsed]
+    
+    return None
 
 
 def _mapping_to_join_expression(mapping: AttributeMapping) -> Expression:
+    """Convert an AttributeMapping to an Expression for use in join conditions.
+    
+    Note: We use the raw column name (mapping.expression.value) without the source_node
+    prefix, because the renderer will use the table alias parameter to qualify the column.
+    """
     value = mapping.expression.value
-    if mapping.source_node:
-        qualified = f"{mapping.source_node}.{value}"
-    else:
-        qualified = value
-    return Expression(ExpressionType.COLUMN, qualified, mapping.expression.data_type)
+    # Don't include source_node here - the renderer will use the table alias
+    return Expression(ExpressionType.COLUMN, value, mapping.expression.data_type)
 
 
 def _parse_view_attribute_ids(node_el: etree._Element) -> List[str]:
+    """Parse view attribute IDs, excluding hidden attributes."""
     ids: List[str] = []
     for attr_el in _find_children(node_el, "viewAttributes", "viewAttribute"):
         attr_id = attr_el.get("id")
-        if attr_id:
+        is_hidden = attr_el.get("hidden", "false").lower() == "true"
+        # Only include non-hidden attributes
+        if attr_id and not is_hidden:
             ids.append(attr_id)
     return ids
 
