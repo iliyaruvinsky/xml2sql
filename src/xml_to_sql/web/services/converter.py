@@ -355,7 +355,6 @@ def convert_xml_to_sql(
         # Phase 4: Auto-correction (if enabled)
         correction_result: Optional[CorrectionResult] = None
         final_sql = sql_content
-        correction_result = None
         
         # Auto-Correct SQL stage (only if auto_fix is enabled)
         if auto_fix:
