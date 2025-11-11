@@ -48,33 +48,44 @@ function ConversionFlow({ stages }) {
   const renderSummaryView = () => {
     return (
       <div className="flow-summary">
-        <div className="flow-stages">
-          {stages.map((stage, index) => (
-            <div key={index} className="flow-stage-container">
-              <div className={`flow-stage ${getStatusClass(stage.status)}`}>
-                <div className="stage-icon">{getStatusIcon(stage.status)}</div>
-                <div className="stage-content">
-                  <div className="stage-name">{stage.stage_name}</div>
-                  {stage.duration_ms !== null && stage.duration_ms !== undefined && (
-                    <div className="stage-duration">{formatDuration(stage.duration_ms)}</div>
-                  )}
-                  {stage.details && Object.keys(stage.details).length > 0 && (
-                    <div className="stage-stats">
-                      {Object.entries(stage.details).map(([key, value]) => (
-                        <span key={key} className="stat-item">
-                          {key}: {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {stage.error && (
-                    <div className="stage-error">{stage.error}</div>
-                  )}
+        <div className="flowchart-container">
+          <div className="flow-stages">
+            {stages.map((stage, index) => (
+              <div key={index} className="flow-stage-wrapper">
+                <div className={`flow-stage ${getStatusClass(stage.status)}`}>
+                  <div className="stage-number">{index + 1}</div>
+                  <div className="stage-icon">{getStatusIcon(stage.status)}</div>
+                  <div className="stage-content">
+                    <div className="stage-name">{stage.stage_name}</div>
+                    {stage.duration_ms !== null && stage.duration_ms !== undefined && (
+                      <div className="stage-duration">{formatDuration(stage.duration_ms)}</div>
+                    )}
+                    {stage.details && Object.keys(stage.details).length > 0 && (
+                      <div className="stage-stats">
+                        {Object.entries(stage.details).slice(0, 3).map(([key, value]) => (
+                          <span key={key} className="stat-item">
+                            <span className="stat-key">{key.replace(/_/g, ' ')}:</span> {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value).substring(0, 15)}
+                          </span>
+                        ))}
+                        {Object.keys(stage.details).length > 3 && (
+                          <span className="stat-item">+{Object.keys(stage.details).length - 3} more</span>
+                        )}
+                      </div>
+                    )}
+                    {stage.error && (
+                      <div className="stage-error">{stage.error}</div>
+                    )}
+                  </div>
                 </div>
+                {index < stages.length - 1 && (
+                  <div className={`flow-connector ${getStatusClass(stage.status)}`}>
+                    <div className="connector-line"></div>
+                    <div className="connector-arrow">▶</div>
+                  </div>
+                )}
               </div>
-              {index < stages.length - 1 && <div className="flow-arrow">→</div>}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     )
