@@ -59,10 +59,12 @@
 
 .flowchart-container {
   position: relative;
-  min-height: 200px;
+  min-height: 280px;
   padding: 20px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .flow-stages {
@@ -74,8 +76,9 @@
   position: relative;
   z-index: 1;
   padding: 20px 0;
-  width: fit-content;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .flow-stage-wrapper {
@@ -83,12 +86,13 @@
   align-items: center;
   flex: 0 0 auto;
   position: relative;
+  margin: 0 5px;
 }
 
 .flow-stage {
   width: 200px;
-  min-height: 180px;
-  max-height: 180px;
+  min-height: 240px;
+  max-height: 240px;
   padding: 24px 16px;
   background: white;
   border: 3px solid #dee2e6;
@@ -101,6 +105,7 @@
   align-items: center;
   justify-content: flex-start;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .flow-stage:hover {
@@ -185,11 +190,11 @@
 
 .stage-number {
   position: absolute;
-  top: -12px;
+  top: -14px;
   left: 50%;
   transform: translateX(-50%);
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   background: #007bff;
   color: white;
   border-radius: 50%;
@@ -197,9 +202,11 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   z-index: 2;
+  line-height: 1;
+  padding: 0;
 }
 
 .status-completed .stage-number {
@@ -265,7 +272,7 @@
   justify-content: flex-start;
   margin-top: 8px;
   width: 100%;
-  max-height: 60px;
+  max-height: 100px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -301,9 +308,11 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  margin: 0 10px;
-  min-width: 50px;
+  margin: 0 5px;
+  min-width: 40px;
+  max-width: 40px;
   height: 100%;
+  flex-shrink: 0;
 }
 
 .connector-line {
