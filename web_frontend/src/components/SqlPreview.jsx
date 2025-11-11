@@ -39,57 +39,120 @@ function SqlPreview({ result }) {
       <div className="card">
         <div className="sql-preview-header">
           <h2>Conversion Result</h2>
-          {hasXml && (
-            <div className="view-mode-selector">
-              <button
-                className={viewMode === 'split' ? 'active' : ''}
-                onClick={() => setViewMode('split')}
-                title="Side-by-side view"
-              >
-                Split
-              </button>
-              <button
-                className={viewMode === 'tabs' ? 'active' : ''}
-                onClick={() => setViewMode('tabs')}
-                title="Tabbed view"
-              >
-                Tabs
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Conversion Flow - Always show at top if available */}
-        {result.stages && result.stages.length > 0 && (
-          <ConversionFlow stages={result.stages} />
-        )}
+        {/* Main Tab Navigation */}
+        <div className="main-tabs-header">
+          <button
+            className={mainTab === 'sql' ? 'main-tab active' : 'main-tab'}
+            onClick={() => setMainTab('sql')}
+          >
+            SQL{hasXml ? '/XML' : ''}
+          </button>
+          {result.stages && result.stages.length > 0 && (
+            <button
+              className={mainTab === 'flow' ? 'main-tab active' : 'main-tab'}
+              onClick={() => setMainTab('flow')}
+            >
+              Conversion Flow
+            </button>
+          )}
+          <button
+            className={mainTab === 'validation' ? 'main-tab active' : 'main-tab'}
+            onClick={() => setMainTab('validation')}
+          >
+            Validation
+            {result.validation && (
+              <span className="tab-badge">
+                {result.validation.errors?.length || 0 + result.validation.warnings?.length || 0 + result.validation.info?.length || 0}
+              </span>
+            )}
+          </button>
+        </div>
 
-        {result.metadata && (
-          <div className="metadata">
-            <div className="metadata-item">
-              <span className="label">Scenario ID:</span>
-              <span className="value">{result.metadata.scenario_id || 'N/A'}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Nodes:</span>
-              <span className="value">{result.metadata.nodes_count}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Filters:</span>
-              <span className="value">{result.metadata.filters_count}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Calculated Attributes:</span>
-              <span className="value">{result.metadata.calculated_attributes_count}</span>
-            </div>
-            <div className="metadata-item">
-              <span className="label">Logical Model:</span>
-              <span className="value">{result.metadata.logical_model_present ? 'Yes' : 'No'}</span>
-            </div>
-          </div>
-        )}
+        {/* Tab Content */}
+        <div className="main-tabs-content">
+          {/* SQL/XML Tab */}
+          {mainTab === 'sql' && (
+            <div className="sql-tab-panel">
+              {hasXml && (
+                <div className="view-mode-selector">
+                  <button
+                    className={viewMode === 'split' ? 'active' : ''}
+                    onClick={() => setViewMode('split')}
+                    title="Side-by-side view"
+                  >
+                    Split
+                  </button>
+                  <button
+                    className={viewMode === 'tabs' ? 'active' : ''}
+                    onClick={() => setViewMode('tabs')}
+                    title="Tabbed view"
+                  >
+                    Tabs
+                  </button>
+                </div>
+              )}
 
-        <ValidationResults validation={result.validation} logs={result.validation_logs || []} />
+              {result.metadata && (
+                <div className="metadata">
+                  <div className="metadata-item">
+                    <span className="label">Scenario ID:</span>
+                    <span className="value">{result.metadata.scenario_id || 'N/A'}</span>
+                  </div>
+                  <div className="metadata-item">
+                    <span className="label">Nodes:</span>
+                    <span className="value">{result.metadata.nodes_count}</span>
+                  </div>
+                  <div className="metadata-item">
+                    <span className="label">Filters:</span>
+                    <span className="value">{result.metadata.filters_count}</span>
+                  </div>
+                  <div className="metadata-item">
+                    <span className="label">Calculated Attributes:</span>
+                    <span className="value">{result.metadata.calculated_attributes_count}</span>
+                  </div>
+                  <div className="metadata-item">
+                    <span className="label">Logical Model:</span>
+                    <span className="value">{result.metadata.logical_model_present ? 'Yes' : 'No'}</span>
+                  </div>
+                </div>
+              )}
+
+              {result.corrections && result.corrections.corrections_applied && result.corrections.corrections_applied.length > 0 && (
+                <div className="corrections">
+                  <h3>Auto-Corrections Applied ({result.corrections.corrections_applied.length})</h3>
+                  <div className="corrections-list">
+                    {result.corrections.corrections_applied.map((correction, index) => (
+                      <div key={index} className={`correction-item correction-${correction.confidence}`}>
+                        <div className="correction-header">
+                          <span className="correction-confidence">{correction.confidence.toUpperCase()}</span>
+                          <span className="correction-code">{correction.issue_code}</span>
+                          {correction.line_number && (
+                            <span className="correction-line">Line {correction.line_number}</span>
+                          )}
+                        </div>
+                        <div className="correction-description">{correction.description}</div>
+                        <div className="correction-diff">
+                          <span className="correction-original">- {correction.original_text}</span>
+                          <span className="correction-corrected">+ {correction.corrected_text}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {result.warnings && result.warnings.length > 0 && !result.validation && (
+                <div className="warnings">
+                  <h3>Warnings</h3>
+                  <ul>
+                    {result.warnings.map((warning, index) => (
+                      <li key={index}>{warning.message}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
         {result.corrections && result.corrections.corrections_applied && result.corrections.corrections_applied.length > 0 && (
           <div className="corrections">
@@ -126,67 +189,103 @@ function SqlPreview({ result }) {
           </div>
         )}
 
-        {hasXml && viewMode === 'split' && (
-          <div className="split-view">
-            <div className="split-panel xml-panel">
-              <XmlViewer xmlContent={result.xml_content} filename={result.filename} embedded={true} />
-            </div>
-            <div className="split-panel sql-panel">
-              <div className="sql-panel-header">
-                <div className="sql-actions">
-                  <button className="copy-btn" onClick={handleCopy}>
-                    Copy SQL
-                  </button>
-                  <button className="download-btn" onClick={handleDownload}>
-                    Download SQL
-                  </button>
+              {hasXml && viewMode === 'split' && (
+                <div className="split-view">
+                  <div className="split-panel xml-panel">
+                    <XmlViewer xmlContent={result.xml_content} filename={result.filename} embedded={true} />
+                  </div>
+                  <div className="split-panel sql-panel">
+                    <div className="sql-panel-header">
+                      <div className="sql-actions">
+                        <button className="copy-btn" onClick={handleCopy}>
+                          Copy SQL
+                        </button>
+                        <button className="download-btn" onClick={handleDownload}>
+                          Download SQL
+                        </button>
+                      </div>
+                    </div>
+                    <div className="sql-content">
+                      <SyntaxHighlighter
+                        language="sql"
+                        style={vscDarkPlus}
+                        customStyle={{
+                          margin: 0,
+                          borderRadius: '8px',
+                          padding: '1rem',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word',
+                        }}
+                        wrapLines={true}
+                        wrapLongLines={true}
+                      >
+                        {result.sql_content}
+                      </SyntaxHighlighter>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="sql-content">
-                <SyntaxHighlighter
-                  language="sql"
-                  style={vscDarkPlus}
-                  customStyle={{
-                    margin: 0,
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word',
-                  }}
-                  wrapLines={true}
-                  wrapLongLines={true}
-                >
-                  {result.sql_content}
-                </SyntaxHighlighter>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {hasXml && viewMode === 'tabs' && (
-          <div className="tabs-view">
-            <div className="tabs-header">
-              <button
-                className={activeTab === 'xml' ? 'tab active' : 'tab'}
-                onClick={() => setActiveTab('xml')}
-              >
-                XML
-              </button>
-              <button
-                className={activeTab === 'sql' ? 'tab active' : 'tab'}
-                onClick={() => setActiveTab('sql')}
-              >
-                SQL
-              </button>
-            </div>
-            <div className="tabs-content">
-              {activeTab === 'xml' && (
-                <XmlViewer xmlContent={result.xml_content} filename={result.filename} />
               )}
-              {activeTab === 'sql' && (
-                <div className="sql-tab-content">
-                  <div className="sql-tab-header">
+
+              {hasXml && viewMode === 'tabs' && (
+                <div className="tabs-view">
+                  <div className="tabs-header">
+                    <button
+                      className={activeTab === 'xml' ? 'tab active' : 'tab'}
+                      onClick={() => setActiveTab('xml')}
+                    >
+                      XML
+                    </button>
+                    <button
+                      className={activeTab === 'sql' ? 'tab active' : 'tab'}
+                      onClick={() => setActiveTab('sql')}
+                    >
+                      SQL
+                    </button>
+                  </div>
+                  <div className="tabs-content">
+                    {activeTab === 'xml' && (
+                      <XmlViewer xmlContent={result.xml_content} filename={result.filename} />
+                    )}
+                    {activeTab === 'sql' && (
+                      <div className="sql-tab-content">
+                        <div className="sql-tab-header">
+                          <div className="sql-actions">
+                            <button className="copy-btn" onClick={handleCopy}>
+                              Copy SQL
+                            </button>
+                            <button className="download-btn" onClick={handleDownload}>
+                              Download SQL
+                            </button>
+                          </div>
+                        </div>
+                        <div className="sql-content">
+                          <SyntaxHighlighter
+                            language="sql"
+                            style={vscDarkPlus}
+                            customStyle={{
+                              margin: 0,
+                              borderRadius: '8px',
+                              padding: '1rem',
+                              whiteSpace: 'pre-wrap',
+                              wordBreak: 'break-word',
+                              overflowWrap: 'break-word',
+                            }}
+                            wrapLines={true}
+                            wrapLongLines={true}
+                          >
+                            {result.sql_content}
+                          </SyntaxHighlighter>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {!hasXml && (
+                <div className="sql-only-view">
+                  <div className="sql-panel-header">
                     <div className="sql-actions">
                       <button className="copy-btn" onClick={handleCopy}>
                         Copy SQL
@@ -217,41 +316,22 @@ function SqlPreview({ result }) {
                 </div>
               )}
             </div>
-          </div>
-        )}
+          )}
 
-        {!hasXml && (
-          <div className="sql-only-view">
-            <div className="sql-panel-header">
-              <div className="sql-actions">
-                <button className="copy-btn" onClick={handleCopy}>
-                  Copy SQL
-                </button>
-                <button className="download-btn" onClick={handleDownload}>
-                  Download SQL
-                </button>
-              </div>
+          {/* Conversion Flow Tab */}
+          {mainTab === 'flow' && result.stages && result.stages.length > 0 && (
+            <div className="flow-tab-panel">
+              <ConversionFlow stages={result.stages} />
             </div>
-            <div className="sql-content">
-              <SyntaxHighlighter
-                language="sql"
-                style={vscDarkPlus}
-                customStyle={{
-                  margin: 0,
-                  borderRadius: '8px',
-                  padding: '1rem',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                }}
-                wrapLines={true}
-                wrapLongLines={true}
-              >
-                {result.sql_content}
-              </SyntaxHighlighter>
+          )}
+
+          {/* Validation Tab */}
+          {mainTab === 'validation' && (
+            <div className="validation-tab-panel">
+              <ValidationResults validation={result.validation} logs={result.validation_logs || []} />
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )
