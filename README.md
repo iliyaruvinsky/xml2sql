@@ -284,7 +284,7 @@ This project converts SAP HANA calculation views to Snowflake SQL for data migra
 
 ---
 
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Python:** 3.11+  
 **Status:** Production Ready
 

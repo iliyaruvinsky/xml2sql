@@ -61,23 +61,6 @@ class ConversionMetadata(BaseModel):
     logical_model_present: bool = False
 
 
-class ConversionResponse(BaseModel):
-    """Response model for single conversion."""
-
-    id: int
-    filename: str
-    scenario_id: Optional[str] = None
-    sql_content: str
-    xml_content: Optional[str] = None  # Original XML file content
-    warnings: List[WarningResponse] = Field(default_factory=list)
-    metadata: Optional[ConversionMetadata] = None
-    validation: Optional[ValidationResult] = None  # Validation results
-    validation_logs: List[str] = Field(default_factory=list)
-    status: str = "success"
-    error_message: Optional[str] = None
-    created_at: datetime
-
-
 class BatchConversionRequest(BaseModel):
     """Request model for batch conversion."""
 

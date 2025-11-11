@@ -6,7 +6,7 @@
 - **Project**: XML to SQL Converter - SAP HANA Calculation Views to Snowflake SQL
 - **Status**: Production-ready with complete SQL validation and auto-correction system (All Phases Complete)
 - **Repository**: https://github.com/iliyaruvinsky/xml2sql
-- **Version**: v0.1.0 released
+- **Version**: v0.2.0 released
 
 ### Completed Features
 
