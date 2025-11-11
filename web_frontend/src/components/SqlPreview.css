@@ -54,6 +54,12 @@
   background: #f8f9fa;
 }
 
+.main-tab:focus,
+.main-tab:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 .main-tab.active {
   color: #4a90e2;
   border-bottom-color: #4a90e2;
