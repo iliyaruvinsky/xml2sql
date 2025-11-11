@@ -1,24 +1,27 @@
 .conversion-flow {
-  margin-top: 20px;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  margin: 20px 0;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .flow-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e9ecef;
 }
 
 .flow-header h3 {
   margin: 0;
-  font-size: 18px;
-  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  letter-spacing: -0.5px;
 }
 
 .view-toggle {
@@ -68,26 +71,32 @@
 
 .flow-stage {
   flex: 1;
-  padding: 15px;
-  background: #f8f9fa;
+  padding: 20px;
+  background: white;
   border: 2px solid #dee2e6;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.flow-stage:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .flow-stage.status-completed {
-  background: #d4edda;
+  background: linear-gradient(135deg, #d4edda 0%, #e8f5e9 100%);
   border-color: #28a745;
 }
 
 .flow-stage.status-in-progress {
-  background: #fff3cd;
+  background: linear-gradient(135deg, #fff3cd 0%, #fff9e6 100%);
   border-color: #ffc107;
   animation: pulse 1.5s ease-in-out infinite;
 }
 
 .flow-stage.status-failed {
-  background: #f8d7da;
+  background: linear-gradient(135deg, #f8d7da 0%, #ffe5e8 100%);
   border-color: #dc3545;
 }
 
@@ -137,31 +146,35 @@
 
 .stage-name {
   font-weight: 600;
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 5px;
+  font-size: 15px;
+  color: #212529;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
 }
 
 .stage-duration {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 8px;
+  font-size: 13px;
+  color: #6c757d;
+  margin-bottom: 10px;
+  font-weight: 500;
 }
 
 .stage-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .stat-item {
-  font-size: 11px;
-  padding: 3px 8px;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  color: #555;
+  font-size: 12px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  color: #495057;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .stage-error {
@@ -174,9 +187,9 @@
 }
 
 .flow-arrow {
-  font-size: 24px;
-  color: #999;
-  margin: 0 10px;
+  font-size: 28px;
+  color: #adb5bd;
+  margin: 0 12px;
   font-weight: bold;
 }
 
@@ -189,21 +202,29 @@
 
 .flow-stage-detail {
   border: 2px solid #dee2e6;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.flow-stage-detail:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .flow-stage-detail.status-completed {
   border-color: #28a745;
+  border-left-width: 4px;
 }
 
 .flow-stage-detail.status-in-progress {
   border-color: #ffc107;
+  border-left-width: 4px;
 }
 
 .flow-stage-detail.status-failed {
   border-color: #dc3545;
+  border-left-width: 4px;
 }
 
 .stage-detail-header {
@@ -295,17 +316,17 @@
 }
 
 .code-snippet {
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 12px;
-  font-size: 12px;
-  font-family: 'Courier New', Courier, monospace;
+  background: #282c34;
+  border: 1px solid #3e4451;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   overflow-x: auto;
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
-  line-height: 1.5;
-  color: #333;
+  line-height: 1.6;
+  color: #abb2bf;
 }
 
 .error-section {
