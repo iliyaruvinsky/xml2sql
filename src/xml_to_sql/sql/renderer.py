@@ -203,7 +203,14 @@ def render_scenario(
             # If we have CTEs but final_node_id is missing, use the last CTE
             ctx.warnings.append(f"Final node {final_node_id} referenced but not found in CTEs; using last CTE")
             final_alias = list(ctx.cte_aliases.values())[-1] if ctx.cte_aliases else "final"
-    final_select = f"SELECT * FROM {final_alias}"
+    # Get column list from final node
+    final_node = scenario.nodes.get(final_node_id)
+    if final_node and final_node.view_attributes:
+        # Use explicit column list
+        column_list = ", ".join([_quote_identifier(col) for col in final_node.view_attributes])
+        final_select = f"SELECT {column_list} FROM {final_alias}"
+    else:
+        final_select = f"SELECT * FROM {final_alias}"
 
     if create_view:
         view = view_name or scenario.metadata.scenario_id
