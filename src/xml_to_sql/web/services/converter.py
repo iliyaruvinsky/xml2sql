@@ -355,7 +355,11 @@ def convert_xml_to_sql(
         # Phase 4: Auto-correction (if enabled)
         correction_result: Optional[CorrectionResult] = None
         final_sql = sql_content
-        if auto_fix and validation_result.has_issues:
+        correction_result = None
+        
+        # Auto-Correct SQL stage (only if auto_fix is enabled)
+        if auto_fix:
+            start_correct_ms, start_correct_dt = _start_stage("Auto-Correct SQL")
             if auto_fix_config is None:
                 auto_fix_config = AutoFixConfig.default()
             
@@ -372,13 +376,31 @@ def convert_xml_to_sql(
                 for correction in correction_result.corrections_applied:
                     warnings.append(f"Auto-fixed: {correction.description}")
                 
-                # Re-validate corrected SQL (optional - can be disabled for performance)
-                # For now, we'll skip re-validation to avoid double work
+                _complete_stage(start_correct_ms, details={
+                    "corrections_applied": len(correction_result.corrections_applied),
+                    "issues_fixed": len(correction_result.issues_fixed),
+                    "issues_remaining": len(correction_result.issues_remaining),
+                }, sql_snippet=final_sql[:500] if len(final_sql) > 500 else final_sql)
+            else:
+                # No corrections were applied, but stage was attempted
+                _complete_stage(start_correct_ms, details={
+                    "corrections_applied": 0,
+                    "message": "No issues found that could be auto-corrected",
+                })
+        else:
+            # Auto-correction disabled - mark as skipped
+            skip_stage = ConversionStage(
+                stage_name="Auto-Correct SQL",
+                status="pending",
+                timestamp=datetime.now(),
+            )
+            skip_stage.details = {"skipped": True, "reason": "Auto-correction disabled"}
+            stages.append(skip_stage)
 
         _complete_stage(start_ms, details={
             "is_valid": validation_result.is_valid,
             "total_issues": len(validation_result.errors) + len(validation_result.warnings),
-            "auto_fix_applied": auto_fix and correction_result is not None,
+            "auto_fix_applied": auto_fix and correction_result is not None and len(correction_result.corrections_applied) > 0,
         })
         
         return ConversionResult(

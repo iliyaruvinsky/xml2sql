@@ -23,8 +23,17 @@ function ConversionFlow({ stages }) {
         return '○'
     }
   }
+  
+  const isSkipped = (stage) => {
+    return stage.details?.skipped === true || 
+           (stage.status === 'pending' && stage.stage_name === 'Auto-Correct SQL')
+  }
 
-  const getStatusClass = (status) => {
+  const getStatusClass = (status, stage) => {
+    // Check if stage is skipped
+    if (isSkipped(stage)) {
+      return 'status-skipped'
+    }
     switch (status) {
       case 'completed':
         return 'status-completed'
@@ -50,11 +59,13 @@ function ConversionFlow({ stages }) {
       <div className="flow-summary">
         <div className="flowchart-container">
           <div className="flow-stages">
-            {stages.map((stage, index) => (
+            {stages.map((stage, index) => {
+              const skipped = isSkipped(stage)
+              return (
               <div key={index} className="flow-stage-wrapper">
-                <div className={`flow-stage ${getStatusClass(stage.status)}`}>
+                <div className={`flow-stage ${getStatusClass(stage.status, stage)}`}>
                   <div className="stage-number">{index + 1}</div>
-                  <div className="stage-icon">{getStatusIcon(stage.status)}</div>
+                  <div className="stage-icon">{skipped ? '⊘' : getStatusIcon(stage.status)}</div>
                   <div className="stage-content">
                     <div className="stage-name">{stage.stage_name}</div>
                     {stage.duration_ms !== null && stage.duration_ms !== undefined && (
@@ -75,16 +86,20 @@ function ConversionFlow({ stages }) {
                     {stage.error && (
                       <div className="stage-error">{stage.error}</div>
                     )}
+                    {skipped && (
+                      <div className="stage-skipped">Skipped: {stage.details?.reason || 'Not applicable'}</div>
+                    )}
                   </div>
                 </div>
                 {index < stages.length - 1 && (
-                  <div className={`flow-connector ${getStatusClass(stage.status)}`}>
+                  <div className={`flow-connector ${getStatusClass(stage.status, stage)}`}>
                     <div className="connector-line"></div>
                     <div className="connector-arrow">▶</div>
                   </div>
                 )}
               </div>
-            ))}
+            )
+            })}
           </div>
         </div>
       </div>
@@ -94,13 +109,15 @@ function ConversionFlow({ stages }) {
   const renderDetailedView = () => {
     return (
       <div className="flow-detailed">
-        {stages.map((stage, index) => (
-          <div key={index} className={`flow-stage-detail ${getStatusClass(stage.status)}`}>
+        {stages.map((stage, index) => {
+          const skipped = isSkipped(stage)
+          return (
+          <div key={index} className={`flow-stage-detail ${getStatusClass(stage.status, stage)}`}>
             <div
               className="stage-detail-header"
               onClick={() => setExpandedStage(expandedStage === index ? null : index)}
             >
-              <div className="stage-icon">{getStatusIcon(stage.status)}</div>
+              <div className="stage-icon">{skipped ? '⊘' : getStatusIcon(stage.status)}</div>
               <div className="stage-name">{stage.stage_name}</div>
               {stage.duration_ms !== null && stage.duration_ms !== undefined && (
                 <div className="stage-duration">{formatDuration(stage.duration_ms)}</div>
@@ -151,7 +168,8 @@ function ConversionFlow({ stages }) {
               </div>
             )}
           </div>
-        ))}
+        )
+        })}
       </div>
     )
   }
