@@ -154,17 +154,6 @@ function SqlPreview({ result }) {
                 </div>
               )}
 
-        {result.warnings && result.warnings.length > 0 && !result.validation && (
-          <div className="warnings">
-            <h3>Warnings</h3>
-            <ul>
-              {result.warnings.map((warning, index) => (
-                <li key={index}>{warning.message}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
               {hasXml && viewMode === 'split' && (
                 <div className="split-view">
                   <div className="split-panel xml-panel">
