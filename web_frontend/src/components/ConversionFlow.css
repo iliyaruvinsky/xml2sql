@@ -5,6 +5,7 @@
   border-radius: 12px;
   border: 1px solid #dee2e6;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  min-height: 320px;
 }
 
 .flow-header {
