@@ -24,6 +24,7 @@ from .models import (
     ConversionMetadata,
     ValidationIssue,
     ValidationResult,
+    ConversionStageInfo,
     CorrectionInfo,
     CorrectionResult as CorrectionResultModel,
     BatchConversionRequest,
@@ -169,6 +170,21 @@ async def convert_single(
             original_sql=result.corrections.original_sql,
         )
     
+    # Convert stages to API model
+    stages = [
+        ConversionStageInfo(
+            stage_name=stage.stage_name,
+            status=stage.status,
+            timestamp=stage.timestamp,
+            duration_ms=stage.duration_ms,
+            details=stage.details,
+            xml_snippet=stage.xml_snippet,
+            sql_snippet=stage.sql_snippet,
+            error=stage.error,
+        )
+        for stage in result.stages
+    ]
+    
     # Save to database
     conversion = Conversion(
         filename=file.filename or "unknown.xml",
@@ -197,6 +213,7 @@ async def convert_single(
         validation=validation,
         validation_logs=result.validation_logs or [],
         corrections=corrections,
+        stages=stages,
         status=conversion.status,
         error_message=conversion.error_message,
         created_at=conversion.created_at,

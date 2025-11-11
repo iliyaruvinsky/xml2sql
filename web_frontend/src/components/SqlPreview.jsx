@@ -4,6 +4,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { downloadSql } from '../services/api'
 import XmlViewer from './XmlViewer'
 import ValidationResults from './ValidationResults'
+import ConversionFlow from './ConversionFlow'
 import './SqlPreview.css'
 
 function SqlPreview({ result }) {
@@ -57,6 +58,11 @@ function SqlPreview({ result }) {
             </div>
           )}
         </div>
+
+        {/* Conversion Flow - Always show at top if available */}
+        {result.stages && result.stages.length > 0 && (
+          <ConversionFlow stages={result.stages} />
+        )}
 
         {result.metadata && (
           <div className="metadata">

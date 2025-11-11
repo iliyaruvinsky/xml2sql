@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import time
+from dataclasses import dataclass, field
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
@@ -22,6 +25,20 @@ from ...sql.validator import (
 )
 
 
+@dataclass
+class ConversionStage:
+    """Represents a single stage in the conversion process."""
+    
+    stage_name: str
+    status: str  # 'pending', 'in_progress', 'completed', 'failed'
+    timestamp: Optional[datetime] = None
+    duration_ms: Optional[int] = None
+    details: dict = field(default_factory=dict)
+    xml_snippet: Optional[str] = None
+    sql_snippet: Optional[str] = None
+    error: Optional[str] = None
+
+
 class ConversionResult:
     """Result of a conversion operation."""
 
@@ -35,6 +52,7 @@ class ConversionResult:
         validation: Optional[ValidationResult] = None,
         validation_logs: Optional[list[str]] = None,
         corrections: Optional[CorrectionResult] = None,
+        stages: Optional[list[ConversionStage]] = None,
     ):
         self.sql_content = sql_content
         self.scenario_id = scenario_id
@@ -44,6 +62,7 @@ class ConversionResult:
         self.validation = validation
         self.validation_logs = validation_logs or []
         self.corrections = corrections
+        self.stages = stages or []
 
 
 def convert_xml_to_sql(
@@ -72,7 +91,45 @@ def convert_xml_to_sql(
     Returns:
         ConversionResult with SQL content and metadata
     """
+    # Initialize stage tracking
+    stages: list[ConversionStage] = []
+    
+    def _start_stage(name: str) -> tuple[int, datetime]:
+        """Start a new stage and return start time."""
+        start_time = time.time()
+        start_dt = datetime.now()
+        stage = ConversionStage(
+            stage_name=name,
+            status='in_progress',
+            timestamp=start_dt,
+        )
+        stages.append(stage)
+        return int(start_time * 1000), start_dt
+    
+    def _complete_stage(start_ms: int, details: Optional[dict] = None, 
+                        xml_snippet: Optional[str] = None, sql_snippet: Optional[str] = None):
+        """Mark current stage as completed."""
+        if stages:
+            stages[-1].status = 'completed'
+            stages[-1].duration_ms = int(time.time() * 1000) - start_ms
+            if details:
+                stages[-1].details = details
+            if xml_snippet:
+                stages[-1].xml_snippet = xml_snippet
+            if sql_snippet:
+                stages[-1].sql_snippet = sql_snippet
+    
+    def _fail_stage(start_ms: int, error: str):
+        """Mark current stage as failed."""
+        if stages:
+            stages[-1].status = 'failed'
+            stages[-1].duration_ms = int(time.time() * 1000) - start_ms
+            stages[-1].error = error
+    
     try:
+        # Stage 1: Parse and Validate XML
+        start_ms, start_dt = _start_stage("Parse XML")
+        
         # Parse XML from bytes
         tree = etree.parse(BytesIO(xml_content))
         root = tree.getroot()
@@ -119,7 +176,19 @@ def convert_xml_to_sql(
 
         # Extract scenario ID from XML
         scenario_id = root.get("id")
+        
+        # Get XML snippet for display
+        xml_snippet = etree.tostring(root, encoding='unicode', pretty_print=True)[:500] + "..."
+        
+        _complete_stage(start_ms, details={
+            "scenario_id": scenario_id,
+            "root_element": root_tag,
+            "namespace_count": len(root.nsmap),
+        }, xml_snippet=xml_snippet)
 
+        # Stage 2: Build Intermediate Representation
+        start_ms, start_dt = _start_stage("Build IR")
+        
         # Parse scenario to IR
         # parse_scenario expects a Path, so we create a temporary file
         import tempfile
@@ -177,7 +246,18 @@ def convert_xml_to_sql(
             "calculated_attributes_count": calculated_count,
             "logical_model_present": logical_model_present,
         }
+        
+        _complete_stage(start_ms, details={
+            "nodes_count": nodes_count,
+            "filters_count": filters_count,
+            "calculated_attributes_count": calculated_count,
+            "data_sources_count": len(scenario_ir.data_sources),
+            "logical_model_present": logical_model_present,
+        })
 
+        # Stage 3: Generate SQL
+        start_ms, start_dt = _start_stage("Generate SQL")
+        
         # Render to SQL with warnings (disable validation to capture results separately)
         sql_content, warnings = render_scenario(
             scenario_ir,
@@ -192,7 +272,19 @@ def convert_xml_to_sql(
             return_warnings=True,
             validate=False,  # Validate separately to capture results
         )
+        
+        # Get SQL snippet for display
+        sql_snippet = sql_content[:500] + "..." if len(sql_content) > 500 else sql_content
+        
+        _complete_stage(start_ms, details={
+            "sql_length": len(sql_content),
+            "warnings_count": len(warnings),
+            "cte_count": sql_content.count(" AS ("),
+        }, sql_snippet=sql_snippet)
 
+        # Stage 4: Validate SQL
+        start_ms, start_dt = _start_stage("Validate SQL")
+        
         # Perform validation separately to capture results
         validation_result = ValidationResult()
         
@@ -252,6 +344,13 @@ def convert_xml_to_sql(
         expression_result = validate_expressions(scenario_ir)
         validation_result.merge(expression_result)
         validation_logs.append(_format_log("Expression Validation", expression_result))
+        
+        _complete_stage(start_ms, details={
+            "is_valid": validation_result.is_valid,
+            "error_count": len(validation_result.errors),
+            "warning_count": len(validation_result.warnings),
+            "info_count": len(validation_result.info),
+        })
 
         # Phase 4: Auto-correction (if enabled)
         correction_result: Optional[CorrectionResult] = None
@@ -276,6 +375,12 @@ def convert_xml_to_sql(
                 # Re-validate corrected SQL (optional - can be disabled for performance)
                 # For now, we'll skip re-validation to avoid double work
 
+        _complete_stage(start_ms, details={
+            "is_valid": validation_result.is_valid,
+            "total_issues": len(validation_result.errors) + len(validation_result.warnings),
+            "auto_fix_applied": auto_fix and correction_result is not None,
+        })
+        
         return ConversionResult(
             sql_content=final_sql,
             scenario_id=scenario_id,
@@ -284,6 +389,7 @@ def convert_xml_to_sql(
             validation=validation_result,
             validation_logs=validation_logs,
             corrections=correction_result,
+            stages=stages,
         )
 
     except etree.XMLSyntaxError as xml_error:

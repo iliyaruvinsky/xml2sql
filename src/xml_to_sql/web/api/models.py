@@ -108,6 +108,19 @@ class HistoryListResponse(BaseModel):
     page_size: int = 50
 
 
+class ConversionStageInfo(BaseModel):
+    """Information about a conversion stage."""
+    
+    stage_name: str
+    status: str  # 'pending', 'in_progress', 'completed', 'failed'
+    timestamp: Optional[datetime] = None
+    duration_ms: Optional[int] = None
+    details: Dict[str, any] = Field(default_factory=dict)
+    xml_snippet: Optional[str] = None
+    sql_snippet: Optional[str] = None
+    error: Optional[str] = None
+
+
 class CorrectionInfo(BaseModel):
     """Information about a single correction applied."""
 
@@ -143,6 +156,7 @@ class ConversionResponse(BaseModel):
     validation: Optional[ValidationResult] = None  # Validation results
     validation_logs: List[str] = Field(default_factory=list)
     corrections: Optional[CorrectionResult] = None  # Auto-correction results
+    stages: List[ConversionStageInfo] = Field(default_factory=list)  # Conversion flow stages
     status: str = "success"
     error_message: Optional[str] = None
     created_at: datetime
