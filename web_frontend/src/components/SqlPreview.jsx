@@ -8,6 +8,7 @@ import ConversionFlow from './ConversionFlow'
 import './SqlPreview.css'
 
 function SqlPreview({ result }) {
+  const [mainTab, setMainTab] = useState('sql') // 'sql', 'flow', 'validation'
   const [viewMode, setViewMode] = useState('split') // 'split', 'tabs'
   const [activeTab, setActiveTab] = useState('xml') // 'xml' or 'sql' for tabs view
   const handleDownload = async () => {
