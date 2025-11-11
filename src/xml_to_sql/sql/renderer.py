@@ -713,16 +713,15 @@ def _assemble_sql(ctes: List[str], final_select: str, warnings: List[str], view_
             lines.append(f"--   {warning}")
         lines.append("")
 
+    if view_name:
+        lines.append(f"CREATE OR REPLACE VIEW {_quote_identifier(view_name)} AS")
+    
     if ctes:
         lines.append("WITH")
         lines.append(",\n".join(ctes))
         lines.append("")
 
-    if view_name:
-        lines.append(f"CREATE OR REPLACE VIEW {_quote_identifier(view_name)} AS")
-        lines.append(final_select)
-    else:
-        lines.append(final_select)
+    lines.append(final_select)
 
     return "\n".join(lines)
 
