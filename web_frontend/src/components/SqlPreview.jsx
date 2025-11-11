@@ -64,7 +64,7 @@ function SqlPreview({ result }) {
             Validation
             {result.validation && (
               <span className="tab-badge">
-                {result.validation.errors?.length || 0 + result.validation.warnings?.length || 0 + result.validation.info?.length || 0}
+                {(result.validation.errors?.length || 0) + (result.validation.warnings?.length || 0) + (result.validation.info?.length || 0)}
               </span>
             )}
           </button>
@@ -153,30 +153,6 @@ function SqlPreview({ result }) {
                   </ul>
                 </div>
               )}
-
-        {result.corrections && result.corrections.corrections_applied && result.corrections.corrections_applied.length > 0 && (
-          <div className="corrections">
-            <h3>Auto-Corrections Applied ({result.corrections.corrections_applied.length})</h3>
-            <div className="corrections-list">
-              {result.corrections.corrections_applied.map((correction, index) => (
-                <div key={index} className={`correction-item correction-${correction.confidence}`}>
-                  <div className="correction-header">
-                    <span className="correction-confidence">{correction.confidence.toUpperCase()}</span>
-                    <span className="correction-code">{correction.issue_code}</span>
-                    {correction.line_number && (
-                      <span className="correction-line">Line {correction.line_number}</span>
-                    )}
-                  </div>
-                  <div className="correction-description">{correction.description}</div>
-                  <div className="correction-diff">
-                    <span className="correction-original">- {correction.original_text}</span>
-                    <span className="correction-corrected">+ {correction.corrected_text}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {result.warnings && result.warnings.length > 0 && !result.validation && (
           <div className="warnings">
