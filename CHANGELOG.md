@@ -5,6 +5,21 @@ All notable changes to the XML to SQL Converter project will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-11-11
+
+### Fixed
+- **Join SQL Generation**: Fixed critical join issues
+  - Join conditions now properly generated (no more `ON 1=1` cartesian products)
+  - Hidden columns excluded from SELECT clauses
+  - Duplicate columns removed from join output
+  - Join attributes correctly parsed from XML
+- **SQL Structure**: CREATE VIEW statement now at top (before WITH clause)
+- **Column Selection**: Final SELECT uses explicit column list instead of SELECT *
+
+### Changed
+- Web converter now generates CREATE VIEW statements by default
+- Improved join attribute resolution for better XML compatibility
+
 ## [0.2.0] - 2025-11-09
 
 ### Added

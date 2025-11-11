@@ -1,6 +1,6 @@
 import './Layout.css'
 
-const APP_VERSION = '0.2.0'
+const APP_VERSION = '0.2.1'
 
 function Layout({ children }) {
   return (
