@@ -5,7 +5,7 @@
   border-radius: 12px;
   border: 1px solid #dee2e6;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  min-height: 320px;
+  min-height: 400px;
 }
 
 .flow-header {
@@ -60,7 +60,7 @@
 
 .flowchart-container {
   position: relative;
-  min-height: 280px;
+  min-height: 360px;
   padding: 20px;
   overflow: hidden;
   display: flex;
@@ -92,8 +92,8 @@
 
 .flow-stage {
   width: 200px;
-  min-height: 240px;
-  max-height: 240px;
+  min-height: 320px;
+  max-height: 320px;
   padding: 24px 16px;
   background: white;
   border: 3px solid #dee2e6;
@@ -105,7 +105,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
 }
 
@@ -273,9 +273,7 @@
   justify-content: flex-start;
   margin-top: 8px;
   width: 100%;
-  max-height: 100px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 .stat-item {
