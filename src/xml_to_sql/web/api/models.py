@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -115,7 +115,7 @@ class ConversionStageInfo(BaseModel):
     status: str  # 'pending', 'in_progress', 'completed', 'failed'
     timestamp: Optional[datetime] = None
     duration_ms: Optional[int] = None
-    details: Dict[str, any] = Field(default_factory=dict)
+    details: Dict[str, Any] = Field(default_factory=dict)
     xml_snippet: Optional[str] = None
     sql_snippet: Optional[str] = None
     error: Optional[str] = None
