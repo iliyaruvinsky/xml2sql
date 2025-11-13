@@ -126,3 +126,9 @@ When asked to read files and unable to read most/all of them:
 - **Wait for explicit user direction**
 
 **NO EXCEPTIONS TO THESE RULES UNDER ANY CIRCUMSTANCES**
+
+### **RULE 11: LLM HANDOVER MAINTENANCE**
+
+- **The `docs/llm_handover.md` document must ALWAYS be updated with any new information, however minor, that is needed to continue the project from a brand-new chat session.**
+- **Before ending any task or session, review recent work and ensure `docs/llm_handover.md` reflects the latest status, decisions, and next steps.**
+- **If no changes are required, explicitly confirm that the document already captures the current state.**

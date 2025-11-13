@@ -136,26 +136,29 @@ def convert_xml_to_sql(
 
         # Validate that this is a SAP HANA calculation view XML
         # Check for expected namespace and root element structure
-        hana_namespace = "http://www.sap.com/ndb/BiModelCalculation.ecore"
-        root_tag = root.tag
-        root_namespace = root.nsmap.get(root.prefix) if root.prefix else None
-        
-        # Check if root element is 'scenario' or 'Calculation:scenario'
+        hana_calc_namespace = "http://www.sap.com/ndb/BiModelCalculation.ecore"
+        hana_view_namespace = "http://www.sap.com/ndb/ViewModelView.ecore"
+        root_qname = etree.QName(root)
+        root_local = root_qname.localname
+        root_tag = root_qname.text
+
         is_hana_xml = False
-        if root_tag == "scenario" or root_tag.endswith("}scenario"):
-            # Check for HANA namespace
-            if hana_namespace in root.nsmap.values():
+
+        if root_local == "scenario":
+            if hana_calc_namespace in root.nsmap.values():
                 is_hana_xml = True
-            # Also check if root has 'id' attribute (typical of HANA calculation views)
             if root.get("id") is not None:
                 is_hana_xml = True
-        
-        # Additional check: look for expected HANA calculation view elements
-        if not is_hana_xml:
-            # Try to find dataSources or calculationViews elements
+        elif root_local == "ColumnView":
+            if hana_view_namespace in root.nsmap.values() or root_qname.namespace == hana_view_namespace:
+                # ColumnView has inline nodes without separate dataSources section
+                has_view_nodes = len(root.findall("./{*}viewNode")) > 0
+                if has_view_nodes:
+                    is_hana_xml = True
+        else:
+            # Additional check: look for expected HANA calculation view elements
             has_data_sources = len(root.findall(".//{*}dataSources")) > 0 or len(root.findall(".//{*}DataSource")) > 0
             has_calc_views = len(root.findall(".//{*}calculationViews")) > 0 or len(root.findall(".//{*}calculationView")) > 0
-            
             if has_data_sources or has_calc_views:
                 is_hana_xml = True
         
@@ -175,7 +178,7 @@ def convert_xml_to_sql(
             )
 
         # Extract scenario ID from XML
-        scenario_id = root.get("id")
+        scenario_id = root.get("id") or root.get("name")
         
         # Get XML snippet for display
         xml_snippet = etree.tostring(root, encoding='unicode', pretty_print=True)[:500] + "..."

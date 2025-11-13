@@ -1,0 +1,976 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<View:ColumnView xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Type="http://www.sap.com/ndb/DataModelType.ecore" xmlns:View="http://www.sap.com/ndb/ViewModelView.ecore" schemaVersion="2.3" name="CV_PURCHASE_ORDERS" dataCategory="CUBE" hierarchiesSQLEnabled="false" defaultNode="#//Aggregation" clientDependent="false" applyPrivilegeType="ANALYTIC_PRIVILEGE" translationRelevant="true">
+  <endUserTexts label="ACT_COMM_BUDG"/>
+  <origin/>
+  <executionHints>
+    <genericHints name="query_level_sql_hints" value="NO_CALC_VIEW_UNFOLDING"/>
+    <genericHints name="qo_pop_hints" value="NO_CALC_VIEW_UNFOLDING"/>
+  </executionHints>
+  <viewNode xsi:type="View:Projection" name="Projection_7">
+    <endUserTexts label=" "/>
+    <element name="EBELN_EKKO">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="BSART_EKKO">
+      <endUserTexts label="BSART_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BSTYP_EKKO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="AEDAT_EKKO">
+      <endUserTexts label="AEDAT_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="LIFNR_EKKO">
+      <endUserTexts label="LIFNR"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ERNAM_EKKO">
+      <endUserTexts label="ERNAM_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="EKORG_EKKO">
+      <endUserTexts label="EKORG_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EKGRP_EKKO">
+      <endUserTexts label="EKGRP"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BEDAT_EKKO">
+      <endUserTexts label="BEDAT_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZTERM_EKKO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="WAERS">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="WKURS_EKKO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="9" precision="9" scale="5"/>
+    </element>
+    <element name="ZZNAME_CO_EKKO">
+      <inlineType primitiveType="NVARCHAR" length="80" precision="80" scale="0"/>
+    </element>
+    <input alias="_BIC_AZEKKO2">
+      <entity>#//"ABAP"./BIC/AZEKKO2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELN_EKKO" sourceName="EBELN"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BSART_EKKO" sourceName="BSART"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BSTYP_EKKO" sourceName="BSTYP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="AEDAT_EKKO" sourceName="AEDAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LIFNR_EKKO" sourceName="LIFNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ERNAM_EKKO" sourceName="ERNAM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EKORG_EKKO" sourceName="EKORG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EKGRP_EKKO" sourceName="EKGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BEDAT_EKKO" sourceName="BEDAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZTERM_EKKO" sourceName="ZTERM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS" sourceName="WAERS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WKURS_EKKO" sourceName="WKURS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZNAME_CO_EKKO" sourceName="ZZNAME_CO"/>
+    </input>
+    <layout xCoordinate="22" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_6">
+    <endUserTexts label=" "/>
+    <element name="EBELN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EBELP_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="AEDAT_EKPO">
+      <endUserTexts label="AEDAT_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="TXZ01_EKPO">
+      <endUserTexts label="TXZ01"/>
+      <inlineType primitiveType="NVARCHAR" length="40" precision="40" scale="0"/>
+    </element>
+    <element name="MATNR_EKPO">
+      <endUserTexts label="MATNR"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="EMATN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="WERKS_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="LGORT_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BEDNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="MATKL_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="9" precision="9" scale="0"/>
+    </element>
+    <element name="KTMNG_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MENGE_EKPO">
+      <endUserTexts label="MENGE_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MEINS_EKPO">
+      <endUserTexts label="MEINS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="NETPR_EKPO">
+      <endUserTexts label="NETPR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="11" precision="11" scale="2"/>
+    </element>
+    <element name="PEINH_EKPO">
+      <endUserTexts label="PEINH_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="BRTWR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="KONNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="KTPNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="EFFWR_EKPO">
+      <endUserTexts label="EFFWR"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="BANFN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="BNFPO_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="LOEKZ_EKPO">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="PACKNO_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ELIKZ">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="WERKS">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="NETWR_EKPO">
+      <endUserTexts label="NETWR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EKPO">
+      <endUserTexts label="WAERS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="ZWERT_EKPO">
+      <endUserTexts label="ZWERT_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="NAVNW_EKPO">
+      <endUserTexts label="NAVNW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="ABMNG_EKPO">
+      <endUserTexts label="ABMNG_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="NTGEW_EKPO">
+      <endUserTexts label="NTGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="BRGEW_EKPO">
+      <endUserTexts label="BRGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="VOLUM_EKPO">
+      <endUserTexts label="VOLUM_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="CQU_SAR_EKPO">
+      <endUserTexts label="CQU_SAR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="3"/>
+    </element>
+    <element name="GEWEI_EKPO">
+      <endUserTexts label="GEWEI_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>(&quot;LOEKZ_EKPO&quot; ='') AND (&quot;ELIKZ&quot; ='')</formula>
+    </filterExpression>
+    <input alias="_BIC_AZEKPO2">
+      <entity>#//"ABAP"./BIC/AZEKPO2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELN_EKPO" sourceName="EBELN"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELP_EKPO" sourceName="EBELP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="AEDAT_EKPO" sourceName="AEDAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXZ01_EKPO" sourceName="TXZ01"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATNR_EKPO" sourceName="MATNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMATN_EKPO" sourceName="EMATN"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WERKS_EKPO" sourceName="WERKS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LGORT_EKPO" sourceName="LGORT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BEDNR_EKPO" sourceName="BEDNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATKL_EKPO" sourceName="MATKL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTMNG_EKPO" sourceName="KTMNG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE_EKPO" sourceName="MENGE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MEINS_EKPO" sourceName="MEINS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETPR_EKPO" sourceName="NETPR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PEINH_EKPO" sourceName="PEINH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRTWR_EKPO" sourceName="BRTWR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KONNR_EKPO" sourceName="KONNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTPNR_EKPO" sourceName="KTPNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EFFWR_EKPO" sourceName="EFFWR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BANFN_EKPO" sourceName="BANFN"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BNFPO_EKPO" sourceName="BNFPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LOEKZ_EKPO" sourceName="LOEKZ"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PACKNO_EKPO" sourceName="PACKNO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ELIKZ" sourceName="ELIKZ"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WERKS" sourceName="WERKS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETWR_EKPO" sourceName="NETWR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EKPO" sourceName="WAERS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZWERT_EKPO" sourceName="ZWERT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NAVNW_EKPO" sourceName="NAVNW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ABMNG_EKPO" sourceName="ABMNG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NTGEW_EKPO" sourceName="NTGEW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRGEW_EKPO" sourceName="BRGEW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VOLUM_EKPO" sourceName="VOLUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CQU_SAR_EKPO" sourceName="CQU_SAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GEWEI_EKPO" sourceName="GEWEI"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="357" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_8">
+    <endUserTexts label=" "/>
+    <element name="EINDT">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EBELN">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EBELP">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="MENGE">
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="WEMNG">
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <input alias="_BIC_AZEKET2">
+      <entity>#//"ABAP"./BIC/AZEKET2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="EINDT" sourceName="EINDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELN" sourceName="EBELN"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELP" sourceName="EBELP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE" sourceName="MENGE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WEMNG" sourceName="WEMNG"/>
+    </input>
+    <layout xCoordinate="253" yCoordinate="357" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_6" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="AEDAT_EKPO">
+      <endUserTexts label="AEDAT_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="TXZ01_EKPO">
+      <endUserTexts label="TXZ01"/>
+      <inlineType primitiveType="NVARCHAR" length="40" precision="40" scale="0"/>
+    </element>
+    <element name="EBELN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EBELP_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="MATNR_EKPO">
+      <endUserTexts label="MATNR"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="EMATN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="WERKS_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="LGORT_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BEDNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="MATKL_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="9" precision="9" scale="0"/>
+    </element>
+    <element name="KTMNG_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MENGE_EKPO">
+      <endUserTexts label="MENGE_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MEINS_EKPO">
+      <endUserTexts label="MEINS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="NETPR_EKPO">
+      <endUserTexts label="NETPR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="11" precision="11" scale="2"/>
+    </element>
+    <element name="PEINH_EKPO">
+      <endUserTexts label="PEINH_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="BRTWR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="KONNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="KTPNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="EFFWR_EKPO">
+      <endUserTexts label="EFFWR"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="BANFN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="BNFPO_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="PACKNO_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EINDT">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="WEMNG">
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MENGE">
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="NETWR_EKPO">
+      <endUserTexts label="NETWR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EKPO">
+      <endUserTexts label="WAERS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="ZWERT_EKPO">
+      <endUserTexts label="ZWERT_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="NAVNW_EKPO">
+      <endUserTexts label="NAVNW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="ABMNG_EKPO">
+      <endUserTexts label="ABMNG_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="NTGEW_EKPO">
+      <endUserTexts label="NTGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="BRGEW_EKPO">
+      <endUserTexts label="BRGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="VOLUM_EKPO">
+      <endUserTexts label="VOLUM_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="CQU_SAR_EKPO">
+      <endUserTexts label="CQU_SAR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="3"/>
+    </element>
+    <element name="GEWEI_EKPO">
+      <endUserTexts label="GEWEI_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_6</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="AEDAT_EKPO" sourceName="AEDAT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXZ01_EKPO" sourceName="TXZ01_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELN_EKPO" sourceName="EBELN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELP_EKPO" sourceName="EBELP_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATNR_EKPO" sourceName="MATNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMATN_EKPO" sourceName="EMATN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WERKS_EKPO" sourceName="WERKS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LGORT_EKPO" sourceName="LGORT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BEDNR_EKPO" sourceName="BEDNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATKL_EKPO" sourceName="MATKL_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTMNG_EKPO" sourceName="KTMNG_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE_EKPO" sourceName="MENGE_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MEINS_EKPO" sourceName="MEINS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETPR_EKPO" sourceName="NETPR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PEINH_EKPO" sourceName="PEINH_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRTWR_EKPO" sourceName="BRTWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KONNR_EKPO" sourceName="KONNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTPNR_EKPO" sourceName="KTPNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EFFWR_EKPO" sourceName="EFFWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BANFN_EKPO" sourceName="BANFN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BNFPO_EKPO" sourceName="BNFPO_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PACKNO_EKPO" sourceName="PACKNO_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETWR_EKPO" sourceName="NETWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EKPO" sourceName="WAERS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZWERT_EKPO" sourceName="ZWERT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NAVNW_EKPO" sourceName="NAVNW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ABMNG_EKPO" sourceName="ABMNG_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NTGEW_EKPO" sourceName="NTGEW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRGEW_EKPO" sourceName="BRGEW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VOLUM_EKPO" sourceName="VOLUM_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CQU_SAR_EKPO" sourceName="CQU_SAR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GEWEI_EKPO" sourceName="GEWEI_EKPO"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_8</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EINDT" sourceName="EINDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WEMNG" sourceName="WEMNG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE" sourceName="MENGE"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_6/Projection_6" rightInput="#//Join_6/Projection_8" joinType="inner">
+      <leftElementName>EBELN_EKPO</leftElementName>
+      <leftElementName>EBELP_EKPO</leftElementName>
+      <rightElementName>EBELN</rightElementName>
+      <rightElementName>EBELP</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_4" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="BSART_EKKO">
+      <endUserTexts label="BSART_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BSTYP_EKKO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="AEDAT_EKKO">
+      <endUserTexts label="AEDAT_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="LIFNR_EKKO">
+      <endUserTexts label="LIFNR"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ERNAM_EKKO">
+      <endUserTexts label="ERNAM_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="EKORG_EKKO">
+      <endUserTexts label="EKORG_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EKGRP_EKKO">
+      <endUserTexts label="EKGRP"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BEDAT_EKKO">
+      <endUserTexts label="BEDAT_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZTERM_EKKO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="WAERS">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="WKURS_EKKO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="9" precision="9" scale="5"/>
+    </element>
+    <element name="ZZNAMECO_EKKO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="80" precision="80" scale="0"/>
+    </element>
+    <element name="AEDAT_EKPO">
+      <endUserTexts label="AEDAT_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="TXZ01_EKPO">
+      <endUserTexts label="TXZ01"/>
+      <inlineType primitiveType="NVARCHAR" length="40" precision="40" scale="0"/>
+    </element>
+    <element name="EBELN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EBELP_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="MATNR_EKPO">
+      <endUserTexts label="MATNR"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="EMATN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="WERKS_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="LGORT_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BEDNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="MATKL_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="9" precision="9" scale="0"/>
+    </element>
+    <element name="KTMNG_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MENGE_EKPO">
+      <endUserTexts label="MENGE_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MEINS_EKPO">
+      <endUserTexts label="MEINS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="NETPR_EKPO">
+      <endUserTexts label="NETPR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="11" precision="11" scale="2"/>
+    </element>
+    <element name="PEINH_EKPO">
+      <endUserTexts label="PEINH_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="BRTWR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="KONNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="KTPNR_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="EFFWR_EKPO">
+      <endUserTexts label="EFFWR"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="BANFN_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="BNFPO_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="PACKNO_EKPO">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EINDT">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="WEMNG">
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MENGE">
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="NETWR_EKPO">
+      <endUserTexts label="NETWR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EKPO">
+      <endUserTexts label="WAERS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="ZWERT_EKPO">
+      <endUserTexts label="ZWERT_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="NAVNW_EKPO">
+      <endUserTexts label="NAVNW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="ABMNG_EKPO">
+      <endUserTexts label="ABMNG_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="NTGEW_EKPO">
+      <endUserTexts label="NTGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="BRGEW_EKPO">
+      <endUserTexts label="BRGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="VOLUM_EKPO">
+      <endUserTexts label="VOLUM_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="CQU_SAR_EKPO">
+      <endUserTexts label="CQU_SAR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="3"/>
+    </element>
+    <element name="GEWEI_EKPO">
+      <endUserTexts label="GEWEI_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_7</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="BSART_EKKO" sourceName="BSART_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BSTYP_EKKO" sourceName="BSTYP_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="AEDAT_EKKO" sourceName="AEDAT_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LIFNR_EKKO" sourceName="LIFNR_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ERNAM_EKKO" sourceName="ERNAM_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EKORG_EKKO" sourceName="EKORG_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EKGRP_EKKO" sourceName="EKGRP_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BEDAT_EKKO" sourceName="BEDAT_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZTERM_EKKO" sourceName="ZTERM_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS" sourceName="WAERS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WKURS_EKKO" sourceName="WKURS_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZNAMECO_EKKO" sourceName="ZZNAME_CO_EKKO"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_6</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="AEDAT_EKPO" sourceName="AEDAT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXZ01_EKPO" sourceName="TXZ01_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELN_EKPO" sourceName="EBELN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELP_EKPO" sourceName="EBELP_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATNR_EKPO" sourceName="MATNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMATN_EKPO" sourceName="EMATN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WERKS_EKPO" sourceName="WERKS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LGORT_EKPO" sourceName="LGORT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BEDNR_EKPO" sourceName="BEDNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATKL_EKPO" sourceName="MATKL_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTMNG_EKPO" sourceName="KTMNG_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE_EKPO" sourceName="MENGE_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MEINS_EKPO" sourceName="MEINS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETPR_EKPO" sourceName="NETPR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PEINH_EKPO" sourceName="PEINH_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRTWR_EKPO" sourceName="BRTWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KONNR_EKPO" sourceName="KONNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTPNR_EKPO" sourceName="KTPNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EFFWR_EKPO" sourceName="EFFWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BANFN_EKPO" sourceName="BANFN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BNFPO_EKPO" sourceName="BNFPO_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PACKNO_EKPO" sourceName="PACKNO_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EINDT" sourceName="EINDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WEMNG" sourceName="WEMNG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE" sourceName="MENGE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETWR_EKPO" sourceName="NETWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EKPO" sourceName="WAERS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZWERT_EKPO" sourceName="ZWERT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NAVNW_EKPO" sourceName="NAVNW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ABMNG_EKPO" sourceName="ABMNG_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NTGEW_EKPO" sourceName="NTGEW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRGEW_EKPO" sourceName="BRGEW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VOLUM_EKPO" sourceName="VOLUM_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CQU_SAR_EKPO" sourceName="CQU_SAR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GEWEI_EKPO" sourceName="GEWEI_EKPO"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="165" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_4/Projection_7" rightInput="#//Join_4/Join_6">
+      <leftElementName>EBELN_EKKO</leftElementName>
+      <rightElementName>EBELN_EKPO</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:Aggregation" name="Aggregation">
+    <element name="MONTH" hidden="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="Calendar Month"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" semanticType="empty"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>leftstr(&quot;EINDT_EKET&quot;,6)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="YEAR" hidden="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="Calendar Year"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" semanticType="empty"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>leftstr(&quot;EINDT_EKET&quot;,4)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="BSART_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="BSART_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BSTYP_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="AEDAT_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="AEDAT_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="LIFNR_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="LIFNR"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ERNAM_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ERNAM_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="EKORG_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EKORG_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EKGRP_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EKGRP"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BEDAT_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="BEDAT_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZTERM_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="WAERS_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="WAERS_EKKO"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="WKURS_EKKO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="9" precision="9" scale="5"/>
+    </element>
+    <element name="ZZNAMECO_EKKO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="80" precision="80" scale="0"/>
+    </element>
+    <element name="AEDAT_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="AEDAT_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="TXZ01_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="TXZ01"/>
+      <inlineType primitiveType="NVARCHAR" length="40" precision="40" scale="0"/>
+    </element>
+    <element name="EBELN_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EBELP_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="MATNR_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="MATNR"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="EMATN_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="WERKS_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="LGORT_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BEDNR_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="MATKL_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="9" precision="9" scale="0"/>
+    </element>
+    <element name="KTMNG_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MENGE_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="MENGE_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MEINS_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="MEINS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="NETPR_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="NETPR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="11" precision="11" scale="2"/>
+    </element>
+    <element name="PEINH_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="PEINH_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="BRTWR_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="KONNR_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="KTPNR_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="EFFWR_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="EFFWR"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="BANFN_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="BNFPO_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="PACKNO_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EINDT_EKET" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EINDT_EKET"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="WEMNG_EKET" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="MENGE_EKET" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label=" "/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="NETWR_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="NETWR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="WAERS_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0" semanticType="empty"/>
+    </element>
+    <element name="ZWERT_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="ZWERT_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="NAVNW_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="NAVNW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="ABMNG_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="ABMNG_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="NTGEW_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="NTGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="BRGEW_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="BRGEW_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="VOLUM_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="VOLUM_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="3"/>
+    </element>
+    <element name="CQU_SAR_EKPO" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="CQU_SAR_EKPO"/>
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="3"/>
+    </element>
+    <element name="GEWEI_EKPO" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="GEWEI_EKPO"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0" semanticType="empty"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_4</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="BSART_EKKO" sourceName="BSART_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BSTYP_EKKO" sourceName="BSTYP_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="AEDAT_EKKO" sourceName="AEDAT_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LIFNR_EKKO" sourceName="LIFNR_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ERNAM_EKKO" sourceName="ERNAM_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EKORG_EKKO" sourceName="EKORG_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EKGRP_EKKO" sourceName="EKGRP_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BEDAT_EKKO" sourceName="BEDAT_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZTERM_EKKO" sourceName="ZTERM_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EKKO" sourceName="WAERS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZNAMECO_EKKO" sourceName="ZZNAMECO_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="AEDAT_EKPO" sourceName="AEDAT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXZ01_EKPO" sourceName="TXZ01_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELN_EKPO" sourceName="EBELN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EBELP_EKPO" sourceName="EBELP_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATNR_EKPO" sourceName="MATNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMATN_EKPO" sourceName="EMATN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WERKS_EKPO" sourceName="WERKS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LGORT_EKPO" sourceName="LGORT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BEDNR_EKPO" sourceName="BEDNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MATKL_EKPO" sourceName="MATKL_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MEINS_EKPO" sourceName="MEINS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KONNR_EKPO" sourceName="KONNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTPNR_EKPO" sourceName="KTPNR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BANFN_EKPO" sourceName="BANFN_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BNFPO_EKPO" sourceName="BNFPO_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PACKNO_EKPO" sourceName="PACKNO_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EINDT_EKET" sourceName="EINDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EKPO" sourceName="WAERS_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GEWEI_EKPO" sourceName="GEWEI_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WKURS_EKKO" sourceName="WKURS_EKKO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="KTMNG_EKPO" sourceName="KTMNG_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE_EKPO" sourceName="MENGE_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETPR_EKPO" sourceName="NETPR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PEINH_EKPO" sourceName="PEINH_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRTWR_EKPO" sourceName="BRTWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EFFWR_EKPO" sourceName="EFFWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WEMNG_EKET" sourceName="WEMNG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MENGE_EKET" sourceName="MENGE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NETWR_EKPO" sourceName="NETWR_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZWERT_EKPO" sourceName="ZWERT_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NAVNW_EKPO" sourceName="NAVNW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ABMNG_EKPO" sourceName="ABMNG_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="NTGEW_EKPO" sourceName="NTGEW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BRGEW_EKPO" sourceName="BRGEW_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VOLUM_EKPO" sourceName="VOLUM_EKPO"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CQU_SAR_EKPO" sourceName="CQU_SAR_EKPO"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="87" width="0" height="0" expanded="true"/>
+  </viewNode>
+  <viewLayout relativeWidthScenario="66"/>
+</View:ColumnView>

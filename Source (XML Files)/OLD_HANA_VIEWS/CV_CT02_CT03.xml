@@ -1,0 +1,1094 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<View:ColumnView xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Type="http://www.sap.com/ndb/DataModelType.ecore" xmlns:View="http://www.sap.com/ndb/ViewModelView.ecore" schemaVersion="2.3" name="CV_CT02_CT03" dataCategory="DEFAULT" hierarchiesSQLEnabled="false" defaultNode="#//Projection" clientDependent="false" applyPrivilegeType="ANALYTIC_PRIVILEGE" translationRelevant="true">
+  <endUserTexts label="CV_CT02_CT03"/>
+  <origin/>
+  <parameter name="IP_TRTNUM" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_TRTNUM"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="30"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALMONTH" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALMONTH"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALQUARTER" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALQUARTER"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALYEAR" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALYEAR"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALDAY" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALDAY"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_EVENTID" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_EVENTID"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="30"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <executionHints/>
+  <viewNode xsi:type="View:Projection" name="Projection_1">
+    <endUserTexts label=" "/>
+    <element name="_BIC_EYDOCPOS">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="_BIC_EYMEMIDC">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="_BIC_EYPATIENT">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="_BIC_EYRULRT">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="_BIC_EYCTLT11">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="_BIC_EYCTLT12">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="_BIC_EYCTLN11">
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="_BIC_EYCTLN12">
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="CALDAY">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH">
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="_BIC_EYEVNTID">
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="_BIC_EYVSTNUM">
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="_BIC_EYTRTNUM">
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="_BIC_EYRULCD">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="CAL_PAD_TRTNUM" aggregationBehavior="NONE">
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="30"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if('$$IP_TRTNUM$$' != '',lpad('$$IP_TRTNUM$$', 30,'0'), '')</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CAL_PAD_EVNTID" aggregationBehavior="NONE">
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="30"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if('$$IP_EVENTID$$' != '',lpad('$$IP_EVENTID$$', 30,'0'), '')</formula>
+      </calculationDefinition>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>match(&quot;_BIC_EYTRTNUM&quot;,if('$$IP_TRTNUM$$'= '', '*',&quot;CAL_PAD_TRTNUM&quot;))        and&#xD;
+match(&quot;_BIC_EYEVNTID&quot;,if('$$IP_EVENTID$$' = '','*',&quot;CAL_PAD_EVNTID&quot;))       and&#xD;
+match(&quot;CALDAY&quot;,if('$$IP_CALDAY$$' = '','*','$$IP_CALDAY$$'))                           and&#xD;
+match(&quot;CALMONTH&quot;,if('$$IP_CALMONTH$$'= '', '*','$$IP_CALMONTH$$'))             and&#xD;
+match(&quot;CALQUARTER&quot;,if('$$IP_CALQUARTER$$'='','*','$$IP_CALQUARTER$$')) and&#xD;
+match(&quot;CALYEAR&quot;,if('$$IP_CALYEAR$$'='','*','$$IP_CALYEAR$$'))</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1"./BIC/AEZO_CT0200</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYDOCPOS" sourceName="/BIC/EYDOCPOS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYMEMIDC" sourceName="/BIC/EYMEMIDC"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYPATIENT" sourceName="/BIC/EYPATIENT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP" sourceName="EMPLGROUP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER" sourceName="GENDER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB" sourceName="JOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYRULRT" sourceName="/BIC/EYRULRT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLT11" sourceName="/BIC/EYCTLT11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLT12" sourceName="/BIC/EYCTLT12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLN11" sourceName="/BIC/EYCTLN11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLN12" sourceName="/BIC/EYCTLN12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY" sourceName="CALDAY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER" sourceName="CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR" sourceName="CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYEVNTID" sourceName="/BIC/EYEVNTID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYVSTNUM" sourceName="/BIC/EYVSTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYTRTNUM" sourceName="/BIC/EYTRTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYRULCD" sourceName="/BIC/EYRULCD"/>
+    </input>
+    <layout xCoordinate="22" yCoordinate="377" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_2">
+    <endUserTexts label=" "/>
+    <element name="_BIC_EYDOCPOS">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="_BIC_EYMEMIDC">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="_BIC_EYPATIENT">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="_BIC_EYRULRT">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="_BIC_EYCTLT11">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="_BIC_EYCTLT12">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="_BIC_EYCTLN11">
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="_BIC_EYCTLN12">
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="_BIC_EYVSTNUM">
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="_BIC_EYTRTNUM">
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="_BIC_EYRULCD">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="_BIC_EYEVNTID">
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="CALDAY">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH">
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="CAL_PAD_TRTNUM" aggregationBehavior="NONE">
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="30"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if('$$IP_TRTNUM$$' != '',lpad('$$IP_TRTNUM$$', 30,'0'), '')</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CAL_PAD_EVENTID" aggregationBehavior="NONE">
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="30"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if('$$IP_EVENTID$$' != '',lpad('$$IP_EVENTID$$', 30,'0'), '')</formula>
+      </calculationDefinition>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>match(&quot;_BIC_EYTRTNUM&quot;,if('$$IP_TRTNUM$$'= '', '*',&quot;CAL_PAD_TRTNUM&quot;))        and&#xD;
+match(&quot;_BIC_EYEVNTID&quot;,if( '$$IP_EVENTID$$'='', '*',&quot;CAL_PAD_EVENTID&quot;))           and&#xD;
+match(&quot;CALDAY&quot;,if('$$IP_CALDAY$$'='','*','$$IP_CALDAY$$'))                                    and&#xD;
+match(&quot;CALMONTH&quot;,if('$$IP_CALMONTH$$'= '', '*','$$IP_CALMONTH$$'))             and&#xD;
+match(&quot;CALQUARTER&quot;,if('$$IP_CALQUARTER$$'='','*','$$IP_CALQUARTER$$')) and&#xD;
+match(&quot;CALYEAR&quot;,if('$$IP_CALYEAR$$'='','*','$$IP_CALYEAR$$'))</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1"./BIC/AEZO_CT032</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYDOCPOS" sourceName="/BIC/EYDOCPOS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYMEMIDC" sourceName="/BIC/EYMEMIDC"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYPATIENT" sourceName="/BIC/EYPATIENT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP" sourceName="EMPLGROUP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER" sourceName="GENDER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB" sourceName="JOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYRULRT" sourceName="/BIC/EYRULRT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLT11" sourceName="/BIC/EYCTLT11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLT12" sourceName="/BIC/EYCTLT12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLN11" sourceName="/BIC/EYCTLN11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYCTLN12" sourceName="/BIC/EYCTLN12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYVSTNUM" sourceName="/BIC/EYVSTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYTRTNUM" sourceName="/BIC/EYTRTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYRULCD" sourceName="/BIC/EYRULCD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="_BIC_EYEVNTID" sourceName="/BIC/EYEVNTID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY" sourceName="CALDAY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER" sourceName="CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR" sourceName="CALYEAR"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="377" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="CT02_MASTER" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="EYDOCPOS_CT02">
+      <endUserTexts label="EYDOCPOS_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC_CT02">
+      <endUserTexts label="EYMEMIDC_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT02">
+      <endUserTexts label="EYPATIENT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT02">
+      <endUserTexts label="EMPLGROUP_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT02">
+      <endUserTexts label="GENDER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT02">
+      <endUserTexts label="JOB_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT02">
+      <endUserTexts label="EYRULRT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT02">
+      <endUserTexts label="EYCTLT11_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT02">
+      <endUserTexts label="EYCTLT12_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT02">
+      <endUserTexts label="EYCTLN11_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT02">
+      <endUserTexts label="EYCTLN12_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="CALDAY_CT02">
+      <endUserTexts label="CALDAY_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH_CT02">
+      <endUserTexts label="CALMONTH_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER_CT02">
+      <endUserTexts label="CALQUARTER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR_CT02">
+      <endUserTexts label="CALYEAR_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT02">
+      <endUserTexts label="EYEVNTID_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYVSTNUM_CT02">
+      <endUserTexts label="EYVSTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT02">
+      <endUserTexts label="EYTRTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT02">
+      <endUserTexts label="EYRULCD_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="EYDOCPOS_CT03">
+      <endUserTexts label="EYDOCPOS_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC__CT03">
+      <endUserTexts label="EYMEMIDC__CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT03">
+      <endUserTexts label="EYPATIENT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT03">
+      <endUserTexts label="EMPLGROUP_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT03">
+      <endUserTexts label="GENDER_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT03">
+      <endUserTexts label="JOB_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT03">
+      <endUserTexts label="EYRULRT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT03">
+      <endUserTexts label="EYCTLT11_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT03">
+      <endUserTexts label="EYCTLT12_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT03">
+      <endUserTexts label="EYCTLN11_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT03">
+      <endUserTexts label="EYCTLN12_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYVSTNUM_CT03">
+      <endUserTexts label="EYVSTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT03">
+      <endUserTexts label="EYTRTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT03">
+      <endUserTexts label="EYRULCD_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT03">
+      <endUserTexts label="EYEVNTID_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT02" sourceName="_BIC_EYDOCPOS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT02" sourceName="_BIC_EYMEMIDC"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT02" sourceName="_BIC_EYPATIENT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT02" sourceName="EMPLGROUP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT02" sourceName="GENDER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT02" sourceName="JOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT02" sourceName="_BIC_EYRULRT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT02" sourceName="_BIC_EYCTLT11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT02" sourceName="_BIC_EYCTLT12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT02" sourceName="_BIC_EYCTLN11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT02" sourceName="_BIC_EYCTLN12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT02" sourceName="CALDAY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT02" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT02" sourceName="CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT02" sourceName="CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT02" sourceName="_BIC_EYEVNTID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT02" sourceName="_BIC_EYVSTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT02" sourceName="_BIC_EYTRTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT02" sourceName="_BIC_EYRULCD"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_2</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT03" sourceName="_BIC_EYDOCPOS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC__CT03" sourceName="_BIC_EYMEMIDC"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT03" sourceName="_BIC_EYPATIENT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT03" sourceName="EMPLGROUP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT03" sourceName="GENDER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT03" sourceName="JOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT03" sourceName="_BIC_EYRULRT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT03" sourceName="_BIC_EYCTLT11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT03" sourceName="_BIC_EYCTLT12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT03" sourceName="_BIC_EYCTLN11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT03" sourceName="_BIC_EYCTLN12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT03" sourceName="_BIC_EYVSTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT03" sourceName="_BIC_EYTRTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT03" sourceName="_BIC_EYRULCD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT03" sourceName="_BIC_EYEVNTID"/>
+    </input>
+    <layout xCoordinate="22" yCoordinate="281" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//CT02_MASTER/Projection_1" rightInput="#//CT02_MASTER/Projection_2" joinType="leftOuter">
+      <leftElementName>_BIC_EYVSTNUM</leftElementName>
+      <leftElementName>_BIC_EYTRTNUM</leftElementName>
+      <leftElementName>_BIC_EYRULCD</leftElementName>
+      <leftElementName>_BIC_EYEVNTID</leftElementName>
+      <rightElementName>_BIC_EYVSTNUM</rightElementName>
+      <rightElementName>_BIC_EYTRTNUM</rightElementName>
+      <rightElementName>_BIC_EYRULCD</rightElementName>
+      <rightElementName>_BIC_EYEVNTID</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="CT03_MASTER" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="EYDOCPOS_CT03">
+      <endUserTexts label="EYDOCPOS_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC_CT03">
+      <endUserTexts label="EYMEMIDC_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT03">
+      <endUserTexts label="EYPATIENT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT03">
+      <endUserTexts label="EMPLGROUP_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT03">
+      <endUserTexts label="GENDER_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT03">
+      <endUserTexts label="JOB_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT03">
+      <endUserTexts label="EYRULRT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT03">
+      <endUserTexts label="EYCTLT11_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT03">
+      <endUserTexts label="EYCTLT12_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT03">
+      <endUserTexts label="EYCTLN11_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT03">
+      <endUserTexts label="EYCTLN12_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYVSTNUM_CT03">
+      <endUserTexts label="EYVSTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT03">
+      <endUserTexts label="EYTRTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT03">
+      <endUserTexts label="EYRULCD_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT03">
+      <endUserTexts label="EYEVNTID_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="CALDAY_CT03">
+      <endUserTexts label="CALDAY_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH_CT03">
+      <endUserTexts label="CALMONTH_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER_CT03">
+      <endUserTexts label="CALQUARTER_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR_CT03">
+      <endUserTexts label="CALYEAR_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EYDOCPOS_CT02">
+      <endUserTexts label="EYDOCPOS_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC_CT02">
+      <endUserTexts label="EYMEMIDC_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT02">
+      <endUserTexts label="EYPATIENT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT02">
+      <endUserTexts label="EMPLGROUP_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT02">
+      <endUserTexts label="GENDER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT02">
+      <endUserTexts label="JOB_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT02">
+      <endUserTexts label="EYRULRT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT02">
+      <endUserTexts label="EYCTLT11_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT02">
+      <endUserTexts label="EYCTLT12_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT02">
+      <endUserTexts label="EYCTLN11_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT02">
+      <endUserTexts label="EYCTLN12_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="CALDAY_CT02">
+      <endUserTexts label="CALDAY_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH_CT02">
+      <endUserTexts label="CALMONTH_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER_CT02">
+      <endUserTexts label="CALQUARTER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR_CT02">
+      <endUserTexts label="CALYEAR_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT02">
+      <endUserTexts label="EYEVNTID_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYVSTNUM_CT02">
+      <endUserTexts label="EYVSTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT02">
+      <endUserTexts label="EYTRTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT02">
+      <endUserTexts label="EYRULCD_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_2</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT03" sourceName="_BIC_EYDOCPOS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT03" sourceName="_BIC_EYMEMIDC"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT03" sourceName="_BIC_EYPATIENT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT03" sourceName="EMPLGROUP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT03" sourceName="GENDER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT03" sourceName="JOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT03" sourceName="_BIC_EYRULRT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT03" sourceName="_BIC_EYCTLT11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT03" sourceName="_BIC_EYCTLT12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT03" sourceName="_BIC_EYCTLN11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT03" sourceName="_BIC_EYCTLN12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT03" sourceName="_BIC_EYVSTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT03" sourceName="_BIC_EYTRTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT03" sourceName="_BIC_EYRULCD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT03" sourceName="_BIC_EYEVNTID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT03" sourceName="CALDAY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT03" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT03" sourceName="CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT03" sourceName="CALYEAR"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT02" sourceName="_BIC_EYDOCPOS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT02" sourceName="_BIC_EYMEMIDC"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT02" sourceName="_BIC_EYPATIENT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT02" sourceName="EMPLGROUP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT02" sourceName="GENDER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT02" sourceName="JOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT02" sourceName="_BIC_EYRULRT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT02" sourceName="_BIC_EYCTLT11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT02" sourceName="_BIC_EYCTLT12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT02" sourceName="_BIC_EYCTLN11"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT02" sourceName="_BIC_EYCTLN12"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT02" sourceName="CALDAY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT02" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT02" sourceName="CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT02" sourceName="CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT02" sourceName="_BIC_EYEVNTID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT02" sourceName="_BIC_EYVSTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT02" sourceName="_BIC_EYTRTNUM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT02" sourceName="_BIC_EYRULCD"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="281" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//CT03_MASTER/Projection_2" rightInput="#//CT03_MASTER/Projection_1" joinType="leftOuter">
+      <leftElementName>_BIC_EYEVNTID</leftElementName>
+      <leftElementName>_BIC_EYVSTNUM</leftElementName>
+      <leftElementName>_BIC_EYTRTNUM</leftElementName>
+      <leftElementName>_BIC_EYRULCD</leftElementName>
+      <rightElementName>_BIC_EYEVNTID</rightElementName>
+      <rightElementName>_BIC_EYVSTNUM</rightElementName>
+      <rightElementName>_BIC_EYTRTNUM</rightElementName>
+      <rightElementName>_BIC_EYRULCD</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:Union" name="Union_1">
+    <endUserTexts label=" "/>
+    <element name="EYDOCPOS_CT02" transparentFilter="false">
+      <endUserTexts label="EYDOCPOS_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC_CT02" transparentFilter="false">
+      <endUserTexts label="EYMEMIDC_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT02" transparentFilter="false">
+      <endUserTexts label="EYPATIENT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT02" transparentFilter="false">
+      <endUserTexts label="EMPLGROUP_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT02" transparentFilter="false">
+      <endUserTexts label="GENDER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT02" transparentFilter="false">
+      <endUserTexts label="JOB_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT02" transparentFilter="false">
+      <endUserTexts label="EYRULRT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT02" transparentFilter="false">
+      <endUserTexts label="EYCTLT11_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT02" transparentFilter="false">
+      <endUserTexts label="EYCTLT12_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT02" transparentFilter="false">
+      <endUserTexts label="EYCTLN11_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT02" transparentFilter="false">
+      <endUserTexts label="EYCTLN12_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="CALDAY_CT02" transparentFilter="false">
+      <endUserTexts label="CALDAY_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH_CT02" transparentFilter="false">
+      <endUserTexts label="CALMONTH_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER_CT02" transparentFilter="false">
+      <endUserTexts label="CALQUARTER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR_CT02" transparentFilter="false">
+      <endUserTexts label="CALYEAR_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT02" transparentFilter="false">
+      <endUserTexts label="EYEVNTID_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYVSTNUM_CT02" transparentFilter="false">
+      <endUserTexts label="EYVSTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT02" transparentFilter="false">
+      <endUserTexts label="EYTRTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT02" transparentFilter="false">
+      <endUserTexts label="EYRULCD_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="EYDOCPOS_CT03" transparentFilter="false">
+      <endUserTexts label="EYDOCPOS_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC__CT03" transparentFilter="false">
+      <endUserTexts label="EYMEMIDC__CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT03" transparentFilter="false">
+      <endUserTexts label="EYPATIENT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT03" transparentFilter="false">
+      <endUserTexts label="EMPLGROUP_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT03" transparentFilter="false">
+      <endUserTexts label="GENDER_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT03" transparentFilter="false">
+      <endUserTexts label="JOB_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT03" transparentFilter="false">
+      <endUserTexts label="EYRULRT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT03" transparentFilter="false">
+      <endUserTexts label="EYCTLT11_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT03" transparentFilter="false">
+      <endUserTexts label="EYCTLT12_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT03" transparentFilter="false">
+      <endUserTexts label="EYCTLN11_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT03" transparentFilter="false">
+      <endUserTexts label="EYCTLN12_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYVSTNUM_CT03" transparentFilter="false">
+      <endUserTexts label="EYVSTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT03" transparentFilter="false">
+      <endUserTexts label="EYTRTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT03" transparentFilter="false">
+      <endUserTexts label="EYRULCD_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT03" transparentFilter="false">
+      <endUserTexts label="EYEVNTID_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYMEMIDC_CT03">
+      <endUserTexts label="EYMEMIDC_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CALDAY_CT03">
+      <endUserTexts label="CALDAY_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH_CT03">
+      <endUserTexts label="CALMONTH_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER_CT03">
+      <endUserTexts label="CALQUARTER_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR_CT03">
+      <endUserTexts label="CALYEAR_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <input emptyUnionBehavior="NO_ROW">
+      <viewNode xsi:type="View:JoinNode">#//CT02_MASTER</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT02" sourceName="EYDOCPOS_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT02" sourceName="EYMEMIDC_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT02" sourceName="EYPATIENT_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT02" sourceName="EMPLGROUP_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT02" sourceName="GENDER_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT02" sourceName="JOB_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT02" sourceName="EYRULRT_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT02" sourceName="EYCTLT11_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT02" sourceName="EYCTLT12_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT02" sourceName="EYCTLN11_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT02" sourceName="EYCTLN12_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT02" sourceName="CALDAY_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT02" sourceName="CALMONTH_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT02" sourceName="CALQUARTER_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT02" sourceName="CALYEAR_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT02" sourceName="EYEVNTID_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT02" sourceName="EYVSTNUM_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT02" sourceName="EYTRTNUM_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT02" sourceName="EYRULCD_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT03" sourceName="EYDOCPOS_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC__CT03" sourceName="EYMEMIDC__CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT03" sourceName="EYPATIENT_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT03" sourceName="EMPLGROUP_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT03" sourceName="GENDER_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT03" sourceName="JOB_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT03" sourceName="EYRULRT_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT03" sourceName="EYCTLT11_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT03" sourceName="EYCTLT12_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT03" sourceName="EYCTLN11_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT03" sourceName="EYCTLN12_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT03" sourceName="EYVSTNUM_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT03" sourceName="EYTRTNUM_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT03" sourceName="EYRULCD_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT03" sourceName="EYEVNTID_CT03"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="EYMEMIDC_CT03" value="" null="true"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="CALDAY_CT03" value="" null="true"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="CALMONTH_CT03" value="" null="true"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="CALQUARTER_CT03" value="" null="true"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="CALYEAR_CT03" value="" null="true"/>
+    </input>
+    <input emptyUnionBehavior="NO_ROW">
+      <viewNode xsi:type="View:JoinNode">#//CT03_MASTER</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT02" sourceName="EYDOCPOS_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT02" sourceName="EYMEMIDC_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT02" sourceName="EYPATIENT_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT02" sourceName="EMPLGROUP_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT02" sourceName="GENDER_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT02" sourceName="JOB_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT02" sourceName="EYRULRT_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT02" sourceName="EYCTLT11_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT02" sourceName="EYCTLT12_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT02" sourceName="EYCTLN11_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT02" sourceName="EYCTLN12_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT02" sourceName="CALDAY_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT02" sourceName="CALMONTH_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT02" sourceName="CALQUARTER_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT02" sourceName="CALYEAR_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT02" sourceName="EYEVNTID_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT02" sourceName="EYVSTNUM_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT02" sourceName="EYTRTNUM_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT02" sourceName="EYRULCD_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT03" sourceName="EYDOCPOS_CT03"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="EYMEMIDC__CT03" value="" null="true"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT03" sourceName="EYPATIENT_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT03" sourceName="EMPLGROUP_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT03" sourceName="GENDER_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT03" sourceName="JOB_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT03" sourceName="EYRULRT_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT03" sourceName="EYCTLT11_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT03" sourceName="EYCTLT12_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT03" sourceName="EYCTLN11_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT03" sourceName="EYCTLN12_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT03" sourceName="EYVSTNUM_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT03" sourceName="EYTRTNUM_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT03" sourceName="EYRULCD_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT03" sourceName="EYEVNTID_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT03" sourceName="EYMEMIDC_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT03" sourceName="CALDAY_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT03" sourceName="CALMONTH_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT03" sourceName="CALQUARTER_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT03" sourceName="CALYEAR_CT03"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="165" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection">
+    <element name="EYVSTNUM_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYVSTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYTRTNUM_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYRULCD_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYEVNTID_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="CALDAY_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALDAY_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALMONTH_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALQUARTER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALYEAR_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EYVSTNUM_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYVSTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYTRTNUM_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYTRTNUM_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="EYRULCD_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYRULCD_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="EYEVNTID_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYEVNTID_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="CALDAY_CT03" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALDAY_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CALMONTH_CT03" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALMONTH_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="CALQUARTER_CT03" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALQUARTER_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CALYEAR_CT03" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALYEAR_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="EYDOCPOS_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYDOCPOS_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYMEMIDC_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYPATIENT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EMPLGROUP_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="GENDER_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="JOB_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYRULRT_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYCTLT11_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT02" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYCTLT12_CT02"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT02" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="EYCTLN11_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT02" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="EYCTLN12_CT02"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYDOCPOS_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYDOCPOS_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYMEMIDC__CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYMEMIDC__CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="EYPATIENT_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYPATIENT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="EMPLGROUP_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EMPLGROUP_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GENDER_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="GENDER_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="JOB_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="JOB_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="EYRULRT_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYRULRT_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="EYCTLT11_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYCTLT11_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLT12_CT03" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYCTLT12_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="EYCTLN11_CT03" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="EYCTLN11_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYCTLN12_CT03" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="EYCTLN12_CT03"/>
+      <inlineType primitiveType="DECIMAL" length="17" precision="17" scale="3"/>
+    </element>
+    <element name="EYMEMIDC_CT03" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EYMEMIDC_CT03"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Union">#//Union_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT02" sourceName="EYVSTNUM_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT02" sourceName="EYTRTNUM_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT02" sourceName="EYRULCD_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT02" sourceName="EYEVNTID_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT02" sourceName="CALDAY_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT02" sourceName="CALMONTH_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT02" sourceName="CALQUARTER_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT02" sourceName="CALYEAR_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYVSTNUM_CT03" sourceName="EYVSTNUM_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYTRTNUM_CT03" sourceName="EYTRTNUM_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULCD_CT03" sourceName="EYRULCD_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYEVNTID_CT03" sourceName="EYEVNTID_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALDAY_CT03" sourceName="CALDAY_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH_CT03" sourceName="CALMONTH_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER_CT03" sourceName="CALQUARTER_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR_CT03" sourceName="CALYEAR_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT02" sourceName="EYDOCPOS_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT02" sourceName="EYMEMIDC_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT02" sourceName="EYPATIENT_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT02" sourceName="EMPLGROUP_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT02" sourceName="GENDER_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT02" sourceName="JOB_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT02" sourceName="EYRULRT_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT02" sourceName="EYCTLT11_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT02" sourceName="EYCTLT12_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYDOCPOS_CT03" sourceName="EYDOCPOS_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC__CT03" sourceName="EYMEMIDC__CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYPATIENT_CT03" sourceName="EYPATIENT_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EMPLGROUP_CT03" sourceName="EMPLGROUP_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GENDER_CT03" sourceName="GENDER_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="JOB_CT03" sourceName="JOB_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYRULRT_CT03" sourceName="EYRULRT_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT11_CT03" sourceName="EYCTLT11_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLT12_CT03" sourceName="EYCTLT12_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYMEMIDC_CT03" sourceName="EYMEMIDC_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT02" sourceName="EYCTLN11_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT02" sourceName="EYCTLN12_CT02"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN11_CT03" sourceName="EYCTLN11_CT03"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="EYCTLN12_CT03" sourceName="EYCTLN12_CT03"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="87" width="0" height="0" expanded="true"/>
+  </viewNode>
+  <viewLayout relativeWidthScenario="48"/>
+</View:ColumnView>

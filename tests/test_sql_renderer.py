@@ -435,3 +435,39 @@ def test_function_translation_string_concatenation() -> None:
 
     assert "||" in translated or "+" in translated
 
+
+def test_catalog_function_rewrites() -> None:
+    """Ensure catalog-driven legacy helpers translate correctly."""
+
+    from xml_to_sql.sql.function_translator import translate_raw_formula
+
+    class MockContext:
+        client = "100"
+        language = "EN"
+
+    left_formula = 'leftstr("ZZTREAT_DATE",6)'
+    left_translated = translate_raw_formula(left_formula, MockContext())
+    assert left_translated.startswith("SUBSTRING(")
+    assert '"ZZTREAT_DATE"' in left_translated
+    assert ", 1, 6" in left_translated
+
+    right_formula = 'rightstr("PERID",9)'
+    right_translated = translate_raw_formula(right_formula, MockContext())
+    assert right_translated.startswith("RIGHT(")
+    assert '"PERID"' in right_translated
+
+    in_formula = 'in("CC_CALMONTH","01","02","03")'
+    in_translated = translate_raw_formula(in_formula, MockContext())
+    assert " IN (" in in_translated.upper()
+    assert '"CC_CALMONTH"' in in_translated
+    assert "'02'" in in_translated
+
+    match_formula = 'match("CALDAY","*")'
+    match_translated = translate_raw_formula(match_formula, MockContext())
+    assert match_translated.startswith("REGEXP_LIKE(")
+    assert "REPLACE(REPLACE(" in match_translated
+
+    lpad_formula = 'lpad("IP_VALUE",30,"0")'
+    lpad_translated = translate_raw_formula(lpad_formula, MockContext())
+    assert lpad_translated.startswith("LPAD(")
+    assert '"IP_VALUE"' in lpad_translated

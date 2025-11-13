@@ -1,0 +1,839 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<View:ColumnView xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Type="http://www.sap.com/ndb/DataModelType.ecore" xmlns:View="http://www.sap.com/ndb/ViewModelView.ecore" schemaVersion="2.3" name="CV_CNCLD_EVNTS" dataCategory="DEFAULT" hierarchiesSQLEnabled="false" defaultNode="#//Aggregation" clientDependent="false" applyPrivilegeType="ANALYTIC_PRIVILEGE" translationRelevant="true">
+  <endUserTexts label="CV_CNCLD_EVNTS"/>
+  <origin/>
+  <parameter name="IP_TREAT_DATE" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_TREAT_DATE"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALMONTH" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALMONTH"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALQUARTER" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALQUARTER"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALYEAR" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALYEAR"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_ZTREAT_COMM_CD" mandatory="false" multipleSelections="true">
+    <endUserTexts label="IP_ZTREAT_COMM_CD"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="10"/>
+    <defaultValue>0</defaultValue>
+    <defaultRange lowValue="0"/>
+  </parameter>
+  <parameter name="IP_PERID" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_PERID"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_ZZZPOSITION" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_ZZZPOSITION"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_FA_T_QUOTA" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_FA_T_QUOTA"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="1"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <executionHints/>
+  <viewNode xsi:type="View:Projection" name="CTLEQR">
+    <endUserTexts label=" "/>
+    <element name="BUSOBJ_TYPE">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="CONTROL_MODEL">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZPROCESS_STAT">
+      <endUserTexts label="ZZPROCESS_STAT"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="REM_RATE">
+      <inlineType primitiveType="DECIMAL" length="8" precision="8" scale="3"/>
+    </element>
+    <element name="REM_LEDAMNT">
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="2"/>
+    </element>
+    <element name="ZZJOB">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSK">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZPERSG">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZPERNR">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSA">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZEYRULTB">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="PERID">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="SOURCE">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZTREAT_MEDC_CD">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="REMUNERATION">
+      <endUserTexts label="REMUNERATION"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CTRTBU_ID">
+      <endUserTexts label="CTRTBU_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="ZZ_FA_T_QUOTA">
+      <endUserTexts label="ZZ_FA_T_QUOTA"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZZPOSITION">
+      <endUserTexts label="ZZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="GPART">
+      <endUserTexts label="GPART"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CALYEAR" aggregationBehavior="NONE">
+      <endUserTexts label="CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>leftstr(&quot;ZZTREAT_DATE&quot;,4)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CALMONTH" aggregationBehavior="NONE">
+      <endUserTexts label="CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>LEFTSTR(&quot;ZZTREAT_DATE&quot;,6)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CALQUARTER" aggregationBehavior="NONE">
+      <endUserTexts label="CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if( in( rightstr(&quot;CALMONTH&quot;,2),'01','02','03'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'1',&#xD;
+ if( in(rightstr(&quot;CALMONTH&quot;,2),'04','05','06'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'2', &#xD;
+  if( in(rightstr(&quot;CALMONTH&quot;,2),'07','08','09'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'3',&#xD;
+   if(in(rightstr(&quot;CALMONTH&quot;,2),'10','11','12'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'4',''))))</formula>
+      </calculationDefinition>
+    </element>
+    <element name="VARIANT" aggregationBehavior="NONE">
+      <endUserTexts label="VARIANT"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>'מאושר בבקרה'&#xD;
+</formula>
+      </calculationDefinition>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>&quot;BUSOBJ_TYPE&quot; = 'ZMR' AND&#xD;
+&quot;CONTROL_MODEL&quot; = 'Z02' AND&#xD;
+IN(&quot;ZZPROCESS_STAT&quot;,'R','M') AND&#xD;
+IN(&quot;STT_CTRL&quot;,'AA','AM') AND&#xD;
+('$$IP_TREAT_DATE$$' = '' OR &quot;ZZTREAT_DATE&quot; = '$$IP_TREAT_DATE$$') AND&#xD;
+( $$IP_ZTREAT_COMM_CD$$  = '0' OR &quot;ZZTREAT_COMM_CD&quot; = $$IP_ZTREAT_COMM_CD$$) AND&#xD;
+('$$IP_PERID$$' = '' OR &quot;PERID&quot; = '$$IP_PERID$$') AND&#xD;
+('$$IP_ZZZPOSITION$$' = '' OR &quot;ZZZPOSITION&quot; = '$$IP_ZZZPOSITION$$') AND&#xD;
+('$$IP_FA_T_QUOTA$$' = '' OR &quot;ZZ_FA_T_QUOTA&quot; = '$$IP_FA_T_QUOTA$$') AND&#xD;
+('$$IP_CALMONTH$$' = '' OR '$$IP_CALMONTH$$' = &quot;CALMONTH&quot;)        AND&#xD;
+('$$IP_CALQUARTER$$' = '' OR '$$IP_CALQUARTER$$' = &quot;CALQUARTER&quot;) AND&#xD;
+( '$$IP_CALYEAR$$' = '' OR '$$IP_CALYEAR$$' = &quot;CALYEAR&quot;)</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZBW_CTL_HD_RE</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_RATE" sourceName="REM_RATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_LEDAMNT" sourceName="REM_LEDAMNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZEYRULTB" sourceName="ZZEYRULTB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SOURCE" sourceName="SOURCE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_MEDC_CD" sourceName="ZZTREAT_MEDC_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CTRTBU_ID" sourceName="CTRTBU_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZ_FA_T_QUOTA" sourceName="ZZ_FA_T_QUOTA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZZPOSITION" sourceName="ZZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GPART" sourceName="GPART"/>
+    </input>
+    <layout xCoordinate="22" yCoordinate="299" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="CTLEQA">
+    <endUserTexts label=" "/>
+    <element name="CONTROL_MODEL">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZPROCESS_STAT">
+      <endUserTexts label="ZZPROCESS_STAT"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CTRTBU_ID">
+      <endUserTexts label="CTRTBU_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZZPOSITION">
+      <endUserTexts label="ZZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="REMUNERATION">
+      <endUserTexts label="REMUNERATION"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZTREAT_MEDC_CD">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="SOURCE">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="PERID">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZEYRULTB">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZPERSA">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERNR">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSG">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZPERSK">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZJOB">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="REM_RATE">
+      <inlineType primitiveType="DECIMAL" length="8" precision="8" scale="3"/>
+    </element>
+    <element name="REM_LEDAMNT">
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="2"/>
+    </element>
+    <element name="ZZ_FA_T_QUOTA">
+      <endUserTexts label="ZZ_FA_T_QUOTA"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="GPART">
+      <endUserTexts label="GPART"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CALYEAR" aggregationBehavior="NONE">
+      <endUserTexts label="CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>leftstr(&quot;ZZTREAT_DATE&quot;,4)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CALMONTH" aggregationBehavior="NONE">
+      <endUserTexts label="CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>LEFTSTR(&quot;ZZTREAT_DATE&quot;,6)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CALQUARTER" aggregationBehavior="NONE">
+      <endUserTexts label="CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if( in( rightstr(&quot;CALMONTH&quot;,2),'01','02','03'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'1',&#xD;
+ if( in(rightstr(&quot;CALMONTH&quot;,2),'04','05','06'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'2', &#xD;
+  if( in(rightstr(&quot;CALMONTH&quot;,2),'07','08','09'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'3',&#xD;
+   if(in(rightstr(&quot;CALMONTH&quot;,2),'10','11','12'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'4',''))))</formula>
+      </calculationDefinition>
+    </element>
+    <element name="VARIANT" aggregationBehavior="NONE">
+      <endUserTexts label="VARIANT"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>'דחוי בבקרה'&#xD;
+</formula>
+      </calculationDefinition>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>&quot;CONTROL_MODEL&quot; = 'Z02' AND&#xD;
+IN(&quot;ZZPROCESS_STAT&quot;,'A','M') AND&#xD;
+IN(&quot;STT_CTRL&quot;,'RA','RM') AND&#xD;
+('$$IP_TREAT_DATE$$' = '' OR &quot;ZZTREAT_DATE&quot; = '$$IP_TREAT_DATE$$') AND&#xD;
+( $$IP_ZTREAT_COMM_CD$$  = '0' OR &quot;ZZTREAT_COMM_CD&quot; = $$IP_ZTREAT_COMM_CD$$) AND&#xD;
+('$$IP_PERID$$' = '' OR &quot;PERID&quot; = '$$IP_PERID$$') AND&#xD;
+('$$IP_ZZZPOSITION$$' = '' OR &quot;ZZZPOSITION&quot; = '$$IP_ZZZPOSITION$$') AND&#xD;
+('$$IP_FA_T_QUOTA$$' = '' OR &quot;ZZ_FA_T_QUOTA&quot; = '$$IP_FA_T_QUOTA$$') AND&#xD;
+('$$IP_CALMONTH$$' = '' OR '$$IP_CALMONTH$$' = &quot;CALMONTH&quot;)        AND&#xD;
+('$$IP_CALQUARTER$$' = '' OR '$$IP_CALQUARTER$$' = &quot;CALQUARTER&quot;) AND&#xD;
+( '$$IP_CALYEAR$$' = '' OR '$$IP_CALYEAR$$' = &quot;CALYEAR&quot;)</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZBW_CTL_HD_RE</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CTRTBU_ID" sourceName="CTRTBU_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZZPOSITION" sourceName="ZZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_MEDC_CD" sourceName="ZZTREAT_MEDC_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SOURCE" sourceName="SOURCE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZEYRULTB" sourceName="ZZEYRULTB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_RATE" sourceName="REM_RATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_LEDAMNT" sourceName="REM_LEDAMNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZ_FA_T_QUOTA" sourceName="ZZ_FA_T_QUOTA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GPART" sourceName="GPART"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="299" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="CTLEQM">
+    <endUserTexts label=" "/>
+    <element name="CONTROL_MODEL">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZPROCESS_STAT">
+      <endUserTexts label="ZZPROCESS_STAT"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="REMUNERATION">
+      <endUserTexts label="REMUNERATION"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZ_FA_T_QUOTA">
+      <endUserTexts label="ZZ_FA_T_QUOTA"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="REM_RATE">
+      <inlineType primitiveType="DECIMAL" length="8" precision="8" scale="3"/>
+    </element>
+    <element name="REM_LEDAMNT">
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="2"/>
+    </element>
+    <element name="SOURCE">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZEYRULTB">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZPERSA">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERNR">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSG">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZPERSK">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZJOB">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CTRTBU_ID">
+      <endUserTexts label="CTRTBU_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZZPOSITION">
+      <endUserTexts label="ZZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZTREAT_MEDC_CD">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="GPART">
+      <endUserTexts label="GPART"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CALYEAR" aggregationBehavior="NONE">
+      <endUserTexts label="CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>leftstr(&quot;ZZTREAT_DATE&quot;,4)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CALMONTH" aggregationBehavior="NONE">
+      <endUserTexts label="CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>LEFTSTR(&quot;ZZTREAT_DATE&quot;,6)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CALQUARTER" aggregationBehavior="NONE">
+      <endUserTexts label="CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if( in( rightstr(&quot;CALMONTH&quot;,2),'01','02','03'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'1',&#xD;
+ if( in(rightstr(&quot;CALMONTH&quot;,2),'04','05','06'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'2', &#xD;
+  if( in(rightstr(&quot;CALMONTH&quot;,2),'07','08','09'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'3',&#xD;
+   if(in(rightstr(&quot;CALMONTH&quot;,2),'10','11','12'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'4',''))))</formula>
+      </calculationDefinition>
+    </element>
+    <element name="VARIANT" aggregationBehavior="NONE">
+      <endUserTexts label="VARIANT"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>'ממתין בבקרה'&#xD;
+</formula>
+      </calculationDefinition>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>&quot;CONTROL_MODEL&quot; = 'Z02' AND&#xD;
+IN(&quot;ZZPROCESS_STAT&quot;,'A','R') AND&#xD;
+IN(&quot;STT_CTRL&quot;,'HA','HM','MA','MM') AND&#xD;
+('$$IP_TREAT_DATE$$' = '' OR &quot;ZZTREAT_DATE&quot; = '$$IP_TREAT_DATE$$') AND&#xD;
+( $$IP_ZTREAT_COMM_CD$$  = '0' OR &quot;ZZTREAT_COMM_CD&quot; = $$IP_ZTREAT_COMM_CD$$) AND&#xD;
+('$$IP_PERID$$' = '' OR &quot;PERID&quot; = '$$IP_PERID$$') AND&#xD;
+('$$IP_ZZZPOSITION$$' = '' OR &quot;ZZZPOSITION&quot; = '$$IP_ZZZPOSITION$$') AND&#xD;
+('$$IP_FA_T_QUOTA$$' = '' OR &quot;ZZ_FA_T_QUOTA&quot; = '$$IP_FA_T_QUOTA$$') AND&#xD;
+('$$IP_CALMONTH$$' = '' OR '$$IP_CALMONTH$$' = &quot;CALMONTH&quot;)        AND&#xD;
+('$$IP_CALQUARTER$$' = '' OR '$$IP_CALQUARTER$$' = &quot;CALQUARTER&quot;) AND&#xD;
+( '$$IP_CALYEAR$$' = '' OR '$$IP_CALYEAR$$' = &quot;CALYEAR&quot;)</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZBW_CTL_HD_RE</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZ_FA_T_QUOTA" sourceName="ZZ_FA_T_QUOTA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_RATE" sourceName="REM_RATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_LEDAMNT" sourceName="REM_LEDAMNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SOURCE" sourceName="SOURCE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZEYRULTB" sourceName="ZZEYRULTB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CTRTBU_ID" sourceName="CTRTBU_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZZPOSITION" sourceName="ZZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_MEDC_CD" sourceName="ZZTREAT_MEDC_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GPART" sourceName="GPART"/>
+    </input>
+    <layout xCoordinate="330" yCoordinate="299" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Union" name="Union_1">
+    <endUserTexts label=" "/>
+    <element name="BUSOBJ_TYPE" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="CONTROL_MODEL" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZPROCESS_STAT" transparentFilter="false">
+      <endUserTexts label="ZZPROCESS_STAT"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="STT_CTRL" transparentFilter="false">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="MANDT" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="REM_RATE" transparentFilter="false">
+      <inlineType primitiveType="DECIMAL" length="8" precision="8" scale="3"/>
+    </element>
+    <element name="REM_LEDAMNT" transparentFilter="false">
+      <inlineType primitiveType="DECIMAL" length="15" precision="15" scale="2"/>
+    </element>
+    <element name="ZZJOB" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSK" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZPERSG" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZPERNR" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSA" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZEYRULTB" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="PERID" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="SOURCE" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZTREAT_MEDC_CD" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="REMUNERATION" transparentFilter="false">
+      <endUserTexts label="REMUNERATION"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE" transparentFilter="false">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CTRTBU_ID" transparentFilter="false">
+      <endUserTexts label="CTRTBU_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD" transparentFilter="false">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW" transparentFilter="false">
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID" transparentFilter="false">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="ZZ_FA_T_QUOTA" transparentFilter="false">
+      <endUserTexts label="ZZ_FA_T_QUOTA"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZZPOSITION">
+      <endUserTexts label="ZZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="GPART" transparentFilter="false">
+      <endUserTexts label="GPART"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="VARIANT" transparentFilter="false">
+      <endUserTexts label="VARIANT"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20" precision="0" scale="0"/>
+    </element>
+    <element name="CALYEAR" transparentFilter="false">
+      <endUserTexts label="CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <element name="CALMONTH" transparentFilter="false">
+      <endUserTexts label="CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CALQUARTER" transparentFilter="false">
+      <endUserTexts label="CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <input emptyUnionBehavior="NO_ROW">
+      <viewNode xsi:type="View:Projection">#//CTLEQR</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_RATE" sourceName="REM_RATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_LEDAMNT" sourceName="REM_LEDAMNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZEYRULTB" sourceName="ZZEYRULTB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SOURCE" sourceName="SOURCE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_MEDC_CD" sourceName="ZZTREAT_MEDC_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CTRTBU_ID" sourceName="CTRTBU_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZ_FA_T_QUOTA" sourceName="ZZ_FA_T_QUOTA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZZPOSITION" sourceName="ZZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GPART" sourceName="GPART"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VARIANT" sourceName="VARIANT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR" sourceName="CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER" sourceName="CALQUARTER"/>
+    </input>
+    <input emptyUnionBehavior="NO_ROW">
+      <viewNode xsi:type="View:Projection">#//CTLEQA</viewNode>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="BUSOBJ_TYPE" value="" null="true"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="MANDT" value="" null="true"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_RATE" sourceName="REM_RATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_LEDAMNT" sourceName="REM_LEDAMNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZEYRULTB" sourceName="ZZEYRULTB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SOURCE" sourceName="SOURCE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_MEDC_CD" sourceName="ZZTREAT_MEDC_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CTRTBU_ID" sourceName="CTRTBU_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZ_FA_T_QUOTA" sourceName="ZZ_FA_T_QUOTA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZZPOSITION" sourceName="ZZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GPART" sourceName="GPART"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VARIANT" sourceName="VARIANT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR" sourceName="CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER" sourceName="CALQUARTER"/>
+    </input>
+    <input emptyUnionBehavior="NO_ROW">
+      <viewNode xsi:type="View:Projection">#//CTLEQM</viewNode>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="BUSOBJ_TYPE" value="" null="true"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ConstantElementMapping" targetName="MANDT" value="" null="true"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_RATE" sourceName="REM_RATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REM_LEDAMNT" sourceName="REM_LEDAMNT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZEYRULTB" sourceName="ZZEYRULTB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SOURCE" sourceName="SOURCE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_MEDC_CD" sourceName="ZZTREAT_MEDC_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CTRTBU_ID" sourceName="CTRTBU_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZ_FA_T_QUOTA" sourceName="ZZ_FA_T_QUOTA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZZPOSITION" sourceName="ZZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GPART" sourceName="GPART"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VARIANT" sourceName="VARIANT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR" sourceName="CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER" sourceName="CALQUARTER"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="165" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Aggregation" name="Aggregation">
+    <element name="ZZPROCESS_STAT" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZPROCESS_STAT"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="REMUNERATION" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="REMUNERATION"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="CTRTBU_ID" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CTRTBU_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="ZZ_FA_T_QUOTA" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZ_FA_T_QUOTA"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZZPOSITION" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="GPART" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="GPART"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CALYEAR" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <element name="CALMONTH" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CALQUARTER" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <element name="VARIANT" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="VARIANT"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20" precision="0" scale="0"/>
+    </element>
+    <element name="STT_CTRL" transparentFilter="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Union">#//Union_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CTRTBU_ID" sourceName="CTRTBU_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZ_FA_T_QUOTA" sourceName="ZZ_FA_T_QUOTA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZZPOSITION" sourceName="ZZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="GPART" sourceName="GPART"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALYEAR" sourceName="CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALMONTH" sourceName="CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CALQUARTER" sourceName="CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="VARIANT" sourceName="VARIANT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="87" width="0" height="0" expanded="true"/>
+  </viewNode>
+  <viewLayout relativeWidthScenario="53"/>
+</View:ColumnView>

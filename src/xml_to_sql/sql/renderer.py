@@ -187,7 +187,11 @@ def render_scenario(
         else:
             final_select = f"SELECT * FROM {from_clause}"
         
-        sql = _assemble_sql(ctes, final_select, ctx.warnings)
+        if create_view:
+            view = view_name or scenario.metadata.scenario_id
+            sql = _assemble_sql(ctes, final_select, ctx.warnings, view_name=view)
+        else:
+            sql = _assemble_sql(ctes, final_select, ctx.warnings)
         return (sql, ctx.warnings) if return_warnings else sql
 
     final_alias = ctx.cte_aliases.get(final_node_id, "final")
@@ -645,6 +649,10 @@ def _render_filters(ctx: RenderContext, filters: List[Predicate], table_alias: O
         elif pred.kind == PredicateKind.IS_NULL:
             left = _render_expression(ctx, pred.left, table_alias)
             conditions.append(f"{left} IS NULL")
+        elif pred.kind == PredicateKind.RAW:
+            raw_expr = _render_expression(ctx, pred.left, table_alias)
+            if raw_expr:
+                conditions.append(f"({raw_expr})")
         else:
             ctx.warnings.append(f"Unsupported predicate kind: {pred.kind}")
 

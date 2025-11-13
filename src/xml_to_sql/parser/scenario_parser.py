@@ -32,10 +32,11 @@ from ..domain import (
     PredicateKind,
     Scenario,
     ScenarioMetadata,
+    SnowflakeType,
     UnionNode,
     Variable,
-    SnowflakeType,
 )
+from .column_view_parser import parse_column_view
 from .type_inference import guess_attribute_type, guess_literal_type
 
 
@@ -83,6 +84,14 @@ def parse_scenario(path: Path) -> Scenario:
 
     tree = etree.parse(str(path))
     root = tree.getroot()
+
+    try:
+        root_tag = etree.QName(root).localname
+    except Exception:  # pragma: no cover - fallback for unexpected structures
+        root_tag = root.tag
+
+    if root_tag == "ColumnView":
+        return parse_column_view(path, root)
 
     metadata = ScenarioMetadata(
         scenario_id=root.get("id"),

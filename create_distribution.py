@@ -102,6 +102,7 @@ MUST_INCLUDE = [
     "START_HERE.md",
     "CLIENT_DEPLOYMENT_GUIDE.md",
     "WEB_GUI_DEPLOYMENT_GUIDE.md",
+    "FEATURE_SUPPORT_MAP.md",
     "LICENSE",
     "pyproject.toml",
     "config.example.yaml",
@@ -190,20 +191,20 @@ def create_distribution():
     # Ensure web_frontend/dist exists (built frontend)
     web_frontend_dist = root / "web_frontend" / "dist"
     if not web_frontend_dist.exists():
-        print("\n⚠️  Warning: web_frontend/dist not found!")
+        print("\nWARNING: web_frontend/dist not found!")
         print("The frontend needs to be built before creating distribution.")
         print("Building frontend now...")
         import subprocess
         try:
             subprocess.run(["npm", "run", "build"], cwd=root / "web_frontend", check=True)
-            print("✅ Frontend built successfully")
+            print("Frontend built successfully.")
         except subprocess.CalledProcessError:
-            print("❌ Frontend build failed. Please run manually:")
+            print("ERROR: Frontend build failed. Please run manually:")
             print("   cd web_frontend && npm install && npm run build")
             shutil.rmtree(dist_dir)
             return
         except FileNotFoundError:
-            print("❌ npm not found. Please install Node.js and run:")
+            print("ERROR: npm not found. Please install Node.js and run:")
             print("   cd web_frontend && npm install && npm run build")
             shutil.rmtree(dist_dir)
             return
@@ -222,7 +223,7 @@ def create_distribution():
     print(f"\nCleaning up temporary directory: {dist_dir}")
     shutil.rmtree(dist_dir)
     
-    print(f"\n✅ Distribution package created: {zip_name}")
+    print(f"\nDistribution package created: {zip_name}")
     print(f"   Files copied: {files_copied}")
     print(f"   Directories copied: {dirs_copied}")
     print(f"\nNext steps:")

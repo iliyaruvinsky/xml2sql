@@ -1,0 +1,1398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<View:ColumnView xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Type="http://www.sap.com/ndb/DataModelType.ecore" xmlns:View="http://www.sap.com/ndb/ViewModelView.ecore" schemaVersion="2.3" name="CV_MCM_CNTRL_Q51" dataCategory="DEFAULT" hierarchiesSQLEnabled="false" defaultNode="#//Projection" clientDependent="false" applyPrivilegeType="ANALYTIC_PRIVILEGE" translationRelevant="true">
+  <endUserTexts label="CV_MCM_CNTRL_Q51"/>
+  <origin/>
+  <parameter name="IP_DATEFROM" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_DATEFROM"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_DATETO" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_DATETO"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALMONTH" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALMONTH"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="2"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALQUARTER" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALQUARTER"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_CALYEAR" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_CALYEAR"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_ZTREAT_COMM_CD" mandatory="false" multipleSelections="true">
+    <endUserTexts label="IP_ZTREAT_COMM_CD"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="10"/>
+    <defaultValue>0</defaultValue>
+    <defaultRange lowValue="0"/>
+  </parameter>
+  <parameter name="IP_PERID" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_PERID"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_ZZMEMBERCD" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_ZZMEMBERCD"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="1"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_ZZMEMBERID" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_ZZMEMBERID"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="20"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_ZZPOSITION" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_ZZPOSITION"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_JOB" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_JOB"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_PERSK" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_PERSK"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="2"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_PERSG" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_PERSG"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="1"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_PERNR" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_PERNR"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_JOBGR" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_JOBGR"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="8"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <parameter name="IP_PERSA" mandatory="false" multipleSelections="false">
+    <endUserTexts label="IP_PERSA"/>
+    <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+    <defaultValue xsi:nil="true"/>
+    <defaultRange/>
+  </parameter>
+  <executionHints/>
+  <viewNode xsi:type="View:Projection" name="Projection_1">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_TYPE">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <endUserTexts label="ZZTREAT_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID">
+      <endUserTexts label="PERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPOSITION">
+      <endUserTexts label="ZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <endUserTexts label="ZZMEMBERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="CONTROL_MODEL">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CC_CALMONTH" aggregationBehavior="NONE">
+      <endUserTexts label="CC_CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>leftstr(&quot;ZZTREAT_DATE&quot;,6)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CC_CALQUARTER" aggregationBehavior="NONE">
+      <endUserTexts label="CC_CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>if( in( rightstr(&quot;CC_CALMONTH&quot;,2),'01','02','03'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'1',&#xD;
+ if( in(rightstr(&quot;CC_CALMONTH&quot;,2),'04','05','06'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'2', &#xD;
+  if( in(rightstr(&quot;CC_CALMONTH&quot;,2),'07','08','09'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'3',&#xD;
+   if(in(rightstr(&quot;CC_CALMONTH&quot;,2),'10','11','12'), leftstr(&quot;ZZTREAT_DATE&quot;,4)+'4',''))))</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CC_CALYEAR" aggregationBehavior="NONE">
+      <endUserTexts label="CC_CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula> leftstr(&quot;ZZTREAT_DATE&quot;,4)</formula>
+      </calculationDefinition>
+    </element>
+    <element name="CC_DOCID" aggregationBehavior="NONE">
+      <endUserTexts label=" "/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="9"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>rightstr(&quot;PERID&quot;,9)</formula>
+      </calculationDefinition>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>&quot;BUSOBJ_TYPE&quot; = 'ZMR' AND&#xD;
+&quot;CONTROL_MODEL&quot;= 'Z02' AND&#xD;
+(&quot;STT_CTRL&quot;='AM'  OR &quot;STT_CTRL&quot; = 'AA' ) AND&#xD;
+('$$IP_DATEFROM$$' = '' OR (DATE(&quot;ZZTREAT_DATE&quot;) >= DATE('$$IP_DATEFROM$$') ))  AND&#xD;
+('$$IP_DATETO$$' = '' OR (DATE(&quot;ZZTREAT_DATE&quot;) &lt;=  DATE('$$IP_DATETO$$')))       AND&#xD;
+(IN($$IP_ZTREAT_COMM_CD$$,0) OR IN(&quot;ZZTREAT_COMM_CD&quot;,$$IP_ZTREAT_COMM_CD$$))        AND &#xD;
+('$$IP_PERID$$' = '' OR '$$IP_PERID$$' = &quot;CC_DOCID&quot;) AND&#xD;
+('$$IP_ZZPOSITION$$' = '' OR '$$IP_ZZPOSITION$$' = &quot;ZZPOSITION&quot;) AND&#xD;
+('$$IP_CALMONTH$$' = '' OR '$$IP_CALMONTH$$' = &quot;CC_CALMONTH&quot;)        AND&#xD;
+('$$IP_CALQUARTER$$' = '' OR '$$IP_CALQUARTER$$' = &quot;CC_CALQUARTER&quot;) AND&#xD;
+( '$$IP_CALYEAR$$' = '' OR '$$IP_CALYEAR$$' = &quot;CC_CALYEAR&quot;)and&#xD;
+('$$IP_ZZMEMBERID$$' = '' OR '$$IP_ZZMEMBERID$$' = &quot;ZZMEMBERID&quot;)</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZCTLE_CCNTRL_ST</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPOSITION" sourceName="ZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+    </input>
+    <layout xCoordinate="22" yCoordinate="645" width="251" height="66" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_2">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="BUSOBJ_TYPE">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="FLG_REVERSOR">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="FLG_REVERSED">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="DOC_TYPE">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="POST_DATE">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>(&quot;DOC_TYPE&quot; ='1') &#xD;
+AND (&quot;FLG_REVERSOR&quot; ='') &#xD;
+AND (&quot;FLG_REVERSED&quot; ='')</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZCACSM_DOCHD</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="FLG_REVERSOR" sourceName="FLG_REVERSOR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="FLG_REVERSED" sourceName="FLG_REVERSED"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_TYPE" sourceName="DOC_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_DATE" sourceName="POST_DATE"/>
+    </input>
+    <layout xCoordinate="287" yCoordinate="645" width="241" height="66" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_3">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_ID_EXT">
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_TYPE">
+      <endUserTexts label="TRI_OBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_ID">
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="FLG_REVERSED">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZVIS_NO_BW">
+      <endUserTexts label="ZZVIS_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZMEMBERCD">
+      <endUserTexts label="ZZMEMBERCD"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>&quot;FLG_REVERSED&quot; ='' AND &#xD;
+&quot;TRI_OBJ_TYPE&quot; = 'Z112T'and&#xD;
+('$$IP_ZZMEMBERCD$$' = '' OR '$$IP_ZZMEMBERCD$$' = &quot;ZZMEMBERCD&quot; )</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZCACSM_DOCOBJ</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_ID_EXT" sourceName="TRI_OBJ_ID_EXT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_TYPE" sourceName="TRI_OBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_ID" sourceName="TRI_OBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="FLG_REVERSED" sourceName="FLG_REVERSED"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZVIS_NO_BW" sourceName="ZZVIS_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERCD" sourceName="ZZMEMBERCD"/>
+    </input>
+    <layout xCoordinate="361" yCoordinate="549" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_4">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="POW_OBJ_TYPE">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="POW_OBJ_ID">
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="INV_POS">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="PART_POS">
+      <endUserTexts label="PART_POS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="REMUNERATION">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="FLG_REVERSED">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ROLE_REMUSHAR">
+      <inlineType primitiveType="DECIMAL" length="10" precision="10" scale="5"/>
+    </element>
+    <element name="ZZWW004">
+      <endUserTexts label="ZZWW004"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="ZZPROCESS_STAT">
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="UPD_TIMESTAMP">
+      <endUserTexts label="UPD_TIMESTAMP"/>
+      <inlineType primitiveType="NVARCHAR" length="14" precision="14" scale="0"/>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>&quot;FLG_REVERSED&quot; ='' AND &#xD;
+&quot;ROLE_REMUSHAR&quot; =100.00000 AND&#xD;
+IN(&quot;REMUNERATION&quot;,'B301','B410') AND&#xD;
+IN(&quot;ZZPROCESS_STAT&quot; , 'A')</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZCACSM_DOCRE</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POW_OBJ_TYPE" sourceName="POW_OBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POW_OBJ_ID" sourceName="POW_OBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INV_POS" sourceName="INV_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PART_POS" sourceName="PART_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="REMUNERATION" sourceName="REMUNERATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="FLG_REVERSED" sourceName="FLG_REVERSED"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ROLE_REMUSHAR" sourceName="ROLE_REMUSHAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZWW004" sourceName="ZZWW004"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPROCESS_STAT" sourceName="ZZPROCESS_STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UPD_TIMESTAMP" sourceName="UPD_TIMESTAMP"/>
+    </input>
+    <layout xCoordinate="515" yCoordinate="549" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_5">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="PART_POS">
+      <endUserTexts label="PART_POS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZPERSA">
+      <endUserTexts label="ZZPERSA"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP">
+      <endUserTexts label="ZZJOBGRP"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERNR">
+      <endUserTexts label="ZZPERNR"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSG">
+      <endUserTexts label="ZZPERSG"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZPERSK">
+      <endUserTexts label="ZZPERSK"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZJOB">
+      <endUserTexts label="ZZJOB"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="INV_POS">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZOCCUPATION_COD">
+      <endUserTexts label="ZZOCCUPATION_COD"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_OWNER">
+      <endUserTexts label="ZZFACILITY_OWNER"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_TYPE">
+      <endUserTexts label="ZZFACILITY_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_SUBTY">
+      <endUserTexts label="ZZFACILITY_SUBTY"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZEMPCLASS">
+      <endUserTexts label="ZEMPCLASS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <filterExpression language="COLUMN_ENGINE">
+      <formula>('$$IP_PERSA$$'  = '' OR &quot;ZZPERSA&quot; =  '$$IP_PERSA$$') AND&#xD;
+('$$IP_JOBGR$$' = '' OR &quot;ZZJOBGRP&quot;  = '$$IP_JOBGR$$' ) AND&#xD;
+('$$IP_PERNR$$' = '' OR &quot;ZZPERNR&quot; = '$$IP_PERNR$$') AND&#xD;
+('$$IP_PERSG$$' = '' OR &quot;ZZPERSG&quot; = '$$IP_PERSG$$') AND&#xD;
+('$$IP_PERSK$$' = '' OR &quot;ZZPERSK&quot; = '$$IP_PERSK$$') AND&#xD;
+('$$IP_JOB$$' = ''      OR  &quot;ZZJOB&quot; = '$$IP_JOB$$') AND&#xD;
+( &quot;ZZFACILITY_OWNER&quot; != '01' AND &quot;ZZFACILITY_OWNER&quot; != '04' ) AND&#xD;
+( &quot;ZZFACILITY_OWNER&quot; != '1' AND &quot;ZZFACILITY_OWNER&quot; != '4' )</formula>
+    </filterExpression>
+    <input>
+      <entity>#//"SAPABAP1".ZCACSM_DOCINV</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PART_POS" sourceName="PART_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INV_POS" sourceName="INV_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZOCCUPATION_COD" sourceName="ZZOCCUPATION_COD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_OWNER" sourceName="ZZFACILITY_OWNER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_TYPE" sourceName="ZZFACILITY_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_SUBTY" sourceName="ZZFACILITY_SUBTY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZEMPCLASS" sourceName="ZEMPCLASS"/>
+    </input>
+    <layout xCoordinate="591" yCoordinate="357" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_6">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="PART_POS">
+      <endUserTexts label="PART_POS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <input>
+      <entity>#//"SAPABAP1".ZCACSM_DOCPAR</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PART_POS" sourceName="PART_POS"/>
+    </input>
+    <layout xCoordinate="359" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_1" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_TYPE">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <endUserTexts label="ZZTREAT_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID">
+      <endUserTexts label="PERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPOSITION">
+      <endUserTexts label="ZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <endUserTexts label="ZZMEMBERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="CONTROL_MODEL">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="CC_CALMONTH">
+      <endUserTexts label="CC_CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALQUARTER">
+      <endUserTexts label="CC_CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CC_DOCID">
+      <endUserTexts label=" "/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="9" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALYEAR">
+      <endUserTexts label="CC_CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPOSITION" sourceName="ZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CONTROL_MODEL" sourceName="CONTROL_MODEL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALMONTH" sourceName="CC_CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALQUARTER" sourceName="CC_CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_DOCID" sourceName="CC_DOCID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALYEAR" sourceName="CC_CALYEAR"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_2</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+    </input>
+    <layout xCoordinate="207" yCoordinate="549" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_1/Projection_1" rightInput="#//Join_1/Projection_2" joinType="inner">
+      <leftElementName>MANDT</leftElementName>
+      <leftElementName>BUSOBJ_TYPE</leftElementName>
+      <leftElementName>BUSOBJ_ID</leftElementName>
+      <rightElementName>MANDT</rightElementName>
+      <rightElementName>BUSOBJ_TYPE</rightElementName>
+      <rightElementName>BUSOBJ_ID</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_2" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_TYPE">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_TYPE">
+      <endUserTexts label="TRI_OBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <endUserTexts label="ZZTREAT_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID">
+      <endUserTexts label="PERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPOSITION">
+      <endUserTexts label="ZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <endUserTexts label="ZZMEMBERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_ID">
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ZZVIS_NO_BW">
+      <endUserTexts label="ZZVIS_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="CC_CALMONTH">
+      <endUserTexts label="CC_CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALQUARTER">
+      <endUserTexts label="CC_CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="CC_DOCID">
+      <endUserTexts label=" "/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="9" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALYEAR">
+      <endUserTexts label="CC_CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <element name="ZZMEMBERCD">
+      <endUserTexts label="ZZMEMBERCD"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPOSITION" sourceName="ZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALMONTH" sourceName="CC_CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALQUARTER" sourceName="CC_CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_DOCID" sourceName="CC_DOCID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALYEAR" sourceName="CC_CALYEAR"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_3</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_TYPE" sourceName="TRI_OBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_ID" sourceName="TRI_OBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZVIS_NO_BW" sourceName="ZZVIS_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERCD" sourceName="ZZMEMBERCD"/>
+    </input>
+    <layout xCoordinate="361" yCoordinate="453" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_2/Join_1" rightInput="#//Join_2/Projection_3" joinType="inner">
+      <leftElementName>DOC_ID</leftElementName>
+      <leftElementName>POST_YEAR</leftElementName>
+      <leftElementName>MANDT</leftElementName>
+      <leftElementName>ZZTREAT_NO_BW</leftElementName>
+      <rightElementName>DOC_ID</rightElementName>
+      <rightElementName>POST_YEAR</rightElementName>
+      <rightElementName>MANDT</rightElementName>
+      <rightElementName>TRI_OBJ_ID_EXT</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_3" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_TYPE">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_TYPE">
+      <endUserTexts label="TRI_OBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <endUserTexts label="ZZTREAT_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID">
+      <endUserTexts label="PERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPOSITION">
+      <endUserTexts label="ZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <endUserTexts label="ZZMEMBERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="PART_POS">
+      <endUserTexts label="PART_POS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="INV_POS">
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_ID">
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ZZVIS_NO_BW">
+      <endUserTexts label="ZZVIS_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="CC_CALMONTH">
+      <endUserTexts label="CC_CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALQUARTER">
+      <endUserTexts label="CC_CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZWW004">
+      <endUserTexts label="ZZWW004"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CC_DOCID">
+      <endUserTexts label=" "/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="9" precision="0" scale="0"/>
+    </element>
+    <element name="UPD_TIMESTAMP">
+      <endUserTexts label="UPD_TIMESTAMP"/>
+      <inlineType primitiveType="NVARCHAR" length="14" precision="14" scale="0"/>
+    </element>
+    <element name="CC_CALYEAR">
+      <endUserTexts label="CC_CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <element name="ZZMEMBERCD">
+      <endUserTexts label="ZZMEMBERCD"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_2</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_TYPE" sourceName="TRI_OBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPOSITION" sourceName="ZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_ID" sourceName="TRI_OBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZVIS_NO_BW" sourceName="ZZVIS_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALMONTH" sourceName="CC_CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALQUARTER" sourceName="CC_CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_DOCID" sourceName="CC_DOCID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALYEAR" sourceName="CC_CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERCD" sourceName="ZZMEMBERCD"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_4</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="PART_POS" sourceName="PART_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INV_POS" sourceName="INV_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZWW004" sourceName="ZZWW004"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UPD_TIMESTAMP" sourceName="UPD_TIMESTAMP"/>
+    </input>
+    <layout xCoordinate="437" yCoordinate="357" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_3/Join_2" rightInput="#//Join_3/Projection_4" joinType="inner">
+      <leftElementName>MANDT</leftElementName>
+      <leftElementName>POST_YEAR</leftElementName>
+      <leftElementName>DOC_ID</leftElementName>
+      <leftElementName>TRI_OBJ_TYPE</leftElementName>
+      <leftElementName>TRI_OBJ_ID</leftElementName>
+      <rightElementName>MANDT</rightElementName>
+      <rightElementName>POST_YEAR</rightElementName>
+      <rightElementName>DOC_ID</rightElementName>
+      <rightElementName>POW_OBJ_TYPE</rightElementName>
+      <rightElementName>POW_OBJ_ID</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_4" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_TYPE">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_TYPE">
+      <endUserTexts label="TRI_OBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="PART_POS">
+      <endUserTexts label="PART_POS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <endUserTexts label="ZZTREAT_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID">
+      <endUserTexts label="PERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPOSITION">
+      <endUserTexts label="ZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <endUserTexts label="ZZMEMBERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPERSA">
+      <endUserTexts label="ZZPERSA"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP">
+      <endUserTexts label="ZZJOBGRP"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERNR">
+      <endUserTexts label="ZZPERNR"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSG">
+      <endUserTexts label="ZZPERSG"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZPERSK">
+      <endUserTexts label="ZZPERSK"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZJOB">
+      <endUserTexts label="ZZJOB"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ZZVIS_NO_BW">
+      <endUserTexts label="ZZVIS_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="CC_CALMONTH">
+      <endUserTexts label="CC_CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALQUARTER">
+      <endUserTexts label="CC_CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZOCCUPATION_COD">
+      <endUserTexts label="ZZOCCUPATION_COD"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_OWNER">
+      <endUserTexts label="ZZFACILITY_OWNER"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_TYPE">
+      <endUserTexts label="ZZFACILITY_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_SUBTY">
+      <endUserTexts label="ZZFACILITY_SUBTY"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZEMPCLASS">
+      <endUserTexts label="ZEMPCLASS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZWW004">
+      <endUserTexts label="ZZWW004"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CC_DOCID">
+      <endUserTexts label=" "/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="9" precision="0" scale="0"/>
+    </element>
+    <element name="UPD_TIMESTAMP">
+      <endUserTexts label="UPD_TIMESTAMP"/>
+      <inlineType primitiveType="NVARCHAR" length="14" precision="14" scale="0"/>
+    </element>
+    <element name="CC_CALYEAR">
+      <endUserTexts label="CC_CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <element name="ZZMEMBERCD">
+      <endUserTexts label="ZZMEMBERCD"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_3</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_TYPE" sourceName="TRI_OBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPOSITION" sourceName="ZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZVIS_NO_BW" sourceName="ZZVIS_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALMONTH" sourceName="CC_CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALQUARTER" sourceName="CC_CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZWW004" sourceName="ZZWW004"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_DOCID" sourceName="CC_DOCID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UPD_TIMESTAMP" sourceName="UPD_TIMESTAMP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALYEAR" sourceName="CC_CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERCD" sourceName="ZZMEMBERCD"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_5</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="PART_POS" sourceName="PART_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZOCCUPATION_COD" sourceName="ZZOCCUPATION_COD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_OWNER" sourceName="ZZFACILITY_OWNER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_TYPE" sourceName="ZZFACILITY_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_SUBTY" sourceName="ZZFACILITY_SUBTY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZEMPCLASS" sourceName="ZEMPCLASS"/>
+    </input>
+    <layout xCoordinate="513" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_4/Join_3" rightInput="#//Join_4/Projection_5" joinType="inner">
+      <leftElementName>MANDT</leftElementName>
+      <leftElementName>POST_YEAR</leftElementName>
+      <leftElementName>DOC_ID</leftElementName>
+      <leftElementName>PART_POS</leftElementName>
+      <leftElementName>INV_POS</leftElementName>
+      <rightElementName>MANDT</rightElementName>
+      <rightElementName>POST_YEAR</rightElementName>
+      <rightElementName>DOC_ID</rightElementName>
+      <rightElementName>PART_POS</rightElementName>
+      <rightElementName>INV_POS</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_5" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="MANDT">
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_TYPE">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="POST_YEAR">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_TYPE">
+      <endUserTexts label="TRI_OBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="PART_POS">
+      <endUserTexts label="PART_POS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW">
+      <endUserTexts label="ZZTREAT_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID">
+      <endUserTexts label="PERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPOSITION">
+      <endUserTexts label="ZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID">
+      <endUserTexts label="ZZMEMBERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZJOB">
+      <endUserTexts label="ZZJOB"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSK">
+      <endUserTexts label="ZZPERSK"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZPERNR">
+      <endUserTexts label="ZZPERNR"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSG">
+      <endUserTexts label="ZZPERSG"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP">
+      <endUserTexts label="ZZJOBGRP"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSA">
+      <endUserTexts label="ZZPERSA"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="STT_CTRL">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ZZVIS_NO_BW">
+      <endUserTexts label="ZZVIS_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="CC_CALMONTH">
+      <endUserTexts label="CC_CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALQUARTER">
+      <endUserTexts label="CC_CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZOCCUPATION_COD">
+      <endUserTexts label="ZZOCCUPATION_COD"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_OWNER">
+      <endUserTexts label="ZZFACILITY_OWNER"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_TYPE">
+      <endUserTexts label="ZZFACILITY_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_SUBTY">
+      <endUserTexts label="ZZFACILITY_SUBTY"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZEMPCLASS">
+      <endUserTexts label="ZEMPCLASS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZWW004">
+      <endUserTexts label="ZZWW004"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CC_DOCID">
+      <endUserTexts label=" "/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="9" precision="0" scale="0"/>
+    </element>
+    <element name="UPD_TIMESTAMP">
+      <endUserTexts label="UPD_TIMESTAMP"/>
+      <inlineType primitiveType="NVARCHAR" length="14" precision="14" scale="0"/>
+    </element>
+    <element name="CC_CALYEAR">
+      <endUserTexts label="CC_CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <element name="ZZMEMBERCD">
+      <endUserTexts label="ZZMEMBERCD"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_4</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="MANDT" sourceName="MANDT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_TYPE" sourceName="TRI_OBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPOSITION" sourceName="ZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZVIS_NO_BW" sourceName="ZZVIS_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALMONTH" sourceName="CC_CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALQUARTER" sourceName="CC_CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZOCCUPATION_COD" sourceName="ZZOCCUPATION_COD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_OWNER" sourceName="ZZFACILITY_OWNER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_TYPE" sourceName="ZZFACILITY_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_SUBTY" sourceName="ZZFACILITY_SUBTY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZEMPCLASS" sourceName="ZEMPCLASS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZWW004" sourceName="ZZWW004"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_DOCID" sourceName="CC_DOCID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UPD_TIMESTAMP" sourceName="UPD_TIMESTAMP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALYEAR" sourceName="CC_CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERCD" sourceName="ZZMEMBERCD"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_6</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="PART_POS" sourceName="PART_POS"/>
+    </input>
+    <layout xCoordinate="436" yCoordinate="165" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_5/Join_4" rightInput="#//Join_5/Projection_6" joinType="inner">
+      <leftElementName>MANDT</leftElementName>
+      <leftElementName>POST_YEAR</leftElementName>
+      <leftElementName>DOC_ID</leftElementName>
+      <leftElementName>PART_POS</leftElementName>
+      <rightElementName>MANDT</rightElementName>
+      <rightElementName>POST_YEAR</rightElementName>
+      <rightElementName>DOC_ID</rightElementName>
+      <rightElementName>PART_POS</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection">
+    <element name="BUSOBJ_TYPE" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="BUSOBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="BUSOBJ_ID" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="BUSOBJ_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="POST_YEAR" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="POST_YEAR"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="DOC_ID" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="DOC_ID"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="TRI_OBJ_TYPE" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="TRI_OBJ_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="PART_POS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="PART_POS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZZTREAT_NO_BW" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZTREAT_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="ZZTREAT_DATE" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZTREAT_DATE"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="PERID" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="PERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZPOSITION" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZPOSITION"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZMEMBERID" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZMEMBERID"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="ZZJOB" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZJOB"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSK" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZPERSK"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZPERNR" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZPERNR"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSG" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZPERSG"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZJOBGRP" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZJOBGRP"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="ZZPERSA" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZPERSA"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="STT_CTRL" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="STT_CTRL"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ZZVIS_NO_BW" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZVIS_NO_BW"/>
+      <inlineType primitiveType="NVARCHAR" length="36" precision="36" scale="0"/>
+    </element>
+    <element name="CC_CALMONTH" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CC_CALMONTH"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="6" precision="0" scale="0"/>
+    </element>
+    <element name="CC_CALQUARTER" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CC_CALQUARTER"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="5" precision="0" scale="0"/>
+    </element>
+    <element name="ZZTREAT_COMM_CD" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZTREAT_COMM_CD"/>
+      <inlineType primitiveType="NVARCHAR" length="10" precision="10" scale="0"/>
+    </element>
+    <element name="ZZOCCUPATION_COD" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZOCCUPATION_COD"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_OWNER" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZFACILITY_OWNER"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_TYPE" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZFACILITY_TYPE"/>
+      <inlineType primitiveType="NVARCHAR" length="2" precision="2" scale="0"/>
+    </element>
+    <element name="ZZFACILITY_SUBTY" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZFACILITY_SUBTY"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="ZEMPCLASS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZEMPCLASS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ZZWW004" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZWW004"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CC_DOCID" hidden="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label=" "/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="9" precision="0" scale="0" semanticType="empty"/>
+    </element>
+    <element name="UPD_TIMESTAMP" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="UPD_TIMESTAMP"/>
+      <inlineType primitiveType="NVARCHAR" length="14" precision="14" scale="0"/>
+    </element>
+    <element name="CC_CALYEAR" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CC_CALYEAR"/>
+      <inlineType name="NVARCHAR" primitiveType="NVARCHAR" length="4" precision="0" scale="0"/>
+    </element>
+    <element name="ZZMEMBERCD" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="ZZMEMBERCD"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0" semanticType="empty"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_5</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_TYPE" sourceName="BUSOBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="BUSOBJ_ID" sourceName="BUSOBJ_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="POST_YEAR" sourceName="POST_YEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DOC_ID" sourceName="DOC_ID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TRI_OBJ_TYPE" sourceName="TRI_OBJ_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PART_POS" sourceName="PART_POS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_NO_BW" sourceName="ZZTREAT_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_DATE" sourceName="ZZTREAT_DATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="PERID" sourceName="PERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPOSITION" sourceName="ZZPOSITION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERID" sourceName="ZZMEMBERID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOB" sourceName="ZZJOB"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSK" sourceName="ZZPERSK"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERNR" sourceName="ZZPERNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSG" sourceName="ZZPERSG"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZJOBGRP" sourceName="ZZJOBGRP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZPERSA" sourceName="ZZPERSA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STT_CTRL" sourceName="STT_CTRL"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZVIS_NO_BW" sourceName="ZZVIS_NO_BW"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALMONTH" sourceName="CC_CALMONTH"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALQUARTER" sourceName="CC_CALQUARTER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZTREAT_COMM_CD" sourceName="ZZTREAT_COMM_CD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZOCCUPATION_COD" sourceName="ZZOCCUPATION_COD"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_OWNER" sourceName="ZZFACILITY_OWNER"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_TYPE" sourceName="ZZFACILITY_TYPE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZFACILITY_SUBTY" sourceName="ZZFACILITY_SUBTY"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZEMPCLASS" sourceName="ZEMPCLASS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZWW004" sourceName="ZZWW004"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_DOCID" sourceName="CC_DOCID"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UPD_TIMESTAMP" sourceName="UPD_TIMESTAMP"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CC_CALYEAR" sourceName="CC_CALYEAR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ZZMEMBERCD" sourceName="ZZMEMBERCD"/>
+    </input>
+    <layout xCoordinate="436" yCoordinate="87" width="0" height="0" expanded="true"/>
+  </viewNode>
+  <viewLayout relativeWidthScenario="63"/>
+</View:ColumnView>
