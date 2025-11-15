@@ -305,10 +305,85 @@ Target:  ELSE NULL
 
 ---
 
+### Rule 12: Filter/GROUP BY Source Mapping (Priority 25)
+
+**Rule ID**: `HANA_SOURCE_NAME_MAPPING`  
+**Applies To**: All HANA versions, all node types  
+**Category**: Column name resolution
+
+**Why**: XML uses target/alias names but SQL needs source/actual column names for base table queries.
+
+**Problem**: User naming convention adds table suffixes (LOEKZ→LOEKZ_EKPO) to distinguish columns from different sources.
+
+**Transformations**:
+1. **Projection Filters**: `WHERE ("LOEKZ_EKPO" = '')` → `WHERE ("LOEKZ" = '')`
+2. **Aggregation GROUP BY**: `GROUP BY WAERS_EKKO` → `GROUP BY join_4.WAERS`
+3. **Aggregation Specs**: `SUM(WEMNG_EKET)` → `SUM(join_4.WEMNG)`
+
+**Implementation**: 
+- `renderer.py::_render_projection()` - Lines 419-439 (filter mapping)
+- `renderer.py::_render_aggregation()` - Lines 588-603 (GROUP BY), 611-631 (aggregation specs)
+
+**Validated**: CV_INVENTORY_ORDERS.xml (220 lines, executes successfully)
+
+---
+
+### Rule 13: ColumnView JOIN Parsing (Priority 5)
+
+**Rule ID**: `COLUMNVIEW_JOIN_PARSING`  
+**Applies To**: ColumnView XML format (HANA 1.x era)  
+**Category**: Parser enhancement
+
+**Why**: ColumnView JOINs have different XML structure than Calculation:scenario JOINs.
+
+**XML Pattern**:
+```xml
+<viewNode xsi:type="View:JoinNode" name="Join_6">
+  <join leftInput="#//Join_6/Projection_6" rightInput="#//Join_6/Projection_8" joinType="inner">
+    <leftElementName>EBELN_EKPO</leftElementName>
+    <rightElementName>EBELN</rightElementName>
+  </join>
+</viewNode>
+```
+
+**Implementation**: `parser/column_view_parser.py` - Added JoinNode handler with join type/condition parsing
+
+**Validated**: CV_INVENTORY_ORDERS join_6 renders with correct INNER JOIN syntax
+
+---
+
+### Rule 14: Aggregation Calculated Columns (Priority 55)
+
+**Rule ID**: `AGGREGATION_CALC_COLS`  
+**Applies To**: Aggregation nodes with calculated columns  
+**Category**: Structural transformation
+
+**Why**: Calculated columns in aggregations must be computed AFTER grouping.
+
+**Structure**:
+```sql
+aggregation AS (
+  SELECT
+      agg_inner.*,
+      SUBSTRING(agg_inner."AEDAT_EKKO", 1, 6) AS MONTH  -- After grouping
+  FROM (
+    SELECT dimensions, SUM(measures)
+    FROM input
+    GROUP BY dimensions
+  ) AS agg_inner
+)
+```
+
+**Implementation**: `renderer.py::_render_aggregation()` - Lines 647-673
+
+**Validated**: MONTH, YEAR in CV_INVENTORY_ORDERS
+
+---
+
 ## Known Limitations (HANA Mode)
 
 ### ❌ **NOT Implemented:**
-1. **Filter alias mapping** - Filters use target names, need source names (CV_INVENTORY_ORDERS issue)
+1. ~~**Filter alias mapping**~~ ✅ SOLVED (Rule #12)
 2. **Complex parameter cleanup** - DATE() nesting, multiple levels (CV_MCM_CNTRL_Q51)
 3. **REGEXP_LIKE parameter patterns** - Special handling needed (CV_CT02_CT03)
 4. **BW wrapper mode** - Implemented but optional

@@ -10,7 +10,7 @@
 
 ### BUG-001: JOIN Column Resolution - Wrong Projection Reference
 
-**Status**: 🔴 **OPEN**  
+**Status**: ✅ **SOLVED** (2025-11-13)  
 **Severity**: High  
 **Discovered**: CV_INVENTORY_ORDERS.xml testing  
 **XML**: CV_INVENTORY_ORDERS.xml  
@@ -155,7 +155,7 @@ Issues:
 
 ### BUG-004: Filter Alias vs Source Name Mapping
 
-**Status**: ✅ **FIXED**  
+**Status**: ✅ **SOLVED** (2025-11-13) - Moved to SOLVED_BUGS.md  
 **Severity**: High  
 **Discovered**: CV_INVENTORY_ORDERS.xml testing  
 **XML**: CV_INVENTORY_ORDERS.xml
@@ -213,9 +213,10 @@ for target_name, source_name in target_to_source_map.items():
 
 ## Bug Statistics
 
-**Total Bugs**: 4  
-**Open**: 3  
-**Fixed**: 1  
+**Total Bugs**: 11  
+**Open**: 2 (BUG-002, BUG-003)  
+**Solved**: 8 (BUG-001, BUG-004, BUG-005, BUG-006, BUG-007, BUG-008, BUG-009, BUG-010, BUG-011)  
+**Deferred**: 0  
 **Deferred**: 2 (BUG-002, BUG-003)
 
 **By Category**:

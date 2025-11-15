@@ -585,19 +585,33 @@ def _render_aggregation(ctx: RenderContext, node: AggregationNode) -> str:
     # Identify calculated column names first (case-insensitive)
     calc_col_names = set(k.upper() for k in node.calculated_attributes.keys())
     
-    # For GROUP BY in aggregations, use OUTPUT column names (as they appear in SELECT)
-    # not input column references - HANA allows this
+    # Build target→expression mapping for GROUP BY
+    target_to_expr_map = {}
+    for mapping in node.mappings:
+        target_to_expr_map[mapping.target_name.upper()] = mapping.expression
+    
+    # For GROUP BY, use actual column expressions from input (not aliases)
+    # Skip calculated columns - they'll be in outer query
     group_by_cols: List[str] = []
     for col_name in node.group_by:
-        # Just use the column name - it will match the SELECT alias
-        group_by_cols.append(_quote_identifier(col_name))
+        if col_name.upper() not in calc_col_names:
+            # Use the source expression, not the alias
+            if col_name.upper() in target_to_expr_map:
+                expr = target_to_expr_map[col_name.upper()]
+                group_by_cols.append(_render_expression(ctx, expr, from_clause))
+            else:
+                group_by_cols.append(_quote_identifier(col_name))
 
     select_items: List[str] = []
     
+    # Identify columns that are aggregated (measures, not dimensions)
+    aggregated_col_names = set(agg.target_name.upper() for agg in node.aggregations)
+    
     # Add mappings (passthrough columns from input)
-    # But skip any that are calculated columns (will be added separately)
+    # But skip calculated columns AND aggregated columns (will be added separately)
     for mapping in node.mappings:
-        if mapping.target_name.upper() not in calc_col_names:
+        if (mapping.target_name.upper() not in calc_col_names and 
+            mapping.target_name.upper() not in aggregated_col_names):
             col_expr = _render_expression(ctx, mapping.expression, from_clause)
             select_items.append(f"{col_expr} AS {_quote_identifier(mapping.target_name)}")
     
@@ -626,11 +640,8 @@ def _render_aggregation(ctx: RenderContext, node: AggregationNode) -> str:
         
         select_items.append(f"{agg_func}({agg_expr}) AS {_quote_identifier(agg_spec.target_name)}")
 
-    # Add calculated columns (dimensions computed in aggregation)
-    for calc_name, calc_attr in node.calculated_attributes.items():
-        calc_expr = _render_expression(ctx, calc_attr.expression, from_clause)
-        select_items.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
-        # Calculated columns are already in group_by list by name, don't add formulas
+    # Note: Don't add calculated columns here - they need special handling
+    # because they can't be in GROUP BY of the same SELECT
 
     if not select_items:
         select_items = ["*"]
@@ -638,29 +649,45 @@ def _render_aggregation(ctx: RenderContext, node: AggregationNode) -> str:
     select_clause = ",\n    ".join(select_items)
     where_clause = _render_filters(ctx, node.filters, from_clause)
 
-    # Check if GROUP BY references calculated columns (same issue as projections)
-    has_calc_in_groupby = False
-    if group_by_cols and calc_col_names:
-        for col_name in node.group_by:
-            if col_name.upper() in calc_col_names:
-                has_calc_in_groupby = True
-                break
+    # Build GROUP BY clause first
+    group_by_clause = ""
+    if group_by_cols:
+        group_by_clause = f"GROUP BY {', '.join(group_by_cols)}"
     
-    # If GROUP BY references calculated columns, wrap in subquery
-    if has_calc_in_groupby and group_by_cols:
-        # Build inner query without GROUP BY
+    # Check if there are calculated columns that need to be added AFTER grouping
+    has_calc_cols = len(node.calculated_attributes) > 0
+    
+    if has_calc_cols:
+        # Wrap: inner query groups, outer query adds calculated columns
         inner_sql = f"SELECT\n    {select_clause}\nFROM {from_clause}"
         if where_clause:
             inner_sql += f"\nWHERE {where_clause}"
+        if group_by_clause:
+            inner_sql += f"\n{group_by_clause}"
         
-        # Outer query with GROUP BY
-        sql = f"SELECT * FROM (\n  {inner_sql.replace(chr(10), chr(10) + '  ')}\n) AS calc\nGROUP BY {', '.join(group_by_cols)}"
+        # Outer SELECT adds calculated columns
+        outer_select = ["agg_inner.*"]
+        for calc_name, calc_attr in node.calculated_attributes.items():
+            # Qualify column refs in formula with agg_inner
+            if calc_attr.expression.expression_type == ExpressionType.RAW:
+                formula = calc_attr.expression.value
+                # Replace "COLUMN" with agg_inner."COLUMN"
+                import re
+                formula = re.sub(r'(?<!\.)"([A-Z_][A-Z0-9_]*)"', r'agg_inner."\1"', formula)
+                calc_expr = translate_raw_formula(formula, ctx)
+            else:
+                calc_expr = _render_expression(ctx, calc_attr.expression, "agg_inner")
+            outer_select.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
+        
+        outer_clause = ",\n    ".join(outer_select)
+        sql = f"SELECT\n    {outer_clause}\nFROM (\n  {inner_sql.replace(chr(10), chr(10) + '  ')}\n) AS agg_inner"
     else:
+        # Simple aggregation - no calculated columns
         sql = f"SELECT\n    {select_clause}\nFROM {from_clause}"
         if where_clause:
             sql += f"\nWHERE {where_clause}"
-        if group_by_cols:
-            sql += f"\nGROUP BY {', '.join(group_by_cols)}"
+        if group_by_clause:
+            sql += f"\n{group_by_clause}"
 
     return sql
 
