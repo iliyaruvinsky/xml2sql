@@ -72,6 +72,8 @@ async def convert_single(
     # Convert XML to SQL
     result = convert_xml_to_sql(
         xml_content=xml_content_bytes,
+        database_mode=config.database_mode,
+        hana_version=config.hana_version,
         client=config.client,
         language=config.language,
         schema_overrides=config.schema_overrides,
@@ -282,12 +284,15 @@ async def convert_batch(
         # Convert XML to SQL
         result = convert_xml_to_sql(
             xml_content=xml_content_bytes,
+            database_mode=config.database_mode,
+            hana_version=config.hana_version,
             client=config.client,
             language=config.language,
             schema_overrides=config.schema_overrides,
             currency_udf_name=config.currency_udf_name,
             currency_rates_table=config.currency_rates_table,
             currency_schema=config.currency_schema,
+            auto_fix=config.auto_fix,
         )
         
         if result.error:

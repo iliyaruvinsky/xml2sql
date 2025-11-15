@@ -1,24 +1,31 @@
 # XML to SQL Converter
 
-Convert SAP HANA calculation view XML definitions into Snowflake SQL artifacts.
+Convert SAP HANA calculation view XML definitions into SQL for multiple database platforms.
 
-> **👋 New to this project?** If you're a client deploying views to Snowflake, **[START HERE](START_HERE.md)** - This guide will walk you through the repository step-by-step.
+> **👋 New to this project?** If you're a client deploying views, **[START HERE](START_HERE.md)** - This guide will walk you through the repository step-by-step.
 
 > **🌐 Web Interface Available!** Try the new web-based GUI - see [WEB_GUI_DEPLOYMENT_GUIDE.md](WEB_GUI_DEPLOYMENT_GUIDE.md) for deployment instructions.
 
 ## Overview
 
-This tool parses SAP HANA calculation view XML files and generates Snowflake-compatible SQL queries. It supports complex calculation views with projections, joins, aggregations, unions, filters, and calculated expressions.
+This tool parses SAP HANA calculation view XML files and generates database-specific SQL queries. It supports complex calculation views with projections, joins, aggregations, unions, filters, and calculated expressions.
+
+**Supported Target Databases:**
+- **Snowflake** - Cloud data warehouse with Snowflake-specific syntax
+- **SAP HANA** - Native HANA SQL for testing or migration validation
+- **Future**: Databricks, PostgreSQL, and other databases
 
 ## Features
 
 - ✅ **Full XML Parsing**: Supports projections, joins, aggregations, unions, filters, variables, and logical models
-- ✅ **Snowflake SQL Generation**: Generates valid Snowflake SQL with CTEs, proper joins, and aggregations
-- ✅ **Function Translation**: Automatically translates HANA functions to Snowflake equivalents (IF→IFF, string functions, date/time functions)
-- ✅ **Currency Conversion**: Supports currency conversion via Snowflake UDFs
+- ✅ **Multi-Database Support**: Generate SQL for Snowflake or HANA with version-specific syntax
+- ✅ **Version-Aware Generation**: HANA version-specific SQL (1.0, 2.0, 2.0 SPS01, 2.0 SPS03)
+- ✅ **Function Translation**: Mode-aware function translation (IF/IFF, LEFTSTR/SUBSTRING, etc.)
+- ✅ **Mode-Aware Validation**: Database-specific SQL validation
+- ✅ **Currency Conversion**: Supports currency conversion via database UDFs
 - ✅ **Corporate Naming**: Template-based naming conventions for tables and views
 - ✅ **Configuration Management**: YAML-based configuration with runtime overrides
-- ✅ **CLI Interface**: Easy-to-use command-line interface
+- ✅ **CLI and Web Interface**: Command-line tool and modern web UI
 
 ## Installation
 
@@ -65,6 +72,8 @@ This tool parses SAP HANA calculation view XML files and generates Snowflake-com
 defaults:
   client: "PROD"          # Default client value for $$client$$ placeholders
   language: "EN"         # Default language value for $$language$$ placeholders
+  database_mode: "snowflake"  # Default database mode (snowflake/hana)
+  hana_version: "2.0"    # Default HANA version (1.0, 2.0, 2.0_SPS01, 2.0_SPS03)
 
 paths:
   source: "Source (XML Files)"      # Directory containing XML files
@@ -81,6 +90,8 @@ currency:
 
 scenarios:
   - id: "Sold_Materials"            # Scenario identifier
+    database_mode: "snowflake"       # Database mode for this scenario (optional, defaults to global)
+    hana_version: "2.0"              # HANA version if mode=hana (optional)
     source: "Sold_Materials.XML"    # XML file name (optional, defaults to {id}.XML)
     output: "V_C_SOLD_MATERIALS"     # Output SQL file name (without .sql)
     enabled: true                    # Enable/disable this scenario
@@ -92,6 +103,8 @@ scenarios:
 
 Each scenario can have:
 - **id**: Unique identifier (required)
+- **database_mode**: Target database mode - `snowflake` or `hana` (optional, defaults to global default)
+- **hana_version**: HANA version for HANA mode - `1.0`, `2.0`, `2.0_SPS01`, `2.0_SPS03` (optional, defaults to global default)
 - **source**: XML file name (optional, defaults to `{id}.XML`)
 - **output**: Output SQL file name without extension (optional, defaults to formatted `{id}`)
 - **enabled**: Enable/disable conversion (default: true)
@@ -127,11 +140,13 @@ xml-to-sql convert --config config.yaml --list-only
 
 - `--config, -c`: Path to configuration YAML file (required)
 - `--scenario`: Scenario ID to convert (can be specified multiple times)
+- `--mode, -m`: Override database mode (`snowflake` or `hana`) - overrides config setting
+- `--hana-version`: HANA version for HANA mode (`1.0`, `2.0`, `2.0_SPS01`, `2.0_SPS03`) - overrides config setting
 - `--list-only`: Show planned conversions without generating SQL
 
 ## Generated SQL Structure
 
-The tool generates Snowflake SQL with the following structure:
+The tool generates database-specific SQL. Below is an example for Snowflake mode:
 
 ```sql
 WITH

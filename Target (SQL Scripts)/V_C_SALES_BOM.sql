@@ -1,9 +1,4 @@
--- Warnings:
---   Join Join_3 has no join conditions
---   Join Join_4 has no join conditions
---   Join Join_1 has no join conditions
---   Join Join_2 has no join conditions
-
+CREATE VIEW V_C_SALES_BOM AS
 WITH
   projection_1 AS (
     SELECT
@@ -15,24 +10,6 @@ WITH
         SAPK5D.MAST.STLAL AS STLAL
     FROM SAPK5D.MAST
     WHERE SAPK5D.MAST.STLAN = 5
-  ),
-  aggregation_1 AS (
-    SELECT
-        "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".CODAPL AS CODAPL,
-        "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".LVLGRP AS LVLGRP,
-        "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".ENTITY AS ENTITY,
-        MIN("/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".NUMGRP) AS NUMGRP
-    FROM "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT"
-    WHERE "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".CODAPL = 01 AND "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".LVLGRP = 029
-    GROUP BY "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".CODAPL, "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".LVLGRP, "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".ENTITY
-  ),
-  ynlg AS (
-    SELECT
-        SAPK5D.MARA.MANDT AS MANDT,
-        SAPK5D.MARA.MATNR AS MATNR,
-        SAPK5D.MARA.MTART AS MTART
-    FROM SAPK5D.MARA
-    WHERE SAPK5D.MARA.MTART = 'YNLG'
   ),
   projection_2 AS (
     SELECT
@@ -56,18 +33,23 @@ WITH
     FROM SAPK5D.MARA
     WHERE SAPK5D.MARA.MTART = 'FERT'
   ),
-  join_3 AS (
+  aggregation_1 AS (
     SELECT
-        projection_1.MANDT AS MANDT,
-        projection_1.MATNR AS MATNR,
-        projection_1.WERKS AS WERKS,
-        projection_1.STLAN AS STLAN,
-        projection_1.STLNR AS STLNR,
-        projection_1.STLAL AS STLAL,
-        projection_1.MANDT AS MANDT,
-        projection_1.MATNR AS MATNR
-    FROM projection_1
-    INNER JOIN ynlg ON 1=1
+        "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".CODAPL AS CODAPL,
+        "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".LVLGRP AS LVLGRP,
+        "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".ENTITY AS ENTITY,
+        MIN("/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".NUMGRP) AS NUMGRP
+    FROM "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT"
+    WHERE "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".CODAPL = 01 AND "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".LVLGRP = 029
+    GROUP BY "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".CODAPL, "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".LVLGRP, "/KMDM/CALCULATIONVIEWS/CURRENT_MAT_SORT".ENTITY
+  ),
+  ynlg AS (
+    SELECT
+        SAPK5D.MARA.MANDT AS MANDT,
+        SAPK5D.MARA.MATNR AS MATNR,
+        SAPK5D.MARA.MTART AS MTART
+    FROM SAPK5D.MARA
+    WHERE SAPK5D.MARA.MTART = 'YNLG'
   ),
   join_4 AS (
     SELECT
@@ -76,11 +58,20 @@ WITH
         projection_2.MEINS AS MEINS,
         projection_2.MENGE AS MENGE,
         projection_2.MANDT AS MANDT,
-        projection_2.STLNR AS STLNR,
-        projection_2.MANDT AS MANDT,
-        projection_2.MATNR AS IDNRK
+        projection_2.STLNR AS STLNR
     FROM projection_2
-    INNER JOIN fert ON 1=1
+    INNER JOIN fert ON projection_2.MANDT = fert.MANDT AND projection_2.IDNRK = fert.MATNR
+  ),
+  join_3 AS (
+    SELECT
+        projection_1.MANDT AS MANDT,
+        projection_1.MATNR AS MATNR,
+        projection_1.WERKS AS WERKS,
+        projection_1.STLAN AS STLAN,
+        projection_1.STLNR AS STLNR,
+        projection_1.STLAL AS STLAL
+    FROM projection_1
+    INNER JOIN ynlg ON projection_1.MANDT = ynlg.MANDT AND projection_1.MATNR = ynlg.MATNR
   ),
   join_1 AS (
     SELECT
@@ -90,14 +81,12 @@ WITH
         join_3.WERKS AS WERKS,
         join_3.MATNR AS MATNR,
         join_3.MANDT AS MANDT,
-        join_3.MENGE AS MENGE,
-        join_3.MEINS AS MEINS,
-        join_3.PSWRK AS PSWRK,
-        join_3.IDNRK AS IDNRK,
-        join_3.MANDT AS MANDT,
-        join_3.STLNR AS STLNR
+        join_4.MENGE AS MENGE,
+        join_4.MEINS AS MEINS,
+        join_4.PSWRK AS PSWRK,
+        join_4.IDNRK AS IDNRK
     FROM join_3
-    INNER JOIN join_4 ON 1=1
+    INNER JOIN join_4 ON join_3.MANDT = join_4.MANDT AND join_3.STLNR = join_4.STLNR
   ),
   join_2 AS (
     SELECT
@@ -111,10 +100,9 @@ WITH
         join_1.PSWRK AS PSWRK,
         join_1.MEINS AS MEINS,
         join_1.MENGE AS MENGE,
-        join_1.NUMGRP AS NUMGRP,
-        join_1.ENTITY AS MATNR
+        aggregation_1.NUMGRP AS NUMGRP
     FROM join_1
-    LEFT OUTER JOIN aggregation_1 ON 1=1
+    LEFT OUTER JOIN aggregation_1 ON join_1.MATNR = aggregation_1.ENTITY
   ),
   aggregation_2 AS (
     SELECT
@@ -132,4 +120,4 @@ WITH
     GROUP BY join_2.MENGE, join_2.MEINS, join_2.PSWRK, join_2.IDNRK, join_2.STLAL, join_2.STLNR, join_2.STLAN, join_2.MATNR, join_2.MANDT, join_2.NUMGRP
   )
 
-SELECT * FROM aggregation_2
+SELECT MENGE, MEINS, PSWRK, IDNRK, STLAL, STLNR, STLAN, MATNR, MANDT, NUMGRP FROM aggregation_2

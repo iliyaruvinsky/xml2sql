@@ -7,6 +7,31 @@ from enum import Enum
 from typing import Optional
 
 
+class DatabaseMode(str, Enum):
+    """Target database system for SQL generation."""
+
+    SNOWFLAKE = "snowflake"
+    HANA = "hana"
+    # Future: DATABRICKS = "databricks"
+
+
+class HanaVersion(str, Enum):
+    """SAP HANA version for version-specific SQL syntax."""
+
+    HANA_1_0 = "1.0"
+    HANA_2_0 = "2.0"
+    HANA_2_0_SPS01 = "2.0_SPS01"
+    HANA_2_0_SPS03 = "2.0_SPS03"
+    HANA_2_0_SPS04 = "2.0_SPS04"
+
+
+class XMLFormat(str, Enum):
+    """XML format type for HANA calculation views."""
+
+    CALCULATION_SCENARIO = "calculation_scenario"  # Modern: Calculation:scenario
+    COLUMN_VIEW = "column_view"  # Legacy: View:ColumnView
+
+
 class SnowflakeType(str, Enum):
     """Subset of Snowflake data types relevant to calculation views."""
 

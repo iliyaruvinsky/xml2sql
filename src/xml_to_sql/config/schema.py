@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+from ..domain.types import DatabaseMode, HanaVersion
+
 
 @dataclass(slots=True)
 class ScenarioOverrides:
@@ -27,6 +29,10 @@ class ScenarioConfig:
     """Configuration for a single calculation scenario."""
 
     id: str
+    database_mode: DatabaseMode = DatabaseMode.SNOWFLAKE
+    hana_version: Optional[HanaVersion] = HanaVersion.HANA_2_0
+    instance_type: Optional[str] = None  # 'ecc', 'bw', 'auto'
+    bw_package: Optional[str] = None  # For BW wrapper: "Macabi_BI.COOM"
     source: Optional[str] = None
     output_name: Optional[str] = None
     enabled: bool = True
@@ -56,6 +62,8 @@ class Config:
     target_directory: Path
     default_client: str = "PROD"
     default_language: str = "EN"
+    default_database_mode: DatabaseMode = DatabaseMode.SNOWFLAKE
+    default_hana_version: HanaVersion = HanaVersion.HANA_2_0
     schema_overrides: Dict[str, str] = field(default_factory=dict)
     currency: CurrencyConfig = field(default_factory=CurrencyConfig)
     scenarios: List[ScenarioConfig] = field(default_factory=list)

@@ -19,6 +19,9 @@ from ..domain import (
     DataTypeSpec,
     Expression,
     ExpressionType,
+    JoinCondition,
+    JoinNode,
+    JoinType,
     LogicalModel,
     Node,
     NodeKind,
@@ -145,6 +148,7 @@ def _parse_view_node(scenario: Scenario, node_el: etree._Element) -> Node:
 
     if node_type.endswith("Aggregation"):
         group_by, aggregations = _collect_aggregations(elements)
+        # Include calculated_attributes from elements with formulas
         return AggregationNode(
             node_id=node_name,
             kind=NodeKind.AGGREGATION,
@@ -155,7 +159,7 @@ def _parse_view_node(scenario: Scenario, node_el: etree._Element) -> Node:
             aggregations=aggregations,
             output_attributes=output_attributes,
             view_attributes=view_attributes,
-            calculated_attributes=calculated_attributes,
+            calculated_attributes=calculated_attributes,  # Already built from elements with formulas
         )
 
     if node_type.endswith("Union"):
@@ -169,6 +173,25 @@ def _parse_view_node(scenario: Scenario, node_el: etree._Element) -> Node:
             view_attributes=view_attributes,
             calculated_attributes=calculated_attributes,
             union_all=True,
+        )
+
+    if node_type.endswith("JoinNode"):
+        # Parse JOIN-specific attributes
+        join_type = _parse_join_type(node_el)
+        join_conditions = _parse_join_conditions(node_el, inputs)
+        
+        return JoinNode(
+            node_id=node_name,
+            kind=NodeKind.JOIN,
+            inputs=inputs,
+            mappings=mappings,
+            filters=filters,
+            join_type=join_type,
+            conditions=join_conditions,
+            properties={},
+            output_attributes=output_attributes,
+            view_attributes=view_attributes,
+            calculated_attributes=calculated_attributes,
         )
 
     return Node(
@@ -316,6 +339,61 @@ def _create_mapping(
         data_type=data_spec,
         source_node=source_node,
     )
+
+
+def _parse_join_type(node_el: etree._Element) -> JoinType:
+    """Parse join type from ColumnView JOIN node."""
+    join_el = node_el.find("./view:join", namespaces=_NS) or node_el.find("./join")
+    if join_el is None:
+        return JoinType.INNER
+    
+    join_type_str = join_el.get("joinType", "inner").lower()
+    
+    type_map = {
+        "inner": JoinType.INNER,
+        "leftouter": JoinType.LEFT_OUTER,
+        "left_outer": JoinType.LEFT_OUTER,
+        "rightouter": JoinType.RIGHT_OUTER,
+        "right_outer": JoinType.RIGHT_OUTER,
+        "fullouter": JoinType.FULL_OUTER,
+        "full_outer": JoinType.FULL_OUTER,
+    }
+    
+    return type_map.get(join_type_str, JoinType.INNER)
+
+
+def _parse_join_conditions(node_el: etree._Element, inputs: List[str]) -> List[JoinCondition]:
+    """Parse join conditions from ColumnView JOIN node."""
+    from ..domain import JoinCondition
+    
+    join_el = node_el.find("./view:join", namespaces=_NS) or node_el.find("./join")
+    if join_el is None:
+        return []
+    
+    # Get left and right column names
+    left_elements = []
+    right_elements = []
+    
+    for left_el in join_el.findall("./view:leftElementName", namespaces=_NS) + join_el.findall("./leftElementName"):
+        if left_el.text:
+            left_elements.append(left_el.text)
+    
+    for right_el in join_el.findall("./view:rightElementName", namespaces=_NS) + join_el.findall("./rightElementName"):
+        if right_el.text:
+            right_elements.append(right_el.text)
+    
+    # Create join conditions (pair left and right elements)
+    conditions = []
+    for left_col, right_col in zip(left_elements, right_elements):
+        left_expr = Expression(ExpressionType.COLUMN, left_col)
+        right_expr = Expression(ExpressionType.COLUMN, right_col)
+        conditions.append(JoinCondition(
+            left=left_expr,
+            right=right_expr,
+            operator="="
+        ))
+    
+    return conditions
 
 
 def _collect_aggregations(elements: Dict[str, ElementInfo]) -> Tuple[List[str], List[AggregationSpec]]:

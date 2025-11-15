@@ -127,6 +127,7 @@
    - Comprehensive testing guides
    - Release documentation
    - SQL Validation Enhancement Plan (SQL_VALIDATION_ENHANCEMENT_PLAN.md)
+   - Empirical Testing Cycle guide (EMPIRICAL_TESTING_CYCLE.md) - **NEW**: Iterative HANA validation methodology
 
 ### Current Architecture
 
@@ -660,10 +661,43 @@ pytest tests/test_sql_validator.py -v
 10. ✅ Add auto-correction UI and integration
 11. ✅ Create testing guide (`AUTO_CORRECTION_TESTING_GUIDE.md`)
 
+### Completed (Current Session)
+- ✅ Multi-database mode (Snowflake + HANA) fully implemented
+- ✅ CV_CNCLD_EVNTS.xml (ECC) - SUCCESS in HANA (243 lines, 84ms)
+- ✅ Version-keyed rules catalog created (`conversion_rules.yaml`)
+- ✅ Comprehensive documentation (5 new docs)
+- ✅ 13+ transformation rules implemented and validated
+- ✅ 8+ cleanup mechanisms for parameter handling
+- ✅ Instance type strategy documented (ECC vs BW)
+
+### Bugs Fixed This Session (2025-11-13)
+- ✅ **BUG-004**: Filter alias mapping - target→source name translation (LOEKZ_EKPO→LOEKZ)
+- ✅ **BUG-005**: ColumnView JOIN parsing - Added JoinNode handler with join condition parsing
+- ✅ **BUG-006**: JOIN column resolution - projection_8.EINDT not projection_6.EINDT (source_node tracking)
+- ✅ **BUG-007**: Aggregation calculated columns - MONTH/YEAR formulas rendered
+- ✅ **BUG-008**: GROUP BY alias usage - Use output aliases not join_4.column refs
+- ✅ **BUG-009**: Aggregation spec source mapping - SUM(join_4.WEMNG) not SUM(join_4.WEMNG_EKET)
+- ✅ **BUG-010**: Aggregation subquery wrapping - Wrap when GROUP BY refs calculated columns
+
+**Files Modified**:
+- `src/xml_to_sql/parser/column_view_parser.py` - Added JoinNode parsing, join type/condition extraction
+- `src/xml_to_sql/sql/renderer.py` - Filter source mapping, aggregation calculated cols, GROUP BY fixes, subquery wrapping
+
+### Discovered Issues (Need Fixing)
+- 🔴 **BUG-001**: JOIN column resolution - Multi-input joins reference wrong projection for columns (CV_INVENTORY_ORDERS: projection_6.EINDT when EINDT is in projection_8)
+- 🔴 **BUG-002**: Complex parameter cleanup - Nested DATE() patterns create unbalanced parens and malformed SQL (CV_MCM_CNTRL_Q51: 8+ parameters)
+- 🔴 **BUG-003**: REGEXP_LIKE parameter patterns - Parameters in function arguments not simplified (CV_CT02_CT03)
+- ✅ **BUG-004**: Filter alias mapping - FIXED (target→source name translation in WHERE clauses)
+
+**Bug Tracker**: `BUG_TRACKER.md` - Structured tracking with root cause analysis  
+**Solved Bugs**: `SOLVED_BUGS.md` - Archive of fixes with solutions
+
 ### In Progress / Next Actions (Current Session)
+- **Multi-Database Mode Support** ✅ **COMPLETE**: Implemented per-scenario database mode (Snowflake/HANA) with version-aware SQL generation. Features: DatabaseMode/HanaVersion/XMLFormat enums, XML format detector, mode-aware function translator, HANA validator, CLI options (`--mode`, `--hana-version`), web UI mode selector. HANA mode generates native HANA SQL (IF vs IFF, + vs ||, CREATE VIEW vs CREATE OR REPLACE VIEW).
+- **Empirical Testing Cycle**: Enabled HANA mode for testing. Use `database_mode: hana` and `hana_version: "2.0"` in config to generate HANA-executable SQL for validation.
 - Design a **structured conversion catalog** (SQLite/JSON) that centralises HANA→Snowflake mappings per artifact and HANA version. Source material: `COMPREHENSIVE HANA CALCULATION VIEW XML-TO-SNOWFLAKE SQL MIGRATION CATALOG.md`.
 - Wire the parser/rendering pipeline to consult the catalog when translating legacy ColumnView artifacts (functions, predicates, hints).
-- Extend `translate_raw_formula()` / predicate rendering to handle legacy helpers (`LEFTSTR`, `RIGHTSTR`, `in(...)`, `match()`, `lpad()` etc.) using Snowflake-safe equivalents.
+- Extend `translate_raw_formula()` / predicate rendering to handle legacy helpers (`LEFTSTR`, `RIGHTSTR`, `in(...)`, `match()`, `lpad()` etc.) using mode-aware equivalents.
 - Add regression tests covering legacy samples under `Source (XML Files)/OLD_HANA_VIEWS` once the new mappings are applied.
 
 ### Optional Enhancements
@@ -712,6 +746,65 @@ pytest tests/test_sql_validator.py -v
 - Database migrations are auto-applied on startup
 - Validation logs are always captured and stored
 
+## Current Session State (CRITICAL - READ FIRST)
+
+### What to Know Immediately
+
+**Token Usage**: 650k / 1M used in current chat  
+**Status**: Major progress, multiple bugs fixed, 1 XML validated, 1 XML in final testing  
+**Parallel Work**: Claude Code agent working on BUG-002 (parameter cleanup)
+
+### Validated Working XMLs
+1. ✅ **CV_CNCLD_EVNTS.xml** (ECC/MBD instance)
+   - 243 lines HANA SQL
+   - Executes successfully in 84ms
+   - All transformation rules working
+   - Schema: SAPABAP1
+
+### XMLs In Testing
+1. ⏳ **CV_INVENTORY_ORDERS.xml** (BW/BID instance)
+   - 235 lines HANA SQL
+   - 7 bugs fixed this session
+   - Waiting final HANA validation
+   - Schema: SAPABAP1 (ABAP→SAPABAP1 override)
+   - **CRITICAL**: Must test in BID instance (BW), not MBD (ECC)
+   - Tables: /BIC/AZEKET2, /BIC/AZEKPO2
+
+### Deferred XMLs (Known Issues)
+1. 🔴 **CV_MCM_CNTRL_Q51.xml** (ECC/MBD) - Complex DATE() parameter patterns, Claude Code agent fixing
+2. 🔴 **CV_CT02_CT03.xml** (ECC/MBD) - REGEXP_LIKE + parameter patterns
+
+### Key Files to Understand
+- `BUG_TRACKER.md` - All active bugs with root cause analysis
+- `SOLVED_BUGS.md` - Archive of fixed bugs with solutions  
+- `HANA_CONVERSION_RULES.md` - HANA-specific transformation rules (USE THIS for HANA mode)
+- `SNOWFLAKE_CONVERSION_RULES.md` - Snowflake rules (USE THIS for Snowflake mode)
+- `SESSION_SUMMARY_2025-11-13.md` - Complete session summary
+- `conversion_rules.yaml` - Machine-readable rules catalog
+
+### Critical Insights Discovered
+
+**Target vs Source Name Mapping**:
+- XML has `targetName="LOEKZ_EKPO" sourceName="LOEKZ"`
+- Filters/GROUP BY use target names but need source names for base table queries
+- Fixed in projections, aggregations, filters
+- **Pattern**: User adds table suffix to distinguish columns from different sources (e.g., LOEKZ→LOEKZ_EKPO)
+
+**ColumnView vs Calculation:scenario**:
+- Different XML formats require different parsing
+- ColumnView JOINs were falling through to generic Node (not JoinNode) - FIXED
+- ColumnView Aggregations weren't rendering calculated columns - FIXED
+
+**HANA SQL View Limitations**:
+- Can't reference column aliases in same SELECT's WHERE/GROUP BY
+- Solution: Subquery wrapping (implemented for projections AND aggregations)
+- GROUP BY in aggregations uses OUTPUT alias names (not input.column refs)
+
+**Instance Types**:
+- ECC: Raw SQL expansion works (CV_CNCLD_EVNTS success)
+- BW: Tables exist but raw expansion complex (schema resolution, naming)
+- BW Wrapper: Implemented but user wants raw expansion
+
 ## Quick Start for Next Developer
 
 1. **Review this document** and `SQL_VALIDATION_ENHANCEMENT_PLAN.md`
@@ -730,4 +823,4 @@ pytest tests/test_sql_validator.py -v
 
 ---
 
-**Last Updated**: 2025-11-13 session – documentation re-read completed, RULE 11 added, structured conversion catalog implemented with translator integration, and legacy regression tests added (local `pytest` invocation blocked by missing dependency).
+**Last Updated**: 2025-11-13 session (650k tokens used) – Multi-database mode complete. **SUCCESS**: CV_CNCLD_EVNTS.xml (ECC/MBD, 243 lines, 84ms). **IN TESTING**: CV_INVENTORY_ORDERS.xml (BW/BID, 235 lines) - fixed 7 bugs, awaiting final HANA validation. Created 9 docs: `HANA_CONVERSION_RULES.md` (HANA-only rules), `SNOWFLAKE_CONVERSION_RULES.md`, `conversion_rules.yaml`, `BUG_TRACKER.md`, `SOLVED_BUGS.md`, `SESSION_SUMMARY_2025-11-13.md`, `PARAMETER_HANDLING_STRATEGY.md`, `SAP_INSTANCE_TYPE_STRATEGY.md`, `CV_MCM_CNTRL_Q51_DEBUGGING_NOTES.md`. **Bugs Fixed This Session**: (1) ColumnView JOIN parsing - added JoinNode handler, (2) JOIN column resolution - source_node tracking, (3) Aggregation calculated columns - MONTH/YEAR formulas, (4) GROUP BY alias usage - use output names not input refs, (5) Filter source mapping - target→source translation, (6) Aggregation spec source mapping - SUM(source) not SUM(target), (7) Aggregation subquery wrapping - calculated cols in GROUP BY. **Deferred**: CV_MCM_CNTRL_Q51 (complex DATE params - Claude Code agent working on BUG-002), CV_CT02_CT03 (REGEXP_LIKE params). **Current**: CV_INVENTORY_ORDERS awaiting HANA BID validation after 7 bug fixes. **Next**: Validate CV_INVENTORY_ORDERS success, test remaining ECC XMLs, merge Claude Code's BUG-002 fix.

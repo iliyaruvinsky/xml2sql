@@ -12,15 +12,19 @@ from typing import Optional
 
 from lxml import etree
 
+from ...domain.types import DatabaseMode, HanaVersion
+from ...parser.xml_format_detector import detect_xml_format, get_recommended_hana_version
 from ...sql import render_scenario
 from ...sql.corrector import AutoFixConfig, CorrectionResult, auto_correct_sql
 from ...sql.validator import (
     ValidationResult,
     analyze_query_complexity,
     validate_expressions,
+    validate_hana_sql,
     validate_performance,
     validate_query_completeness,
     validate_snowflake_specific,
+    validate_sql,
     validate_sql_structure,
 )
 
@@ -67,6 +71,8 @@ class ConversionResult:
 
 def convert_xml_to_sql(
     xml_content: bytes,
+    database_mode: str = "snowflake",
+    hana_version: Optional[str] = None,
     client: str = "PROD",
     language: str = "EN",
     schema_overrides: Optional[dict[str, str]] = None,
@@ -77,16 +83,20 @@ def convert_xml_to_sql(
     auto_fix_config: Optional[AutoFixConfig] = None,
 ) -> ConversionResult:
     """
-    Convert XML content to SQL.
+    Convert XML content to SQL with mode and version awareness.
 
     Args:
         xml_content: XML file content as bytes
+        database_mode: Target database mode (snowflake/hana)
+        hana_version: HANA version for version-specific SQL (when mode=hana)
         client: Default client value
         language: Default language value
         schema_overrides: Dictionary of schema name overrides
         currency_udf_name: Currency conversion UDF name
         currency_rates_table: Exchange rates table name
         currency_schema: Schema for currency artifacts
+        auto_fix: Enable auto-correction of SQL issues
+        auto_fix_config: Configuration for auto-correction
 
     Returns:
         ConversionResult with SQL content and metadata
@@ -127,12 +137,35 @@ def convert_xml_to_sql(
             stages[-1].error = error
     
     try:
+        # Parse database mode and version
+        try:
+            mode_enum = DatabaseMode(database_mode.lower())
+        except ValueError:
+            mode_enum = DatabaseMode.SNOWFLAKE  # Default to Snowflake
+        
+        hana_version_enum: Optional[HanaVersion] = None
+        if hana_version:
+            try:
+                hana_version_enum = HanaVersion(hana_version)
+            except ValueError:
+                hana_version_enum = HanaVersion.HANA_2_0  # Default
+        
         # Stage 1: Parse and Validate XML
         start_ms, start_dt = _start_stage("Parse XML")
         
         # Parse XML from bytes
         tree = etree.parse(BytesIO(xml_content))
         root = tree.getroot()
+        
+        # Detect XML format
+        try:
+            xml_format = detect_xml_format(root)
+        except ValueError:
+            xml_format = None  # Unknown format
+        
+        # Auto-detect HANA version if in HANA mode and not explicitly provided
+        if mode_enum == DatabaseMode.HANA and not hana_version_enum:
+            hana_version_enum = get_recommended_hana_version(root, hana_version_enum)
 
         # Validate that this is a SAP HANA calculation view XML
         # Check for expected namespace and root element structure
@@ -261,12 +294,22 @@ def convert_xml_to_sql(
         # Stage 3: Generate SQL
         start_ms, start_dt = _start_stage("Generate SQL")
         
+        # Add mode/version info to stage details
+        mode_info = {
+            "database_mode": database_mode,
+            "hana_version": hana_version if hana_version else "auto-detected",
+            "xml_format": xml_format.value if xml_format else "unknown"
+        }
+        
         # Render to SQL with warnings (disable validation to capture results separately)
         sql_content, warnings = render_scenario(
             scenario_ir,
             schema_overrides=schema_overrides or {},
             client=client,
             language=language,
+            database_mode=mode_enum,
+            hana_version=hana_version_enum,
+            xml_format=xml_format,
             create_view=True,
             view_name=scenario_ir.metadata.scenario_id,
             currency_udf=currency_udf_name,
@@ -279,11 +322,15 @@ def convert_xml_to_sql(
         # Get SQL snippet for display
         sql_snippet = sql_content[:500] + "..." if len(sql_content) > 500 else sql_content
         
-        _complete_stage(start_ms, details={
+        # Merge mode info with completion details
+        completion_details = {
+            **mode_info,
             "sql_length": len(sql_content),
             "warnings_count": len(warnings),
             "cte_count": sql_content.count(" AS ("),
-        }, sql_snippet=sql_snippet)
+        }
+        
+        _complete_stage(start_ms, details=completion_details, sql_snippet=sql_snippet)
 
         # Stage 4: Validate SQL
         start_ms, start_dt = _start_stage("Validate SQL")

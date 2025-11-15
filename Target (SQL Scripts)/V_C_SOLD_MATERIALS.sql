@@ -1,3 +1,4 @@
+CREATE VIEW V_C_SOLD_MATERIALS AS
 WITH
   projection_1 AS (
     SELECT
@@ -18,4 +19,4 @@ WITH
     GROUP BY projection_1.MANDT, projection_1.MATNR, projection_1.MEINS
   )
 
-SELECT * FROM aggregation_1
+SELECT MANDT, MATNR, ERDAT, MEINS FROM aggregation_1

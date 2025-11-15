@@ -8,8 +8,13 @@ from typing import List, Optional
 import typer
 
 from ..config import Config, ScenarioConfig, load_config
+from ..domain.types import DatabaseMode, HanaVersion
 from ..parser import parse_scenario
+from ..parser.xml_format_detector import detect_xml_format, get_recommended_hana_version
 from ..sql import render_scenario
+from ..bw import generate_bw_wrapper
+from ..bw.wrapper_generator import detect_is_bw_object
+from lxml import etree
 
 app = typer.Typer(help="Convert SAP HANA calculation view XML to intermediate IR and SQL.")
 
@@ -22,6 +27,17 @@ def convert(
         "--scenario",
         "-s",
         help="Limit execution to specific scenario ids or output names.",
+    ),
+    mode: Optional[str] = typer.Option(
+        None,
+        "--mode",
+        "-m",
+        help="Override database mode (snowflake/hana). Overrides config setting.",
+    ),
+    hana_version: Optional[str] = typer.Option(
+        None,
+        "--hana-version",
+        help="HANA version for HANA mode (1.0, 2.0, 2.0_SPS01, 2.0_SPS03). Overrides config setting.",
     ),
     list_only: bool = typer.Option(
         False,
@@ -58,17 +74,76 @@ def convert(
             client = scenario_cfg.overrides.effective_client(config_obj.default_client)
             language = scenario_cfg.overrides.effective_language(config_obj.default_language)
             output_name = scenario_cfg.output_name or scenario_cfg.id
+            
+            # Detect if this is a BW object
+            instance_type = scenario_cfg.instance_type or "auto"
+            if instance_type == "auto":
+                is_bw = detect_is_bw_object(scenario_ir)
+                instance_type = "bw" if is_bw else "ecc"
+                typer.echo(f"  Detected instance type: {instance_type}")
+            else:
+                is_bw = (instance_type == "bw")
+            
+            # For BW objects, generate wrapper instead of full expansion
+            if is_bw:
+                bw_package = scenario_cfg.bw_package or "DEFAULT_PACKAGE"
+                typer.echo(f"  Using BW wrapper approach (package: {bw_package})")
+                sql_content = generate_bw_wrapper(
+                    scenario_ir,
+                    bw_package=bw_package,
+                    view_name=output_name
+                )
+                
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                target_path.write_text(sql_content, encoding="utf-8")
+                typer.secho(f"  ✓ BW wrapper generated: {target_path}", fg=typer.colors.GREEN)
+                continue
+            
+            # Determine database mode (priority: CLI > scenario > global config)
+            if mode:
+                try:
+                    mode_enum = DatabaseMode(mode.lower())
+                except ValueError:
+                    typer.secho(f"  WARNING: Invalid mode '{mode}', using scenario config", fg=typer.colors.YELLOW)
+                    mode_enum = scenario_cfg.database_mode
+            else:
+                mode_enum = scenario_cfg.database_mode
+            
+            # Determine HANA version (priority: CLI > scenario > auto-detect > default)
+            if hana_version:
+                try:
+                    hana_ver_enum = HanaVersion(hana_version)
+                except ValueError:
+                    typer.secho(f"  WARNING: Invalid HANA version '{hana_version}', using scenario config", fg=typer.colors.YELLOW)
+                    hana_ver_enum = scenario_cfg.hana_version
+            else:
+                hana_ver_enum = scenario_cfg.hana_version
+            
+            # Detect XML format for context
+            try:
+                tree = etree.parse(source_path)
+                root = tree.getroot()
+                xml_format = detect_xml_format(root)
+                # Auto-detect version if needed
+                if mode_enum == DatabaseMode.HANA and not hana_ver_enum:
+                    hana_ver_enum = get_recommended_hana_version(root, hana_ver_enum)
+            except Exception:
+                xml_format = None
 
             sql_content = render_scenario(
                 scenario_ir,
                 schema_overrides=config_obj.schema_overrides,
                 client=client,
                 language=language,
+                database_mode=mode_enum,
+                hana_version=hana_ver_enum,
+                xml_format=xml_format,
                 create_view=True,
                 view_name=output_name,
                 currency_udf=config_obj.currency.udf_name,
                 currency_schema=config_obj.currency.schema,
                 currency_table=config_obj.currency.rates_table,
+                validate=True,  # Re-enable validation
             )
 
             target_path.parent.mkdir(parents=True, exist_ok=True)

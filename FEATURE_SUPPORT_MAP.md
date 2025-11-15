@@ -1,10 +1,31 @@
-# SQL Feature Support Map (v2.2.0)
+# SQL Feature Support Map (v2.3.0)
 
-This matrix summarises how the xml2sql converter (version 2.2.0) handles the SQL constructs generated from SAP HANA Calculation Views. Status definitions:
+This matrix summarises how the xml2sql converter (version 2.3.0) handles the SQL constructs generated from SAP HANA Calculation Views. Status definitions:
 
 - **Supported** – Generated out-of-the-box and validated automatically.
 - **Partially Supported** – Generated when present in the XML; additional manual review recommended.
 - **Not Supported** – Currently rejected or requires manual implementation.
+
+## Multi-Database Mode Support (NEW in v2.3.0)
+
+The converter now supports multiple target databases with version-specific SQL generation:
+
+- **Snowflake Mode** (default): Generates Snowflake-compatible SQL with IFF(), ||, NUMBER, TIMESTAMP_NTZ
+- **HANA Mode**: Generates HANA-compatible SQL with CASE WHEN, +, DECIMAL, TIMESTAMP
+  - HANA 1.0: Preserves legacy functions (LEFTSTR, RIGHTSTR)
+  - HANA 2.0+: Can use modern equivalents (SUBSTRING, RIGHT)
+  - Version-specific feature validation
+  - **Empirically tested**: CV_CNCLD_EVNTS.xml (243 lines, executes successfully in HANA)
+
+**Key HANA Transformations** (see `HANA_MODE_CONVERSION_RULES.md` for complete details):
+- IF() → CASE WHEN (HANA SQL views don't support IF in SELECT)
+- IN operator → OR conditions (incompatible in conditional contexts)
+- Calculated column expansion (inline formula substitution)
+- Subquery wrapping (when filters reference calculated columns)
+- Parameter removal ($$IP_*$$ removed, not supported in SQL views)
+- Empty string → NULL (in numeric CASE WHEN contexts)
+
+Configure mode per-scenario or globally via CLI (`--mode`, `--hana-version`), config YAML, or web UI.
 
 ## Core Query Structure
 | Feature | Converter Behaviour | Status | Notes |
@@ -62,7 +83,11 @@ This matrix summarises how the xml2sql converter (version 2.2.0) handles the SQL
 ## Known Gaps / Manual Review Required
 - HANA features beyond projections/joins/aggregations/unions (e.g. spatial data types, hierarchy nodes, stored procedures) are **not automatically converted**.
 - Right/full outer joins, referential/text joins require manual verification.
+- **HANA Mode Limitation**: Input parameters ($$IP_*$$) are removed in HANA SQL views (calculation views use graphical parameters not supported in SQL views).
 - Validator unit tests (`tests/test_sql_validator.py`) target the legacy API; regression tests in `tests/test_sql_renderer.py` and `tests/test_parser.py` cover the v2.2.0 functionality.
 
-For any constructs not listed above, please consult the migration catalog (`COMPREHENSIVE HANA CALCULATION VIEW XML-TO-SNOWFLAKE SQL MIGRATION CATALOG.md`) and update the conversion catalog (`src/xml_to_sql/catalog/data/functions.yaml`) as required.
+For any constructs not listed above, please consult:
+- `HANA_MODE_CONVERSION_RULES.md` - Complete HANA mode transformation catalog
+- `COMPREHENSIVE HANA CALCULATION VIEW XML-TO-SNOWFLAKE SQL MIGRATION CATALOG.md` - Original Snowflake-focused migration catalog
+- `src/xml_to_sql/catalog/data/functions.yaml` - Function rewrite catalog
 

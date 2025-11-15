@@ -1,9 +1,21 @@
--- Warnings:
---   Join Join_2 has no join conditions
---   Join Join_3 has no join conditions
---   Join Join_1 has no join conditions
-
+CREATE VIEW V_C_KMDM_MATERIALS AS
 WITH
+  projection_2 AS (
+    SELECT
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".MANDT AS MANDT,
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".LONG_OLD_NUMBER AS LONG_OLD_NUMBER,
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".ERDAT AS ERDAT,
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".MEINS AS MEINS
+    FROM "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD"
+  ),
+  projection_1 AS (
+    SELECT
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".MANDT AS MANDT,
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".MATNR AS MATNR,
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".ERDAT AS ERDAT,
+        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".MEINS AS MEINS
+    FROM "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS"
+  ),
   projection_5 AS (
     SELECT
         "/KMDM/CALCULATIONVIEWS/SALES_BOM".MANDT AS MANDT,
@@ -13,14 +25,6 @@ WITH
         "/KMDM/CALCULATIONVIEWS/SALES_BOM".IDNRK AS IDNRK,
         "/KMDM/CALCULATIONVIEWS/SALES_BOM".NUMGRP AS NUMGRP
     FROM "/KMDM/CALCULATIONVIEWS/SALES_BOM"
-  ),
-  projection_2 AS (
-    SELECT
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".MANDT AS MANDT,
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".LONG_OLD_NUMBER AS LONG_OLD_NUMBER,
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".ERDAT AS ERDAT,
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD".MEINS AS MEINS
-    FROM "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS_PROD"
   ),
   copyofprojection_1 AS (
     SELECT
@@ -51,25 +55,6 @@ WITH
         "/KMDM/CALCULATIONVIEWS/RECENTLY_CREATED_PRODUCTS".ERSDA AS ERSDA
     FROM "/KMDM/CALCULATIONVIEWS/RECENTLY_CREATED_PRODUCTS"
   ),
-  projection_1 AS (
-    SELECT
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".MANDT AS MANDT,
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".MATNR AS MATNR,
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".ERDAT AS ERDAT,
-        "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS".MEINS AS MEINS
-    FROM "/KMDM/CALCULATIONVIEWS/SOLD_MATERIALS"
-  ),
-  join_2 AS (
-    SELECT
-        projection_3.MANDT AS MANDT,
-        projection_3.MATNR AS MATNR,
-        projection_3.ERDAT AS ERDAT,
-        projection_3.MEINS AS MEINS,
-        projection_3.MATNR AS MATNR,
-        projection_3.MANDT AS MANDT
-    FROM projection_3
-    LEFT OUTER JOIN copyofprojection_1 ON 1=1
-  ),
   join_3 AS (
     SELECT
         projection_5.MANDT AS MANDT,
@@ -78,11 +63,18 @@ WITH
         projection_5.MEINS AS MEINS,
         projection_5.IDNRK AS IDNRK,
         projection_5.NUMGRP AS NUMGRP,
-        projection_5.ERDAT AS ERDAT,
-        projection_5.MANDT AS MANDT,
-        projection_5.MATNR AS MATNR
+        projection_1.ERDAT AS ERDAT
     FROM projection_5
-    LEFT OUTER JOIN projection_1 ON 1=1
+    LEFT OUTER JOIN projection_1 ON projection_5.MANDT = projection_1.MANDT AND projection_5.MATNR = projection_1.MATNR
+  ),
+  join_2 AS (
+    SELECT
+        projection_3.MANDT AS MANDT,
+        projection_3.MATNR AS MATNR,
+        copyofprojection_1.ERDAT AS ERDAT,
+        copyofprojection_1.MEINS AS MEINS
+    FROM projection_3
+    LEFT OUTER JOIN copyofprojection_1 ON projection_3.MATNR = copyofprojection_1.MATNR AND projection_3.MANDT = copyofprojection_1.MANDT
   ),
   union_1 AS (
     SELECT
@@ -130,15 +122,11 @@ WITH
         projection_4.NTGEW AS NTGEW,
         projection_4.ERSDA AS ERSDA,
         projection_4.LAEDA AS LAEDA,
-        projection_4.MATNR AS "JOIN$MATNR$MATNR",
-        projection_4.MANDT AS "JOIN$MANDT$MANDT",
-        projection_4.MATNR AS MATNR,
-        projection_4.ERDAT AS ERDAT,
-        projection_4.MANDT AS MANDT,
-        projection_4.MATNR AS "JOIN$MATNR$MATNR",
-        projection_4.MANDT AS "JOIN$MANDT$MANDT"
+        aggregation_1.MATNR AS MATNR,
+        aggregation_1.ERDAT AS ERDAT,
+        aggregation_1.MANDT AS MANDT
     FROM projection_4
-    INNER JOIN aggregation_1 ON 1=1
+    INNER JOIN aggregation_1 ON projection_4.MATNR = aggregation_1.MATNR AND projection_4.MANDT = aggregation_1.MANDT
   )
 
-SELECT * FROM join_1
+SELECT MATNR, ERDAT, MTART, MEINS, GEWEI, NTGEW, ERSDA, LAEDA, MANDT FROM join_1

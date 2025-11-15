@@ -1,7 +1,14 @@
--- Warnings:
---   Join Join_1 has no join conditions
-
+CREATE VIEW V_C_RECENTLY_CREATED_PRODUCTS AS
 WITH
+  sort_005 AS (
+    SELECT
+        SAPK5D.YGRPLNKF.MANDT AS MANDT,
+        SAPK5D.YGRPLNKF.CODAPL AS CODAPL,
+        SAPK5D.YGRPLNKF.LVLGRP AS LVLGRP,
+        SAPK5D.YGRPLNKF.NUMGRP AS NUMGRP,
+        SAPK5D.YGRPLNKF.ENTITY AS ENTITY
+    FROM SAPK5D.YGRPLNKF
+  ),
   sort_024 AS (
     SELECT
         SAPK5D.YGRPLNKF.MANDT AS MANDT,
@@ -11,15 +18,6 @@ WITH
         SAPK5D.YGRPLNKF.ENTITY AS ENTITY
     FROM SAPK5D.YGRPLNKF
   ),
-  projection_2 AS (
-    SELECT
-        SAPK5D.MARA.MANDT AS MANDT,
-        SAPK5D.MARA.ERSDA AS ERSDA,
-        SAPK5D.MARA.MATNR AS MATNR,
-        SAPK5D.MARA.MTART AS MTART
-    FROM SAPK5D.MARA
-    WHERE SAPK5D.MARA.MANDT = 400
-  ),
   projection_1 AS (
     SELECT
         SAPK5D.MARA.MATNR AS MATNR,
@@ -28,14 +26,14 @@ WITH
         SAPK5D.MARA.MANDT AS MANDT
     FROM SAPK5D.MARA
   ),
-  sort_005 AS (
+  projection_2 AS (
     SELECT
-        SAPK5D.YGRPLNKF.MANDT AS MANDT,
-        SAPK5D.YGRPLNKF.CODAPL AS CODAPL,
-        SAPK5D.YGRPLNKF.LVLGRP AS LVLGRP,
-        SAPK5D.YGRPLNKF.NUMGRP AS NUMGRP,
-        SAPK5D.YGRPLNKF.ENTITY AS ENTITY
-    FROM SAPK5D.YGRPLNKF
+        SAPK5D.MARA.MANDT AS MANDT,
+        SAPK5D.MARA.ERSDA AS ERSDA,
+        SAPK5D.MARA.MATNR AS MATNR,
+        SAPK5D.MARA.MTART AS MTART
+    FROM SAPK5D.MARA
+    WHERE SAPK5D.MARA.MANDT = 400
   ),
   union_1 AS (
     SELECT
@@ -59,12 +57,10 @@ WITH
     SELECT
         aggregation_1.MANDT AS MANDT,
         aggregation_1.ENTITY AS MATNR,
-        aggregation_1.ERSDA AS ERSDA,
-        aggregation_1.MTART AS MTART,
-        aggregation_1.MATNR AS MATNR,
-        aggregation_1.MANDT AS MANDT
+        projection_2.ERSDA AS ERSDA,
+        projection_2.MTART AS MTART
     FROM aggregation_1
-    LEFT OUTER JOIN projection_2 ON 1=1
+    LEFT OUTER JOIN projection_2 ON aggregation_1.ENTITY = projection_2.MATNR AND aggregation_1.MANDT = projection_2.MANDT
   ),
   projection_3 AS (
     SELECT
@@ -96,4 +92,4 @@ WITH
     GROUP BY union_2.MANDT, union_2.ERSDA, union_2.MATNR
   )
 
-SELECT * FROM aggregation_2
+SELECT MANDT, ERSDA, MATNR FROM aggregation_2

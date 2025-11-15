@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Dict, List, Optional
 
 from ..domain import Scenario
+from ..domain.types import DatabaseMode, HanaVersion
 from .renderer import RenderContext
 
 
@@ -718,5 +719,175 @@ def test_sql_execution(sql: str, connection: Optional[object] = None) -> Validat
     # 3. Check for runtime errors
     # 4. Validate result structure
 
+    return result
+
+
+def validate_sql(
+    sql: str,
+    mode: DatabaseMode,
+    scenario: Scenario,
+    hana_version: Optional[HanaVersion] = None,
+    ctx: Optional[RenderContext] = None
+) -> ValidationResult:
+    """Validate SQL based on target database mode and version.
+    
+    This is the main validation dispatcher that routes to mode-specific validators.
+    
+    Args:
+        sql: SQL string to validate
+        mode: Target database mode (Snowflake/HANA)
+        scenario: Scenario being validated
+        hana_version: HANA version for HANA-specific validation
+        ctx: Optional render context for additional context
+    
+    Returns:
+        ValidationResult with all validation issues
+    """
+    if mode == DatabaseMode.HANA:
+        return validate_hana_sql(sql, scenario, hana_version)
+    elif mode == DatabaseMode.SNOWFLAKE:
+        # Use existing Snowflake validation functions
+        result = ValidationResult()
+        
+        # Run all Snowflake-specific validations
+        structure_result = validate_sql_structure(sql)
+        result.merge(structure_result)
+        
+        if ctx:
+            completeness_result = validate_query_completeness(scenario, sql, ctx)
+            result.merge(completeness_result)
+        
+        performance_result = validate_performance(sql, scenario)
+        result.merge(performance_result)
+        
+        snowflake_result = validate_snowflake_specific(sql)
+        result.merge(snowflake_result)
+        
+        complexity_result = analyze_query_complexity(sql, scenario)
+        result.merge(complexity_result)
+        
+        return result
+    else:
+        # Unknown mode - return generic structure validation
+        return validate_sql_structure(sql)
+
+
+def validate_hana_sql(
+    sql: str,
+    scenario: Scenario,
+    hana_version: Optional[HanaVersion] = None
+) -> ValidationResult:
+    """Validate SQL for SAP HANA with version-specific checks.
+    
+    Args:
+        sql: SQL string to validate
+        scenario: Scenario being validated
+        hana_version: HANA version for version-specific validation
+    
+    Returns:
+        ValidationResult with HANA-specific validation issues
+    """
+    result = ValidationResult()
+    
+    # 1. Basic structure validation (common for all databases)
+    structure_result = validate_sql_structure(sql)
+    result.merge(structure_result)
+    
+    # 2. HANA-specific syntax checks
+    
+    # Check for IFF (should be IF in HANA)
+    if re.search(r'\bIFF\s*\(', sql, re.IGNORECASE):
+        result.add_error(
+            "IFF() function is not supported in HANA - should be IF()",
+            "HANA_INVALID_IFF_FUNCTION"
+        )
+    
+    # Check for Snowflake-specific || concatenation
+    # Note: HANA supports || but + is more common, so this is a warning
+    if ' || ' in sql:
+        result.add_warning(
+            "String concatenation using '||' detected - HANA typically uses '+' operator",
+            "HANA_CONCAT_SYNTAX"
+        )
+    
+    # Check for CREATE OR REPLACE VIEW (not supported in older HANA)
+    if re.search(r'CREATE\s+OR\s+REPLACE\s+VIEW', sql, re.IGNORECASE):
+        result.add_warning(
+            "CREATE OR REPLACE VIEW not supported in all HANA versions - may need to DROP VIEW first",
+            "HANA_CREATE_OR_REPLACE"
+        )
+    
+    # Check for NUMBER data type (should be DECIMAL in HANA)
+    if re.search(r'\bNUMBER\s*\(', sql, re.IGNORECASE):
+        result.add_warning(
+            "NUMBER data type is Snowflake-specific - HANA uses DECIMAL",
+            "HANA_NUMBER_TYPE"
+        )
+    
+    # Check for TIMESTAMP_NTZ (should be TIMESTAMP in HANA)
+    if re.search(r'\bTIMESTAMP_NTZ\b', sql, re.IGNORECASE):
+        result.add_warning(
+            "TIMESTAMP_NTZ is Snowflake-specific - HANA uses TIMESTAMP",
+            "HANA_TIMESTAMP_TYPE"
+        )
+    
+    # 3. Version-specific feature validation
+    if hana_version:
+        version_result = _validate_hana_version_features(sql, hana_version)
+        result.merge(version_result)
+    
+    # 4. Performance validation (same for all modes)
+    performance_result = validate_performance(sql, scenario)
+    result.merge(performance_result)
+    
+    # 5. Query complexity (informational, same for all modes)
+    complexity_result = analyze_query_complexity(sql, scenario)
+    result.merge(complexity_result)
+    
+    return result
+
+
+def _validate_hana_version_features(sql: str, version: HanaVersion) -> ValidationResult:
+    """Check if SQL uses features available in target HANA version.
+    
+    Args:
+        sql: SQL string to validate
+        version: Target HANA version
+    
+    Returns:
+        ValidationResult with version-specific issues
+    """
+    result = ValidationResult()
+    
+    # Features requiring HANA 2.0 SPS01+
+    if version < HanaVersion.HANA_2_0_SPS01:
+        if re.search(r'\bINTERSECT\b', sql, re.IGNORECASE):
+            result.add_error(
+                f"INTERSECT operator requires HANA 2.0 SPS01+ (current: {version.value})",
+                "HANA_VERSION_INTERSECT"
+            )
+        if re.search(r'\bEXCEPT\b|\bMINUS\b', sql, re.IGNORECASE):
+            result.add_error(
+                f"EXCEPT/MINUS operator requires HANA 2.0 SPS01+ (current: {version.value})",
+                "HANA_VERSION_MINUS"
+            )
+    
+    # Features requiring HANA 2.0 SPS03+
+    if version < HanaVersion.HANA_2_0_SPS03:
+        # Window functions with IGNORE NULLS
+        if re.search(r'IGNORE\s+NULLS', sql, re.IGNORECASE):
+            result.add_warning(
+                f"IGNORE NULLS in window functions may not be supported in HANA < 2.0 SPS03 (current: {version.value})",
+                "HANA_VERSION_IGNORE_NULLS"
+            )
+    
+    # Features requiring minimum HANA 1.0
+    if version < HanaVersion.HANA_1_0:
+        if re.search(r'\bADD_MONTHS\s*\(', sql, re.IGNORECASE):
+            result.add_error(
+                f"ADD_MONTHS function not available in HANA < 1.0 (current: {version.value})",
+                "HANA_VERSION_ADD_MONTHS"
+            )
+    
     return result
 

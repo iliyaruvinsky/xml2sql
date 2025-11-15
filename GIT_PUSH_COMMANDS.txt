@@ -1,0 +1,67 @@
+# Git Commands to Push Current Session Work
+
+## Execute these commands in order:
+
+# Navigate to project directory
+cd "C:\Users\USER\Google Drive\SW_PLATFORM\15. AI\MY_LATEST_FILES\EXODUS\XML to SQL"
+
+# Check current status
+git status
+
+# Add all changes
+git add .
+
+# Commit with descriptive message
+git commit -m "Multi-database mode complete + 7 bug fixes
+
+Major achievements:
+- Multi-database mode (Snowflake + HANA) fully implemented
+- CV_CNCLD_EVNTS.xml (ECC) - SUCCESS in HANA (243 lines, 84ms)
+- CV_INVENTORY_ORDERS.xml (BW) - 7 bugs fixed, in final testing
+
+Bugs fixed:
+- BUG-004: Filter alias mapping (target→source translation)
+- BUG-005: ColumnView JOIN parsing (added JoinNode handler)
+- BUG-006: JOIN column resolution (source_node tracking)
+- BUG-007: Aggregation calculated columns (MONTH/YEAR)
+- BUG-008: GROUP BY alias usage
+- BUG-009: Aggregation spec source mapping
+- BUG-010: Aggregation subquery wrapping
+
+New docs (9):
+- HANA_CONVERSION_RULES.md (HANA-specific rules)
+- SNOWFLAKE_CONVERSION_RULES.md (Snowflake-specific rules)
+- conversion_rules.yaml (version-keyed catalog)
+- BUG_TRACKER.md (structured bug tracking)
+- SOLVED_BUGS.md (bug resolution archive)
+- SESSION_SUMMARY_2025-11-13.md
+- PARAMETER_HANDLING_STRATEGY.md
+- SAP_INSTANCE_TYPE_STRATEGY.md
+- CV_MCM_CNTRL_Q51_DEBUGGING_NOTES.md
+
+Files modified:
+- src/xml_to_sql/parser/column_view_parser.py (JOIN parsing)
+- src/xml_to_sql/sql/renderer.py (aggregation fixes, source mapping)
+- src/xml_to_sql/sql/function_translator.py (HANA transformations)
+- src/xml_to_sql/config/*.py (instance_type, bw_package fields)
+- src/xml_to_sql/cli/app.py (BW detection)
+- src/xml_to_sql/bw/*.py (wrapper generator - new module)
+- config.yaml (schema overrides, instance types)
+- docs/llm_handover.md (updated)
+"
+
+# Push to remote
+git push origin main
+
+# If you encounter issues with uncommitted changes, you can stash first:
+# git stash
+# git pull
+# git stash pop
+# Then retry the add/commit/push
+
+# To create a new branch for this work (recommended):
+# git checkout -b feature/multi-database-mode-session-2025-11-13
+# git add .
+# git commit -m "..." (same message as above)
+# git push origin feature/multi-database-mode-session-2025-11-13
+

@@ -232,6 +232,49 @@ function ConfigForm({ config, onConfigChange }) {
         </div>
 
         <div className="form-section">
+          <h3>Target Database</h3>
+          
+          <div className="form-group">
+            <label htmlFor="database_mode">
+              Database Mode
+            </label>
+            <select
+              id="database_mode"
+              value={config.database_mode || 'snowflake'}
+              onChange={(e) => updateConfig({ database_mode: e.target.value })}
+            >
+              <option value="snowflake">Snowflake</option>
+              <option value="hana">SAP HANA</option>
+            </select>
+            <p className="field-hint">
+              Select the target database system for SQL generation. This determines syntax, functions, and data types used in the generated SQL.
+            </p>
+          </div>
+
+          {config.database_mode === 'hana' && (
+            <div className="form-group">
+              <label htmlFor="hana_version">
+                HANA Version
+              </label>
+              <select
+                id="hana_version"
+                value={config.hana_version || '2.0'}
+                onChange={(e) => updateConfig({ hana_version: e.target.value })}
+              >
+                <option value="1.0">HANA 1.0</option>
+                <option value="2.0">HANA 2.0</option>
+                <option value="2.0_SPS01">HANA 2.0 SPS01</option>
+                <option value="2.0_SPS03">HANA 2.0 SPS03</option>
+                <option value="2.0_SPS04">HANA 2.0 SPS04</option>
+              </select>
+              <p className="field-hint">
+                Select HANA version for version-specific SQL syntax and features. Older versions may not support all features.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="form-section">
           <h3>
             Auto-Correction
             <span 

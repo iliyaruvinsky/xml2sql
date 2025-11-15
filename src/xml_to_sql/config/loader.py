@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
+from ..domain.types import DatabaseMode, HanaVersion
 from .schema import Config, CurrencyConfig, ScenarioConfig, ScenarioOverrides
 
 
@@ -34,14 +35,20 @@ def load_config(path: str | Path) -> Config:
     source_directory = _resolve_directory(paths_data.get("source"), base_dir, _DEFAULT_SOURCE_DIR)
     target_directory = _resolve_directory(paths_data.get("target"), base_dir, _DEFAULT_TARGET_DIR)
 
+    # Parse database mode and HANA version from defaults
+    default_mode = _parse_database_mode(defaults.get("database_mode"))
+    default_hana_ver = _parse_hana_version(defaults.get("hana_version"))
+    
     config = Config(
         source_directory=source_directory,
         target_directory=target_directory,
         default_client=str(defaults.get("client", "PROD")),
         default_language=str(defaults.get("language", "EN")),
+        default_database_mode=default_mode,
+        default_hana_version=default_hana_ver,
         schema_overrides=_coerce_str_dict(schema_overrides),
         currency=_parse_currency(currency_data),
-        scenarios=_parse_scenarios(scenarios_data),
+        scenarios=_parse_scenarios(scenarios_data, default_mode, default_hana_ver),
     )
     return config
 
@@ -76,7 +83,11 @@ def _parse_currency(data: Any) -> CurrencyConfig:
     )
 
 
-def _parse_scenarios(data: Any) -> List[ScenarioConfig]:
+def _parse_scenarios(
+    data: Any, 
+    default_mode: DatabaseMode, 
+    default_hana_ver: HanaVersion
+) -> List[ScenarioConfig]:
     if data is None:
         return []
     if not isinstance(data, list):
@@ -89,8 +100,17 @@ def _parse_scenarios(data: Any) -> List[ScenarioConfig]:
         if not scenario_id:
             raise ValueError("Scenario entry missing 'id'.")
         overrides = _parse_overrides(entry.get("overrides"))
+        
+        # Parse scenario-specific mode and version, fall back to defaults
+        scenario_mode = _parse_database_mode(entry.get("database_mode"), default_mode)
+        scenario_hana_ver = _parse_hana_version(entry.get("hana_version"), default_hana_ver)
+        
         scenario = ScenarioConfig(
             id=str(scenario_id),
+            database_mode=scenario_mode,
+            hana_version=scenario_hana_ver,
+            instance_type=entry.get("instance_type"),
+            bw_package=entry.get("bw_package"),
             source=entry.get("source"),
             output_name=entry.get("output"),
             enabled=entry.get("enabled", True),
@@ -110,6 +130,32 @@ def _parse_overrides(data: Any) -> ScenarioOverrides:
         language=data.get("language"),
         schema=data.get("schema"),
     )
+
+
+def _parse_database_mode(value: Any, default: DatabaseMode = DatabaseMode.SNOWFLAKE) -> DatabaseMode:
+    """Parse database mode from config value."""
+    if not value:
+        return default
+    
+    value_str = str(value).lower()
+    try:
+        return DatabaseMode(value_str)
+    except ValueError:
+        # Invalid mode, use default
+        return default
+
+
+def _parse_hana_version(value: Any, default: HanaVersion = HanaVersion.HANA_2_0) -> HanaVersion:
+    """Parse HANA version from config value."""
+    if not value:
+        return default
+    
+    value_str = str(value)
+    try:
+        return HanaVersion(value_str)
+    except ValueError:
+        # Invalid version, use default
+        return default
 
 
 __all__ = ["load_config"]
