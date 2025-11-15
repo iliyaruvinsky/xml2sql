@@ -984,6 +984,10 @@ def _cleanup_hana_parameter_conditions(where_clause: str) -> str:
     # Uppercase all AND keywords (HANA prefers uppercase)
     result = re.sub(r'\band\b', 'AND', result, flags=re.IGNORECASE)
     
+    # Fix NOW() function - ensure uppercase with parentheses
+    result = re.sub(r'\bnow\b(?!\()', 'NOW()', result, flags=re.IGNORECASE)
+    result = re.sub(r'\bnow\(\)', 'NOW()', result, flags=re.IGNORECASE)
+    
     # Fix spacing issues in CASE WHEN: ''= '' → '' = ''
     result = re.sub(r"''\s*=\s*''", "'' = ''", result)
     

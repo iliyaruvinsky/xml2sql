@@ -218,6 +218,9 @@ def translate_raw_formula(formula: str, ctx) -> str:
         # THEN convert IF to CASE WHEN (HANA requires CASE in SELECT clauses)
         result = _apply_catalog_rewrites(result, ctx)
         result = _uppercase_if_statements(result)
+        # Fix NOW() - ensure uppercase with parentheses
+        result = re.sub(r'\bnow\(\)', 'NOW()', result, flags=re.IGNORECASE)
+        result = re.sub(r'\bnow\b(?!\()', 'NOW()', result, flags=re.IGNORECASE)
         result = _convert_in_to_or_for_hana(result)
         result = _convert_if_to_case_for_hana(result)
         result = _translate_string_concat_to_hana(result)

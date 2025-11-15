@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<View:ColumnView xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:Column="http://www.sap.com/ndb/DataModelFilter.ecore" xmlns:Type="http://www.sap.com/ndb/DataModelType.ecore" xmlns:View="http://www.sap.com/ndb/ViewModelView.ecore" schemaVersion="2.3" name="CV_EQUIPMENT_STATUSES" dataCategory="CUBE" hierarchiesSQLEnabled="false" defaultNode="#//Projection" clientDependent="true" applyPrivilegeType="ANALYTIC_PRIVILEGE" translationRelevant="true">
+  <endUserTexts label="CV_EQUIPMENT_STATUSES"/>
+  <origin/>
+  <executionHints/>
+  <viewNode xsi:type="View:Projection" name="Projection_1">
+    <endUserTexts label=" "/>
+    <element name="EQUNR_EQUI">
+      <endUserTexts label="EQUNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="OBJNR_EQUI">
+      <endUserTexts label="OBJNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="ANSWT_EQUI">
+      <endUserTexts label="ANSWT_EQUI"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EQUI">
+      <endUserTexts label="WAERS_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <input alias="_BIC_AZEQUI2">
+      <entity>#//"ABAP"./BIC/AZEQUI2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="EQUNR_EQUI" sourceName="EQUNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_EQUI" sourceName="OBJNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ANSWT_EQUI" sourceName="ANSWT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EQUI" sourceName="WAERS"/>
+    </input>
+    <layout xCoordinate="22" yCoordinate="549" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_2">
+    <endUserTexts label=" "/>
+    <element name="OBJNR_JEST">
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JEST">
+      <endUserTexts label="STAT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="INACT_JEST">
+      <endUserTexts label="INACT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHGNR_JEST">
+      <endUserTexts label="CHGNR_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <input alias="_BIC_AZJEST2">
+      <entity>#//"ABAP"./BIC/AZJEST2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_JEST" sourceName="OBJNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JEST" sourceName="STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JEST" sourceName="INACT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JEST" sourceName="CHGNR"/>
+    </input>
+    <layout xCoordinate="176" yCoordinate="549" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_3">
+    <endUserTexts label=" "/>
+    <element name="OBJNR_JCDS">
+      <endUserTexts label="OBJNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JCDS">
+      <endUserTexts label="STAT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CHGNR_JCDS">
+      <endUserTexts label="CHGNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="USNAM_JCDS">
+      <endUserTexts label="USNAM_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="UDATE_JCDS">
+      <endUserTexts label="UDATE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="UTIME_JCDS">
+      <endUserTexts label="UTIME_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="TCODE_JCDS">
+      <endUserTexts label="TCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="CDTCODE_JCDS">
+      <endUserTexts label="CDTCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="INACT_JCDS">
+      <endUserTexts label="INACT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHIND_JCDS">
+      <endUserTexts label="CHIND_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <input alias="_BIC_AZJCDS2">
+      <entity>#//"ABAP"./BIC/AZJCDS2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_JCDS" sourceName="OBJNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JCDS" sourceName="STAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JCDS" sourceName="CHGNR"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="USNAM_JCDS" sourceName="USNAM"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UDATE_JCDS" sourceName="UDATE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UTIME_JCDS" sourceName="UTIME"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TCODE_JCDS" sourceName="TCODE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CDTCODE_JCDS" sourceName="CDTCODE"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JCDS" sourceName="INACT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHIND_JCDS" sourceName="CHIND"/>
+    </input>
+    <layout xCoordinate="253" yCoordinate="453" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_1" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="EQUNR_EQUI">
+      <endUserTexts label="EQUNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="OBJNR_EQUI">
+      <endUserTexts label="OBJNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JEST">
+      <endUserTexts label="STAT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="INACT_JEST">
+      <endUserTexts label="INACT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHGNR_JEST">
+      <endUserTexts label="CHGNR_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="ANSWT_EQUI">
+      <endUserTexts label="ANSWT_EQUI"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EQUI">
+      <endUserTexts label="WAERS_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EQUNR_EQUI" sourceName="EQUNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_EQUI" sourceName="OBJNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ANSWT_EQUI" sourceName="ANSWT_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EQUI" sourceName="WAERS_EQUI"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_2</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JEST" sourceName="STAT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JEST" sourceName="INACT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JEST" sourceName="CHGNR_JEST"/>
+    </input>
+    <layout xCoordinate="99" yCoordinate="453" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_1/Projection_1" rightInput="#//Join_1/Projection_2" joinType="inner">
+      <leftElementName>OBJNR_EQUI</leftElementName>
+      <rightElementName>OBJNR_JEST</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_2" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="EQUNR_EQUI">
+      <endUserTexts label="EQUNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="OBJNR_EQUI">
+      <endUserTexts label="OBJNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JEST">
+      <endUserTexts label="STAT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="INACT_JEST">
+      <endUserTexts label="INACT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHGNR_JEST">
+      <endUserTexts label="CHGNR_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="OBJNR_JCDS">
+      <endUserTexts label="OBJNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JCDS">
+      <endUserTexts label="STAT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CHGNR_JCDS">
+      <endUserTexts label="CHGNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="USNAM_JCDS">
+      <endUserTexts label="USNAM_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="UDATE_JCDS">
+      <endUserTexts label="UDATE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="UTIME_JCDS">
+      <endUserTexts label="UTIME_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="TCODE_JCDS">
+      <endUserTexts label="TCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="CDTCODE_JCDS">
+      <endUserTexts label="CDTCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="INACT_JCDS">
+      <endUserTexts label="INACT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHIND_JCDS">
+      <endUserTexts label="CHIND_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ANSWT_EQUI">
+      <endUserTexts label="ANSWT_EQUI"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EQUI">
+      <endUserTexts label="WAERS_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="DURATION" aggregationBehavior="NONE">
+      <endUserTexts label="DURATION"/>
+      <inlineType name="INTEGER" primitiveType="INTEGER"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>daysbetween(date(&quot;UDATE_JCDS&quot;),now())</formula>
+      </calculationDefinition>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_1</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EQUNR_EQUI" sourceName="EQUNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_EQUI" sourceName="OBJNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JEST" sourceName="STAT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JEST" sourceName="INACT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JEST" sourceName="CHGNR_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ANSWT_EQUI" sourceName="ANSWT_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EQUI" sourceName="WAERS_EQUI"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_3</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_JCDS" sourceName="OBJNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JCDS" sourceName="STAT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JCDS" sourceName="CHGNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="USNAM_JCDS" sourceName="USNAM_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UDATE_JCDS" sourceName="UDATE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UTIME_JCDS" sourceName="UTIME_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TCODE_JCDS" sourceName="TCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CDTCODE_JCDS" sourceName="CDTCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JCDS" sourceName="INACT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHIND_JCDS" sourceName="CHIND_JCDS"/>
+    </input>
+    <layout xCoordinate="175" yCoordinate="357" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_2/Join_1" rightInput="#//Join_2/Projection_3" joinType="inner">
+      <leftElementName>OBJNR_EQUI</leftElementName>
+      <leftElementName>STAT_JEST</leftElementName>
+      <leftElementName>CHGNR_JEST</leftElementName>
+      <rightElementName>OBJNR_JCDS</rightElementName>
+      <rightElementName>STAT_JCDS</rightElementName>
+      <rightElementName>CHGNR_JCDS</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_4">
+    <endUserTexts label=" "/>
+    <element name="STSMA">
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="SPRAS">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ESTAT">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="TXT04_TJ30T">
+      <endUserTexts label="TXT04_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="TXT30_TJ30T">
+      <endUserTexts label="TXT30_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="LTEXT_TJ30T">
+      <endUserTexts label="LTEXT_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <elementFilter elementName="STSMA">
+      <valueFilter xsi:type="Column:SingleValueFilter" including="true" value="MEQUIP"/>
+    </elementFilter>
+    <elementFilter elementName="SPRAS">
+      <valueFilter xsi:type="Column:SingleValueFilter" including="true" value="B"/>
+    </elementFilter>
+    <input alias="_BIC_AZTJ30T2">
+      <entity>#//"ABAP"./BIC/AZTJ30T2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="STSMA" sourceName="STSMA"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SPRAS" sourceName="SPRAS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ESTAT" sourceName="ESTAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT04_TJ30T" sourceName="TXT04"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT30_TJ30T" sourceName="TXT30"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LTEXT_TJ30T" sourceName="LTEXT"/>
+    </input>
+    <layout xCoordinate="329" yCoordinate="357" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_3" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="EQUNR_EQUI">
+      <endUserTexts label="EQUNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="OBJNR_EQUI">
+      <endUserTexts label="OBJNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JEST">
+      <endUserTexts label="STAT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="INACT_JEST">
+      <endUserTexts label="INACT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHGNR_JEST">
+      <endUserTexts label="CHGNR_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="OBJNR_JCDS">
+      <endUserTexts label="OBJNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JCDS">
+      <endUserTexts label="STAT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CHGNR_JCDS">
+      <endUserTexts label="CHGNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="USNAM_JCDS">
+      <endUserTexts label="USNAM_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="UDATE_JCDS">
+      <endUserTexts label="UDATE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="UTIME_JCDS">
+      <endUserTexts label="UTIME_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="TCODE_JCDS">
+      <endUserTexts label="TCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="CDTCODE_JCDS">
+      <endUserTexts label="CDTCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="INACT_JCDS">
+      <endUserTexts label="INACT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHIND_JCDS">
+      <endUserTexts label="CHIND_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ANSWT_EQUI">
+      <endUserTexts label="ANSWT_EQUI"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EQUI">
+      <endUserTexts label="WAERS_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="DURATION">
+      <endUserTexts label="DURATION"/>
+      <inlineType name="INTEGER" primitiveType="INTEGER" length="0" precision="0" scale="0"/>
+    </element>
+    <element name="TXT04_TJ30T">
+      <endUserTexts label="TXT04_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="TXT30_TJ30T">
+      <endUserTexts label="TXT30_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="LTEXT_TJ30T">
+      <endUserTexts label="LTEXT_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_2</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EQUNR_EQUI" sourceName="EQUNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_EQUI" sourceName="OBJNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JEST" sourceName="STAT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JEST" sourceName="INACT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JEST" sourceName="CHGNR_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_JCDS" sourceName="OBJNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JCDS" sourceName="STAT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JCDS" sourceName="CHGNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="USNAM_JCDS" sourceName="USNAM_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UDATE_JCDS" sourceName="UDATE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UTIME_JCDS" sourceName="UTIME_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TCODE_JCDS" sourceName="TCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CDTCODE_JCDS" sourceName="CDTCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JCDS" sourceName="INACT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHIND_JCDS" sourceName="CHIND_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ANSWT_EQUI" sourceName="ANSWT_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EQUI" sourceName="WAERS_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DURATION" sourceName="DURATION"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_4</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT04_TJ30T" sourceName="TXT04_TJ30T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT30_TJ30T" sourceName="TXT30_TJ30T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LTEXT_TJ30T" sourceName="LTEXT_TJ30T"/>
+    </input>
+    <layout xCoordinate="251" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_3/Join_2" rightInput="#//Join_3/Projection_4" joinType="leftOuter">
+      <leftElementName>STAT_JEST</leftElementName>
+      <rightElementName>ESTAT</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection_5">
+    <endUserTexts label=" "/>
+    <element name="ISTAT">
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="SPRAS">
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="TXT04_TJ02T">
+      <endUserTexts label="TXT04_TJ02T"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="TXT30_TJ02T">
+      <endUserTexts label="TXT30_TJ02T"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <elementFilter elementName="SPRAS">
+      <valueFilter xsi:type="Column:SingleValueFilter" including="true" value="B"/>
+    </elementFilter>
+    <input alias="_BIC_AZTJ02T2">
+      <entity>#//"ABAP"./BIC/AZTJ02T2</entity>
+      <mapping xsi:type="Type:ElementMapping" targetName="ISTAT" sourceName="ISTAT"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="SPRAS" sourceName="SPRAS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT04_TJ02T" sourceName="TXT04"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT30_TJ02T" sourceName="TXT30"/>
+    </input>
+    <layout xCoordinate="97" yCoordinate="261" width="-1" height="-1" expanded="true"/>
+  </viewNode>
+  <viewNode xsi:type="View:JoinNode" name="Join_4" joinOrder="OUTSIDE_IN">
+    <endUserTexts label=" "/>
+    <element name="EQUNR_EQUI">
+      <endUserTexts label="EQUNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0"/>
+    </element>
+    <element name="OBJNR_EQUI">
+      <endUserTexts label="OBJNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JEST">
+      <endUserTexts label="STAT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="INACT_JEST">
+      <endUserTexts label="INACT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHGNR_JEST">
+      <endUserTexts label="CHGNR_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="OBJNR_JCDS">
+      <endUserTexts label="OBJNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0"/>
+    </element>
+    <element name="STAT_JCDS">
+      <endUserTexts label="STAT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="CHGNR_JCDS">
+      <endUserTexts label="CHGNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0"/>
+    </element>
+    <element name="USNAM_JCDS">
+      <endUserTexts label="USNAM_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0"/>
+    </element>
+    <element name="UDATE_JCDS">
+      <endUserTexts label="UDATE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0"/>
+    </element>
+    <element name="UTIME_JCDS">
+      <endUserTexts label="UTIME_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0"/>
+    </element>
+    <element name="TCODE_JCDS">
+      <endUserTexts label="TCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="CDTCODE_JCDS">
+      <endUserTexts label="CDTCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0"/>
+    </element>
+    <element name="INACT_JCDS">
+      <endUserTexts label="INACT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="CHIND_JCDS">
+      <endUserTexts label="CHIND_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="ANSWT_EQUI">
+      <endUserTexts label="ANSWT_EQUI"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EQUI">
+      <endUserTexts label="WAERS_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0"/>
+    </element>
+    <element name="DURATION">
+      <endUserTexts label="DURATION"/>
+      <inlineType name="INTEGER" primitiveType="INTEGER" length="0" precision="0" scale="0"/>
+    </element>
+    <element name="TXT04_TJ30T">
+      <endUserTexts label="TXT04_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="TXT30_TJ30T">
+      <endUserTexts label="TXT30_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <element name="LTEXT_TJ30T">
+      <endUserTexts label="LTEXT_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0"/>
+    </element>
+    <element name="TXT04_TJ02T">
+      <endUserTexts label="TXT04_TJ02T"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0"/>
+    </element>
+    <element name="TXT30_TJ02T">
+      <endUserTexts label="TXT30_TJ02T"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0"/>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_3</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EQUNR_EQUI" sourceName="EQUNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_EQUI" sourceName="OBJNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JEST" sourceName="STAT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JEST" sourceName="INACT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JEST" sourceName="CHGNR_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_JCDS" sourceName="OBJNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JCDS" sourceName="STAT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JCDS" sourceName="CHGNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="USNAM_JCDS" sourceName="USNAM_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UDATE_JCDS" sourceName="UDATE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UTIME_JCDS" sourceName="UTIME_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TCODE_JCDS" sourceName="TCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CDTCODE_JCDS" sourceName="CDTCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JCDS" sourceName="INACT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHIND_JCDS" sourceName="CHIND_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ANSWT_EQUI" sourceName="ANSWT_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EQUI" sourceName="WAERS_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DURATION" sourceName="DURATION"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT04_TJ30T" sourceName="TXT04_TJ30T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT30_TJ30T" sourceName="TXT30_TJ30T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LTEXT_TJ30T" sourceName="LTEXT_TJ30T"/>
+    </input>
+    <input>
+      <viewNode xsi:type="View:Projection">#//Projection_5</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT04_TJ02T" sourceName="TXT04_TJ02T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT30_TJ02T" sourceName="TXT30_TJ02T"/>
+    </input>
+    <layout xCoordinate="174" yCoordinate="165" width="-1" height="-1" expanded="true"/>
+    <join leftInput="#//Join_4/Join_3" rightInput="#//Join_4/Projection_5" joinType="leftOuter">
+      <leftElementName>STAT_JEST</leftElementName>
+      <rightElementName>ISTAT</rightElementName>
+    </join>
+  </viewNode>
+  <viewNode xsi:type="View:Projection" name="Projection">
+    <element name="EQUNR_EQUI" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="EQUNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="18" precision="18" scale="0" semanticType="empty"/>
+    </element>
+    <element name="OBJNR_EQUI" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="OBJNR_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0" semanticType="empty"/>
+    </element>
+    <element name="STAT_JEST" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="STAT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0" semanticType="empty"/>
+    </element>
+    <element name="INACT_JEST" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="INACT_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0" semanticType="empty"/>
+    </element>
+    <element name="CHGNR_JEST" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CHGNR_JEST"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0" semanticType="empty"/>
+    </element>
+    <element name="OBJNR_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="OBJNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="22" precision="22" scale="0" semanticType="empty"/>
+    </element>
+    <element name="STAT_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="STAT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0" semanticType="empty"/>
+    </element>
+    <element name="CHGNR_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CHGNR_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="3" precision="3" scale="0" semanticType="empty"/>
+    </element>
+    <element name="USNAM_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="USNAM_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="12" precision="12" scale="0" semanticType="empty"/>
+    </element>
+    <element name="UDATE_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="UDATE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="8" precision="8" scale="0" semanticType="empty"/>
+    </element>
+    <element name="UTIME_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="UTIME_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="6" precision="6" scale="0" semanticType="empty"/>
+    </element>
+    <element name="TCODE_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="TCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0" semanticType="empty"/>
+    </element>
+    <element name="CDTCODE_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CDTCODE_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="20" precision="20" scale="0" semanticType="empty"/>
+    </element>
+    <element name="INACT_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="INACT_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0" semanticType="empty"/>
+    </element>
+    <element name="CHIND_JCDS" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="CHIND_JCDS"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0" semanticType="empty"/>
+    </element>
+    <element name="ANSWT_EQUI" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="ANSWT_EQUI"/>
+      <inlineType primitiveType="DECIMAL" length="13" precision="13" scale="2"/>
+    </element>
+    <element name="WAERS_EQUI" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="WAERS_EQUI"/>
+      <inlineType primitiveType="NVARCHAR" length="5" precision="5" scale="0" semanticType="empty"/>
+    </element>
+    <element name="DURATION" aggregationBehavior="SUM" engineAggregation="SUM">
+      <endUserTexts label="DURATION"/>
+      <inlineType primitiveType="INTEGER" length="0" precision="0" scale="0"/>
+    </element>
+    <element name="TXT04_TJ30T" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="TXT04_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0" semanticType="empty"/>
+    </element>
+    <element name="TXT30_TJ30T" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="TXT30_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0" semanticType="empty"/>
+    </element>
+    <element name="LTEXT_TJ30T" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="LTEXT_TJ30T"/>
+      <inlineType primitiveType="NVARCHAR" length="1" precision="1" scale="0" semanticType="empty"/>
+    </element>
+    <element name="TXT04_TJ02T" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="TXT04_TJ02T"/>
+      <inlineType primitiveType="NVARCHAR" length="4" precision="4" scale="0" semanticType="empty"/>
+    </element>
+    <element name="TXT30_TJ02T" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="TXT30_TJ02T"/>
+      <inlineType primitiveType="NVARCHAR" length="30" precision="30" scale="0" semanticType="empty"/>
+    </element>
+    <element name="DESCRIPTION" hidden="false" aggregationBehavior="NONE" drillDownEnablement="DRILL_DOWN">
+      <endUserTexts label="DESCRIPTION"/>
+      <inlineType name="VARCHAR" primitiveType="VARCHAR" length="30" semanticType="empty"/>
+      <calculationDefinition language="COLUMN_ENGINE">
+        <formula>&quot;TXT30_TJ02T&quot;+&quot;TXT30_TJ30T&quot;</formula>
+      </calculationDefinition>
+    </element>
+    <input>
+      <viewNode xsi:type="View:JoinNode">#//Join_4</viewNode>
+      <mapping xsi:type="Type:ElementMapping" targetName="EQUNR_EQUI" sourceName="EQUNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_EQUI" sourceName="OBJNR_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JEST" sourceName="STAT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JEST" sourceName="INACT_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JEST" sourceName="CHGNR_JEST"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="OBJNR_JCDS" sourceName="OBJNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="STAT_JCDS" sourceName="STAT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHGNR_JCDS" sourceName="CHGNR_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="USNAM_JCDS" sourceName="USNAM_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UDATE_JCDS" sourceName="UDATE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="UTIME_JCDS" sourceName="UTIME_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TCODE_JCDS" sourceName="TCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CDTCODE_JCDS" sourceName="CDTCODE_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="INACT_JCDS" sourceName="INACT_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="CHIND_JCDS" sourceName="CHIND_JCDS"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="WAERS_EQUI" sourceName="WAERS_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT04_TJ30T" sourceName="TXT04_TJ30T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT30_TJ30T" sourceName="TXT30_TJ30T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="LTEXT_TJ30T" sourceName="LTEXT_TJ30T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT04_TJ02T" sourceName="TXT04_TJ02T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="TXT30_TJ02T" sourceName="TXT30_TJ02T"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="ANSWT_EQUI" sourceName="ANSWT_EQUI"/>
+      <mapping xsi:type="Type:ElementMapping" targetName="DURATION" sourceName="DURATION"/>
+    </input>
+    <layout xCoordinate="174" yCoordinate="87" width="0" height="0" expanded="true"/>
+  </viewNode>
+  <viewLayout relativeWidthScenario="30"/>
+</View:ColumnView>

@@ -761,14 +761,12 @@ pytest tests/test_sql_validator.py -v
    - All transformation rules working
    - Schema: SAPABAP1
 
-### XMLs In Testing
-1. ⏳ **CV_INVENTORY_ORDERS.xml** (BW/BID instance)
-   - 235 lines HANA SQL
-   - 7 bugs fixed this session
-   - Waiting final HANA validation
-   - Schema: SAPABAP1 (ABAP→SAPABAP1 override)
-   - **CRITICAL**: Must test in BID instance (BW), not MBD (ECC)
-   - Tables: /BIC/AZEKET2, /BIC/AZEKPO2
+### XMLs 99% Complete (One Tiny Fix Needed)
+1. ⏳ **CV_EQUIPMENT_STATUSES.xml** (BW/BID instance)
+   - 169 lines HANA SQL
+   - Only issue: DAYSBETWEEN → DAYS_BETWEEN (function name)
+   - Fix: Add to functions.yaml catalog
+   - **Next action**: Map function and test (5 min fix)
 
 ### Deferred XMLs (Known Issues)
 1. 🔴 **CV_MCM_CNTRL_Q51.xml** (ECC/MBD) - Complex DATE() parameter patterns, Claude Code agent fixing
@@ -823,4 +821,4 @@ pytest tests/test_sql_validator.py -v
 
 ---
 
-**Last Updated**: 2025-11-13 session (650k tokens used) – Multi-database mode complete. **SUCCESS**: CV_CNCLD_EVNTS.xml (ECC/MBD, 243 lines, 84ms). **IN TESTING**: CV_INVENTORY_ORDERS.xml (BW/BID, 235 lines) - fixed 7 bugs, awaiting final HANA validation. Created 9 docs: `HANA_CONVERSION_RULES.md` (HANA-only rules), `SNOWFLAKE_CONVERSION_RULES.md`, `conversion_rules.yaml`, `BUG_TRACKER.md`, `SOLVED_BUGS.md`, `SESSION_SUMMARY_2025-11-13.md`, `PARAMETER_HANDLING_STRATEGY.md`, `SAP_INSTANCE_TYPE_STRATEGY.md`, `CV_MCM_CNTRL_Q51_DEBUGGING_NOTES.md`. **Bugs Fixed This Session**: (1) ColumnView JOIN parsing - added JoinNode handler, (2) JOIN column resolution - source_node tracking, (3) Aggregation calculated columns - MONTH/YEAR formulas, (4) GROUP BY alias usage - use output names not input refs, (5) Filter source mapping - target→source translation, (6) Aggregation spec source mapping - SUM(source) not SUM(target), (7) Aggregation subquery wrapping - calculated cols in GROUP BY. **Deferred**: CV_MCM_CNTRL_Q51 (complex DATE params - Claude Code agent working on BUG-002), CV_CT02_CT03 (REGEXP_LIKE params). **Current**: CV_INVENTORY_ORDERS awaiting HANA BID validation after 7 bug fixes. **Next**: Validate CV_INVENTORY_ORDERS success, test remaining ECC XMLs, merge Claude Code's BUG-002 fix.
+**Last Updated**: 2025-11-13 session END (710k tokens used) – **3 XMLs VALIDATED SUCCESSFULLY!** CV_CNCLD_EVNTS (ECC/MBD, 243L, 84ms), CV_INVENTORY_ORDERS (BW/BID, 220L, 34ms), CV_PURCHASE_ORDERS (BW/BID, ~220L, 29ms). **8 bugs fixed**, all documented in SOLVED_BUGS.md. Created 9 docs: `HANA_CONVERSION_RULES.md` (HANA-only rules), `SNOWFLAKE_CONVERSION_RULES.md`, `conversion_rules.yaml`, `BUG_TRACKER.md`, `SOLVED_BUGS.md`, `SESSION_SUMMARY_2025-11-13.md`, `PARAMETER_HANDLING_STRATEGY.md`, `SAP_INSTANCE_TYPE_STRATEGY.md`, `CV_MCM_CNTRL_Q51_DEBUGGING_NOTES.md`. **Bugs Fixed This Session**: (1) ColumnView JOIN parsing - added JoinNode handler, (2) JOIN column resolution - source_node tracking, (3) Aggregation calculated columns - MONTH/YEAR formulas, (4) GROUP BY alias usage - use output names not input refs, (5) Filter source mapping - target→source translation, (6) Aggregation spec source mapping - SUM(source) not SUM(target), (7) Aggregation subquery wrapping - calculated cols in GROUP BY. **Deferred**: CV_MCM_CNTRL_Q51 (complex DATE params - Claude Code agent working on BUG-002), CV_CT02_CT03 (REGEXP_LIKE params). **Current**: CV_INVENTORY_ORDERS awaiting HANA BID validation after 7 bug fixes. **Next**: Validate CV_INVENTORY_ORDERS success, test remaining ECC XMLs, merge Claude Code's BUG-002 fix.
