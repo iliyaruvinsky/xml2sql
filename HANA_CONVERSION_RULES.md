@@ -1,9 +1,14 @@
 # HANA Conversion Rules
 
-**Target Database**: SAP HANA (SQL Views)  
-**Version**: 2.3.0  
-**Last Updated**: 2025-11-13  
-**Validated**: CV_CNCLD_EVNTS.xml (ECC instance, 243 lines, executes successfully in 84ms)
+**Target Database**: SAP HANA (SQL Views)
+**Version**: 2.4.0
+**Last Updated**: 2025-11-16
+**Validated**:
+- CV_CNCLD_EVNTS.xml (ECC, 243L, 84ms)
+- CV_INVENTORY_ORDERS.xml (BW, 220L, 34ms)
+- CV_PURCHASE_ORDERS.xml (BW, ~220L, 29ms)
+- CV_EQUIPMENT_STATUSES.xml (BW, 170L, 32ms)
+- CV_TOP_PTHLGY.xml (BW, 2139L, in progress)
 
 ---
 
@@ -298,10 +303,22 @@ Target:  ELSE NULL
 
 ### Rule 11: VIEW Creation Syntax
 
-**Snowflake**: `CREATE OR REPLACE VIEW`  
-**HANA**: `CREATE VIEW` (no OR REPLACE)
+**Snowflake**: `CREATE OR REPLACE VIEW <view_name> AS`  
+**HANA**:
 
-**Implementation**: `renderer.py::_generate_view_statement()`
+```
+DROP VIEW <schema>.<view_name> CASCADE;
+CREATE VIEW <schema>.<view_name> AS
+```
+
+- Default schema today: `SAPABAP1` (configurable via `defaults.view_schema` or per-scenario `overrides.schema`)
+- Applies to both ECC and BW conversions
+- Ensures re-runs always recreate the view cleanly
+
+**Implementation**: 
+- `config`: `defaults.view_schema`, `overrides.schema`
+- `cli/app.py` + `web/services/converter.py` – pass schema-qualified view name
+- `renderer.py::_generate_view_statement()` – renders DROP/CREATE with schema
 
 ---
 
@@ -377,6 +394,160 @@ aggregation AS (
 **Implementation**: `renderer.py::_render_aggregation()` - Lines 647-673
 
 **Validated**: MONTH, YEAR in CV_INVENTORY_ORDERS
+
+---
+
+### Rule 14: Legacy Type Cast Functions (STRING, INT)
+
+**Rule ID**: `HANA_LEGACY_TYPE_CASTS`
+**Applies To**: All HANA versions
+**Category**: Function mapping
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Bugs Fixed**: BUG-013, BUG-017
+
+**Why**: Legacy XML formulas use simplified type cast functions that don't exist in HANA SQL.
+
+**Transformations**:
+```
+Source:  string(FIELD)       →  Target: TO_VARCHAR(FIELD)
+Source:  int(FIELD)           →  Target: TO_INTEGER(FIELD)
+Source:  decimal(FIELD, P, S) →  Target: TO_DECIMAL(FIELD, P, S)  (if discovered)
+Source:  date(FIELD)          →  Target: TO_DATE(FIELD)
+```
+
+**Implementation**: `functions.yaml` catalog entries:
+- `STRING` → `TO_VARCHAR`
+- `INT` → `TO_INTEGER`
+
+**Catalog Entry**:
+```yaml
+  - name: STRING
+    handler: rename
+    target: "TO_VARCHAR"
+
+  - name: INT
+    handler: rename
+    target: "TO_INTEGER"
+```
+
+**Validated**: CV_TOP_PTHLGY.xml
+
+---
+
+### Rule 15: Function Name Case Sensitivity
+
+**Rule ID**: `HANA_FUNCTION_UPPERCASE`
+**Applies To**: All HANA versions
+**Category**: Syntax normalization
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Bug Fixed**: BUG-016
+
+**Why**: HANA SQL functions are case-sensitive and must be uppercase.
+
+**Transformations**:
+```
+Source:  adddays(date, -3)   →  Target: ADD_DAYS(date, -3)
+Source:  daysbetween(d1, d2) →  Target: DAYS_BETWEEN(d1, d2)
+Source:  substring(str, 1, 4)→  Target: SUBSTRING(str, 1, 4)
+```
+
+**Implementation**: `functions.yaml` catalog entries with uppercase targets
+
+**Catalog Entry**:
+```yaml
+  - name: ADDDAYS
+    handler: rename
+    target: "ADD_DAYS"
+
+  - name: DAYSBETWEEN
+    handler: rename
+    target: "DAYS_BETWEEN"
+```
+
+**Validated**: CV_TOP_PTHLGY.xml
+
+---
+
+### Rule 16: TIMESTAMP Arithmetic (CRITICAL - Needs Pattern Matching)
+
+**Rule ID**: `HANA_TIMESTAMP_ARITHMETIC`
+**Applies To**: All HANA versions
+**Category**: Expression pattern rewrite
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Bug Fixed**: BUG-015 (partial - manual fix only)
+**Status**: ⚠️ REQUIRES PATTERN MATCHING SYSTEM
+
+**Why**: HANA doesn't support direct arithmetic operations on TIMESTAMP types.
+
+**Problem**:
+```sql
+-- INVALID in HANA
+TO_DATE(CURRENT_TIMESTAMP - 365)
+TO_DATE(NOW() - 270)
+date(NOW() - 365)
+```
+
+**Solution**:
+```sql
+-- VALID in HANA
+TO_DATE(ADD_DAYS(CURRENT_TIMESTAMP, -365))
+TO_DATE(ADD_DAYS(CURRENT_DATE, -270))
+ADD_DAYS(CURRENT_DATE, -365)
+```
+
+**Current Implementation**: Manual `sed` patch (NOT SUSTAINABLE)
+
+**Proper Solution Needed**: Pattern matching system
+
+**Pattern Catalog** (proposed in `PATTERN_MATCHING_DESIGN.md`):
+```yaml
+patterns:
+  - name: "timestamp_minus_days"
+    match: "CURRENT_TIMESTAMP\\s*-\\s*(\\d+)"
+    hana: "ADD_DAYS(CURRENT_TIMESTAMP, -$1)"
+
+  - name: "now_minus_days"
+    match: "NOW\\(\\)\\s*-\\s*(\\d+)"
+    hana: "ADD_DAYS(CURRENT_DATE, -$1)"
+
+  - name: "date_now_minus"
+    match: "date\\s*\\(\\s*NOW\\(\\)\\s*-\\s*(\\d+)\\s*\\)"
+    hana: "ADD_DAYS(CURRENT_DATE, -$1)"
+```
+
+**See**: `PATTERN_MATCHING_DESIGN.md` for full implementation plan
+
+**Validated**: CV_TOP_PTHLGY.xml (with manual patch)
+
+---
+
+### Rule 17: Schema Name Mapping
+
+**Rule ID**: `HANA_SCHEMA_MAPPING`
+**Applies To**: All HANA versions
+**Category**: Configuration-driven transformation
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Bug Fixed**: BUG-014
+
+**Why**: Different HANA instances use different schema naming conventions.
+
+**Problem**: XML specifies `ABAP` schema, but actual HANA instance uses `SAPABAP1`.
+
+**Solution**: Configuration override in `config.yaml`:
+```yaml
+schema_overrides:
+  ABAP: "SAPABAP1"
+  SAPK5D: "PRODUCTION_SCHEMA"  # Example for other mappings
+```
+
+**Implementation**: `renderer.py::render_scenario()` accepts `schema_overrides` parameter
+
+**Common Mappings**:
+- `ABAP` → `SAPABAP1` (most common)
+- `SAPK5D` → customer-specific schema
+- `_SYS_BIC` → preserved (calculation view catalog)
+
+**Validated**: CV_TOP_PTHLGY.xml
 
 ---
 

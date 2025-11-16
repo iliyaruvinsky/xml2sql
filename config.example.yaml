@@ -4,6 +4,7 @@
 defaults:
   client: "PROD"
   language: "EN"
+  view_schema: "_SYS_BIC"
 
 paths:
   source: "Source (XML Files)"

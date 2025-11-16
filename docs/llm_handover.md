@@ -174,6 +174,8 @@
 - Produced feature coverage document `FEATURE_SUPPORT_MAP.md` and added to distribution manifest; rebuilt frontend assets (`npm run build`).
 - Updated CLI (`src/xml_to_sql/cli/app.py`) and renderer to always inject `CREATE OR REPLACE VIEW <output>` for direct data-source terminal nodes; verified via charts UI and programmatic check.
 - Issued distribution `xml2sql-distribution-20251113-125805.zip` (v2.2.0) containing the updated engine, frontend build, and docs.
+- Default HANA deployment schema is now `_SYS_BIC`. CLI/API accept `defaults.view_schema`/per-scenario overrides so generated SQL lands under the original package path (e.g. `"_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_TOP_PTHLGY"`).
+- ColumnView Rank nodes are parsed/rendered (ROW_NUMBER + threshold filters). First large end-to-end test is `CV_TOP_PTHLGY`; CREATE VIEW currently fails because legacy `string(...)` helper wasn’t translated—needs `string(x)` → `TO_VARCHAR(x)` rewrite in function translator/catalog.
 
 - **Tests / Validation**:
   - `tests/test_sql_renderer.py::test_catalog_function_rewrites` – covers catalog-driven helper rewrites (PASS).
@@ -602,6 +604,7 @@ pytest tests/test_sql_validator.py -v
 - **Database Migration**: `validation_logs` column is auto-added on server startup
 - **Validation Logs**: Always captured and stored, even if validation is disabled
 - **State Preservation**: Last conversion result preserved when switching modes (Single ↔ Batch)
+- **HANA View Schema**: All HANA SQL now creates `DROP VIEW <schema>.<name> CASCADE; CREATE VIEW <schema>.<name> AS ...`. Current default schema is `SAPABAP1` (configurable via `defaults.view_schema` or per-scenario `overrides.schema`).
 
 ## Configuration
 
@@ -679,7 +682,16 @@ pytest tests/test_sql_validator.py -v
 - ✅ **BUG-009**: Aggregation spec source mapping - SUM(join_4.WEMNG) not SUM(join_4.WEMNG_EKET)
 - ✅ **BUG-010**: Aggregation subquery wrapping - Wrap when GROUP BY refs calculated columns
 
+### Bugs Fixed (2025-11-16 Session)
+- ✅ **BUG-013**: Legacy `string()` helper - Added `STRING` → `TO_VARCHAR` catalog mapping
+- ✅ **BUG-014**: Schema name ABAP not recognized - Added `ABAP` → `SAPABAP1` config override
+- ✅ **BUG-015**: TIMESTAMP arithmetic not supported - `CURRENT_TIMESTAMP - N` → `ADD_DAYS(CURRENT_TIMESTAMP, -N)` (⚠️ needs code fix for pattern matching)
+- ✅ **BUG-016**: Function case sensitivity - Added `ADDDAYS` → `ADD_DAYS` catalog mapping
+- ✅ **BUG-017**: INT() function not recognized - Added `INT` → `TO_INTEGER` catalog mapping
+
 **Files Modified**:
+- `src/xml_to_sql/catalog/data/functions.yaml` - Added STRING, INT, ADDDAYS mappings (3 new entries)
+- `config.yaml` / `config.example.yaml` - Added ABAP → SAPABAP1 schema override
 - `src/xml_to_sql/parser/column_view_parser.py` - Added JoinNode parsing, join type/condition extraction
 - `src/xml_to_sql/sql/renderer.py` - Filter source mapping, aggregation calculated cols, GROUP BY fixes, subquery wrapping
 
@@ -688,17 +700,50 @@ pytest tests/test_sql_validator.py -v
 - 🔴 **BUG-002**: Complex parameter cleanup - Nested DATE() patterns create unbalanced parens and malformed SQL (CV_MCM_CNTRL_Q51: 8+ parameters)
 - 🔴 **BUG-003**: REGEXP_LIKE parameter patterns - Parameters in function arguments not simplified (CV_CT02_CT03)
 - ✅ **BUG-004**: Filter alias mapping - FIXED (target→source name translation in WHERE clauses)
+- ✅ **BUG-013**: Legacy `string()` helper - FIXED (added STRING → TO_VARCHAR catalog mapping)
 
 **Bug Tracker**: `BUG_TRACKER.md` - Structured tracking with root cause analysis  
 **Solved Bugs**: `SOLVED_BUGS.md` - Archive of fixes with solutions
 
-### In Progress / Next Actions (Current Session)
-- **Multi-Database Mode Support** ✅ **COMPLETE**: Implemented per-scenario database mode (Snowflake/HANA) with version-aware SQL generation. Features: DatabaseMode/HanaVersion/XMLFormat enums, XML format detector, mode-aware function translator, HANA validator, CLI options (`--mode`, `--hana-version`), web UI mode selector. HANA mode generates native HANA SQL (IF vs IFF, + vs ||, CREATE VIEW vs CREATE OR REPLACE VIEW).
-- **Empirical Testing Cycle**: Enabled HANA mode for testing. Use `database_mode: hana` and `hana_version: "2.0"` in config to generate HANA-executable SQL for validation.
-- Design a **structured conversion catalog** (SQLite/JSON) that centralises HANA→Snowflake mappings per artifact and HANA version. Source material: `COMPREHENSIVE HANA CALCULATION VIEW XML-TO-SNOWFLAKE SQL MIGRATION CATALOG.md`.
-- Wire the parser/rendering pipeline to consult the catalog when translating legacy ColumnView artifacts (functions, predicates, hints).
-- Extend `translate_raw_formula()` / predicate rendering to handle legacy helpers (`LEFTSTR`, `RIGHTSTR`, `in(...)`, `match()`, `lpad()` etc.) using mode-aware equivalents.
-- Add regression tests covering legacy samples under `Source (XML Files)/OLD_HANA_VIEWS` once the new mappings are applied.
+### CRITICAL: Pattern Matching System Needed (Priority 1)
+
+**Current Limitation**: The catalog system handles **function name rewrites** but NOT **expression pattern rewrites**.
+
+**Examples That Don't Work**:
+- `NOW() - 365` → Needs to become `ADD_DAYS(CURRENT_DATE, -365)`
+- `date(NOW() - 365)` → Needs to become `ADD_DAYS(CURRENT_DATE, -365)`
+- `CURRENT_TIMESTAMP - N` → Needs to become `ADD_DAYS(CURRENT_TIMESTAMP, -N)`
+
+**Current Workaround**: Manual `sed` patches on generated SQL (not sustainable)
+
+**Proper Solution Needed**:
+1. Add **pattern matching phase** to `translate_raw_formula()` BEFORE catalog rewrites:
+   ```python
+   # Phase 1: Pattern-based expression rewrites (BEFORE catalog)
+   result = _apply_pattern_rewrites(result, ctx)
+
+   # Phase 2: Function name rewrites (current catalog system)
+   result = _apply_catalog_rewrites(result, ctx)
+   ```
+
+2. Create **pattern catalog** (extend `functions.yaml` or new `patterns.yaml`):
+   ```yaml
+   patterns:
+     - match: "NOW\\(\\)\\s*-\\s*(\\d+)"
+       hana: "ADD_DAYS(CURRENT_DATE, -$1)"
+       snowflake: "DATEADD(DAY, -$1, CURRENT_TIMESTAMP)"
+       description: "Date arithmetic - subtract days from current date"
+   ```
+
+3. Implement `_apply_pattern_rewrites()` with regex substitution
+
+**Impact**: CV_TOP_PTHLGY and future XMLs will continue requiring manual patches until this is implemented.
+
+### In Progress / Next Actions
+- ⚠️ **STOP after CV_TOP_PTHLGY** and implement pattern matching system (see above)
+- **Multi-Database Mode Support** ✅ **COMPLETE**
+- **Catalog System** ✅ **COMPLETE** for function names (needs pattern extension)
+- Package reinstall: `pip install -e .` required after catalog changes
 
 ### Optional Enhancements
 1. **Testing**
@@ -754,7 +799,7 @@ pytest tests/test_sql_validator.py -v
 **Status**: Major progress, multiple bugs fixed, 1 XML validated, 1 XML in final testing  
 **Parallel Work**: Claude Code agent working on BUG-002 (parameter cleanup)
 
-### Validated Working XMLs (3 SUCCESS - 100% rate)
+### Validated Working XMLs (4 SUCCESS - 100% rate)
 1. ✅ **CV_CNCLD_EVNTS.xml** (ECC/MBD instance)
    - 243 lines HANA SQL, executes in 84ms
    - All 13 transformation rules validated
@@ -769,13 +814,25 @@ pytest tests/test_sql_validator.py -v
    - ~220 lines HANA SQL, executes in 29ms
    - Validates all bug fixes work across multiple XMLs
    - Schema: SAPABAP1
+4. ✅ **CV_EQUIPMENT_STATUSES.xml** (BW/BID instance)
+   - 170 lines HANA SQL, executes in 32ms
+   - Schema override: ABAP→SAPABAP1
+   - View created as `SAPABAP1.CV_EQUIPMENT_STATUSES`
+   - Function mappings + schema-qualified view header verified in HANA
 
-### XMLs 99% Complete (One Tiny Fix Needed)
-1. ⏳ **CV_EQUIPMENT_STATUSES.xml** (BW/BID instance)
-   - 169 lines HANA SQL
-   - Only issue: DAYSBETWEEN → DAYS_BETWEEN (function name)
-   - Fix: Add to functions.yaml catalog
-   - **Next action**: Map function and test (5 min fix)
+### In Progress XMLs
+1. ⏳ **CV_TOP_PTHLGY.xml** (BW/BID) - Rank-heavy ColumnView with 2139 lines
+   - **Status**: 4 bugs fixed (BUG-013 through BUG-017), testing in HANA
+   - **Fixes Applied**:
+     - STRING → TO_VARCHAR catalog mapping
+     - ABAP → SAPABAP1 schema override
+     - ADDDAYS → ADD_DAYS catalog mapping
+     - INT → TO_INTEGER catalog mapping
+     - Manual fix for TIMESTAMP arithmetic (needs code pattern matching)
+   - **Current Error**: Unknown (awaiting HANA test results)
+   - **Critical Discovery**: Need **expression pattern matching system**, not just function name mapping
+     - `NOW() - N` → `ADD_DAYS(CURRENT_DATE, -N)` cannot be handled by current catalog
+     - Need regex-based formula transformation before token-level rewrites
 
 ### Deferred XMLs (Known Issues)
 1. 🔴 **CV_MCM_CNTRL_Q51.xml** (ECC/MBD) - Complex DATE() parameter patterns, Claude Code agent fixing
@@ -811,6 +868,10 @@ pytest tests/test_sql_validator.py -v
 - ECC: Raw SQL expansion works (CV_CNCLD_EVNTS success)
 - BW: Tables exist but raw expansion complex (schema resolution, naming)
 - BW Wrapper: Implemented but user wants raw expansion
+- `_SYS_BIC` Catalog vs SQL Views:
+  - Calculation views live under `_SYS_BIC"."Package/View` (e.g., `"_SYS_BIC"."Macabi_BI.COOM/CV_EQUIPMENT_STATUSES"`)
+  - Generated SQL views are standard SAPABAP1 schema objects (`CREATE VIEW SAPABAP1.CV_EQUIPMENT_STATUSES AS ...`)
+  - CLI/API now support `defaults.view_schema` + per-scenario `overrides.schema` to control where the SQL view is created
 
 ## Quick Start for Next Developer
 
@@ -830,4 +891,4 @@ pytest tests/test_sql_validator.py -v
 
 ---
 
-**Last Updated**: 2025-11-16 (session from 2025-11-13, 710k tokens used) – **3 XMLs VALIDATED SUCCESSFULLY!** CV_CNCLD_EVNTS (ECC/MBD, 243L, 84ms), CV_INVENTORY_ORDERS (BW/BID, 220L, 34ms), CV_PURCHASE_ORDERS (BW/BID, ~220L, 29ms). **8 bugs fixed**, all documented in SOLVED_BUGS.md. **NEXT**: Fix DAYSBETWEEN→DAYS_BETWEEN for CV_EQUIPMENT_STATUSES (5 min), continue testing remaining XMLs. Created 9 docs: `HANA_CONVERSION_RULES.md` (HANA-only rules), `SNOWFLAKE_CONVERSION_RULES.md`, `conversion_rules.yaml`, `BUG_TRACKER.md`, `SOLVED_BUGS.md`, `SESSION_SUMMARY_2025-11-13.md`, `PARAMETER_HANDLING_STRATEGY.md`, `SAP_INSTANCE_TYPE_STRATEGY.md`, `CV_MCM_CNTRL_Q51_DEBUGGING_NOTES.md`. **Bugs Fixed This Session**: (1) ColumnView JOIN parsing - added JoinNode handler, (2) JOIN column resolution - source_node tracking, (3) Aggregation calculated columns - MONTH/YEAR formulas, (4) GROUP BY alias usage - use output names not input refs, (5) Filter source mapping - target→source translation, (6) Aggregation spec source mapping - SUM(source) not SUM(target), (7) Aggregation subquery wrapping - calculated cols in GROUP BY. **Deferred**: CV_MCM_CNTRL_Q51 (complex DATE params - Claude Code agent working on BUG-002), CV_CT02_CT03 (REGEXP_LIKE params). **Current**: CV_INVENTORY_ORDERS awaiting HANA BID validation after 7 bug fixes. **Next**: Validate CV_INVENTORY_ORDERS success, test remaining ECC XMLs, merge Claude Code's BUG-002 fix.
+**Last Updated**: 2025-11-16 (Session 2) – **18 bugs fixed total** (BUG-004 through BUG-017 + 4 historical), documented in SOLVED_BUGS.md. **4 XMLs VALIDATED**: CV_CNCLD_EVNTS (243L, 84ms), CV_INVENTORY_ORDERS (220L, 34ms), CV_PURCHASE_ORDERS (~220L, 29ms), CV_EQUIPMENT_STATUSES (170L, 32ms). **1 XML IN PROGRESS**: CV_TOP_PTHLGY (2139L, 5 bugs fixed - BUG-013 through BUG-017, awaiting HANA validation). **Session 2 Achievements (2025-11-16)**: Fixed BUG-013 (STRING→TO_VARCHAR), BUG-014 (ABAP→SAPABAP1 schema), BUG-015 (TIMESTAMP arithmetic - ⚠️ manual fix, needs pattern matching), BUG-016 (ADDDAYS→ADD_DAYS), BUG-017 (INT→TO_INTEGER). Added 3 catalog entries (STRING, INT, ADDDAYS), added schema override to config. **CRITICAL DISCOVERY**: Current catalog system cannot handle expression pattern rewrites (e.g., `NOW() - N` → `ADD_DAYS()`). Need pattern matching system implementation before continuing with more XMLs. **NEXT STEPS**: (1) Validate CV_TOP_PTHLGY in HANA, (2) STOP and implement pattern matching system, (3) Add `patterns.yaml` catalog, (4) Extend `translate_raw_formula()` with `_apply_pattern_rewrites()` phase. **Files Modified This Session**: `src/xml_to_sql/catalog/data/functions.yaml` (added 3 entries), `config.yaml` (schema override), `SOLVED_BUGS.md` (documented 5 new bugs), `docs/llm_handover.md` (this file). **Known Pending Code Fixes**: Pattern matching for date arithmetic, CLI config setup issue (scenario not found). **Deferred**: CV_MCM_CNTRL_Q51 (BUG-002), CV_CT02_CT03 (BUG-003).

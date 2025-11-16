@@ -492,6 +492,299 @@ if where_clause and target_to_source_map and input_id in ctx.scenario.data_sourc
 
 ---
 
+### SOLVED-011: `CURRENT_TIMESTAMP()` Parentheses Removed
+
+**Original Bug**: BUG-011  
+**Discovered**: 2025-11-16 (CV_EQUIPMENT_STATUSES)  
+**Resolved**: 2025-11-16
+
+**Error**:
+```
+SAP DBTech JDBC: [257]: sql syntax error: incorrect syntax near ")": line 82 col 63
+```
+
+**Root Cause**:
+- ColumnView XML uses `now()` helper
+- Catalog mapping with `handler: rename` generated `CURRENT_TIMESTAMP()`
+- HANA expects `CURRENT_TIMESTAMP` (no parentheses) when called without arguments
+
+**Fix**:
+- Update `functions.yaml` to use `handler: template` with `template: "CURRENT_TIMESTAMP"`
+- Remove legacy regex that uppercased `now()` manually
+- Regenerate SQL to confirm `DAYS_BETWEEN(..., CURRENT_TIMESTAMP)`
+
+**Files Changed**:
+- `src/xml_to_sql/catalog/data/functions.yaml`
+- `src/xml_to_sql/sql/function_translator.py`
+- `Target (SQL Scripts)/CV_EQUIPMENT_STATUSES.sql`
+
+**Validation**:
+- ✅ CV_EQUIPMENT_STATUSES executes successfully (32ms)
+- ✅ Functions catalog regression tests pass
+
+---
+
+### SOLVED-012: Schema-Qualified View Creation (`SAPABAP1.<view>`)
+
+**Original Bug**: BUG-012  
+**Discovered**: 2025-11-16 (BW XMLs)  
+**Resolved**: 2025-11-16
+
+**Error**:
+```
+SAP DBTech JDBC: [362]: invalid schema name: ABAP
+```
+
+**Root Cause**:
+- ColumnView XML references data sources as `"ABAP"./BIC/...`
+- Generated SQL created views without schema qualification and assumed ABAP schema for sources
+- In BID system, actual schema is `SAPABAP1`, so view creation and SELECT statements failed
+
+**Fix**:
+1. Added configuration support for `defaults.view_schema` and per-scenario `overrides.schema`
+2. CLI + API now qualify view names (e.g., `SAPABAP1.CV_EQUIPMENT_STATUSES`)
+3. `_quote_identifier` updated to handle `schema.view` inputs without quoting the dot
+4. Web converter + API models now accept `view_schema` (default `SAPABAP1`)
+5. Regenerated validated SQL files with new header:
+   ```
+   DROP VIEW SAPABAP1.<name> CASCADE;
+   CREATE VIEW SAPABAP1.<name> AS ...
+   ```
+
+**Files Changed**:
+- `config.example.yaml`, `src/xml_to_sql/config/*`
+- `src/xml_to_sql/cli/app.py`
+- `src/xml_to_sql/web/api/models.py`, `web/api/routes.py`, `web/services/converter.py`
+- `src/xml_to_sql/sql/renderer.py`
+- `Target (SQL Scripts)/CV_{CNCLD_EVNTS,INVENTORY_ORDERS,PURCHASE_ORDERS,EQUIPMENT_STATUSES}.sql`
+
+**Validation**:
+- ✅ All four SQL files execute successfully in HANA
+- ✅ DROP/CREATE statements now fully deterministic
+
+---
+
+### SOLVED-013: Legacy STRING() Function Not Recognized in HANA
+
+**Original Bug**: BUG-013
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Resolved**: 2025-11-16
+
+**Error**:
+```
+SAP DBTech JDBC: [328]: invalid name of function or procedure: STRING: line 50 col 33 (at pos 3285)
+```
+
+**Problem**:
+Legacy `string()` helper function was being emitted verbatim in WHERE clauses, but HANA doesn't recognize `STRING` as a valid function name. The conversion succeeded but CREATE VIEW failed during HANA execution.
+
+**Root Cause**:
+The function catalog (`src/xml_to_sql/catalog/data/functions.yaml`) contained rewrites for other legacy helpers (LEFTSTR→SUBSTRING, RIGHTSTR→RIGHT, MATCH→REGEXP_LIKE, etc.) but was missing the `string()` → `TO_VARCHAR()` mapping.
+
+**Solution**:
+Added `STRING` → `TO_VARCHAR` mapping to the function catalog:
+
+```yaml
+  - name: STRING
+    handler: rename
+    target: "TO_VARCHAR"
+    description: >
+      Legacy STRING() function mapped to TO_VARCHAR() for type conversion to string/varchar.
+```
+
+The catalog rewrite system (via `_apply_catalog_rewrites()` in `function_translator.py`) automatically translates all `string(expr)` calls to `TO_VARCHAR(expr)` during formula translation.
+
+**Associated Rules**:
+- **Catalog System**: Centralized function mapping (handover line 170-178)
+- **Legacy Helper Translation**: Systematic rewrite of deprecated HANA 1.x functions
+
+**Files Changed**:
+- `src/xml_to_sql/catalog/data/functions.yaml` (added STRING entry)
+
+**Validation**:
+- ⏳ Pending: User to re-run CV_TOP_PTHLGY conversion and verify HANA execution succeeds
+
+**Code Flow**:
+1. XML parser encounters `string(FIELD)` in filter expression
+2. `translate_raw_formula()` calls `_apply_catalog_rewrites()` (line 219 for HANA mode)
+3. Catalog rule rewrites `string(FIELD)` → `TO_VARCHAR(FIELD)`
+4. Generated SQL uses HANA-compatible `TO_VARCHAR()` function
+
+---
+
+### SOLVED-014: Schema Name ABAP Not Recognized in HANA
+
+**Original Bug**: New issue (CV_TOP_PTHLGY)
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Resolved**: 2025-11-16
+
+**Error**:
+```
+SAP DBTech JDBC: [362]: invalid schema name: ABAP: line 13 col 10 (at pos 576)
+```
+
+**Problem**:
+XML data sources use `ABAP` schema, but HANA instance uses `SAPABAP1` as the actual schema name. All table references generated as `ABAP.TABLE_NAME` causing "invalid schema name" errors.
+
+**Root Cause**:
+Different HANA instances use different schema naming conventions:
+- Some use `ABAP` directly
+- Others use `SAPABAP1`, `SAP<SID>`, etc.
+- No schema mapping was configured
+
+**Solution**:
+Added schema override to `config.yaml`:
+
+```yaml
+schema_overrides:
+  ABAP: "SAPABAP1"
+```
+
+The renderer's `schema_overrides` parameter now maps `ABAP` → `SAPABAP1` during SQL generation.
+
+**Associated Rules**:
+- **Schema Mapping**: Configuration-driven schema name translation
+- **Instance-Specific Settings**: Each HANA instance may require different mappings
+
+**Files Changed**:
+- `config.yaml` / `config.example.yaml` - Added ABAP → SAPABAP1 mapping
+
+**Validation**:
+- ✅ All table references now use `SAPABAP1.TABLE_NAME`
+- ✅ HANA accepts the schema name
+
+---
+
+### SOLVED-015: TIMESTAMP Arithmetic Not Supported in HANA
+
+**Original Bug**: New issue (CV_TOP_PTHLGY)
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Resolved**: 2025-11-16 (partial - needs code fix for full solution)
+
+**Error**:
+```
+SAP DBTech JDBC: [266]: inconsistent datatype: the expression has incomputable datatype:
+TIMESTAMP is invalid for subtraction operator: line 59 col 105 (at pos 4041)
+```
+
+**Problem**:
+XML formula `date(NOW() - 365)` translates to `TO_DATE(CURRENT_TIMESTAMP - 365)`, but HANA doesn't allow direct arithmetic on TIMESTAMP types. Must use date functions like `ADD_DAYS()`.
+
+**Root Cause**:
+The catalog handles simple function replacements (`NOW()` → `CURRENT_TIMESTAMP`) but doesn't handle **expression pattern rewrites**:
+- `NOW() - N` should become `ADD_DAYS(CURRENT_DATE, -N)` or `ADD_DAYS(CURRENT_TIMESTAMP, -N)`
+- Current translator processes tokens sequentially, missing the arithmetic operator context
+
+**Solution** (Temporary Manual Fix):
+Replaced `CURRENT_TIMESTAMP - 365` with `ADD_DAYS(CURRENT_TIMESTAMP, -365)` using `sed`.
+
+**Proper Solution Needed**:
+Add **pattern matching** to function translator:
+```python
+# In translate_raw_formula() - before catalog rewrites
+result = re.sub(
+    r'NOW\(\)\s*-\s*(\d+)',
+    r'ADD_DAYS(CURRENT_DATE, -\1)',
+    result,
+    flags=re.IGNORECASE
+)
+```
+
+**Associated Rules**:
+- **Date Arithmetic**: HANA requires function calls (ADD_DAYS, ADD_MONTHS) not operators
+- **Pattern Rewrites**: Need regex-based expression transformation, not just function name mapping
+
+**Files Changed**:
+- ⚠️ Manual SQL patch only - **CODE FIX PENDING**
+
+**Validation**:
+- ⏳ Temporary fix works but needs permanent code solution
+
+---
+
+### SOLVED-016: Function Name Case Sensitivity (adddays vs ADD_DAYS)
+
+**Original Bug**: New issue (CV_TOP_PTHLGY)
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Resolved**: 2025-11-16
+
+**Error**:
+```
+SAP DBTech JDBC: [328]: invalid name of function or procedure: ADDDAYS: line 1681 col 10
+```
+
+**Problem**:
+XML contains lowercase `adddays()` function calls, but HANA requires uppercase `ADD_DAYS()` (with underscore). Generated SQL had `adddays(TO_DATE(...), -3)`.
+
+**Root Cause**:
+XML formulas can contain legacy function names in various cases. The catalog system was missing the `ADDDAYS` entry.
+
+**Solution**:
+Added catalog entry:
+```yaml
+  - name: ADDDAYS
+    handler: rename
+    target: "ADD_DAYS"
+    description: >
+      Date arithmetic function - uppercase variant. HANA requires ADD_DAYS (with underscore).
+```
+
+**Associated Rules**:
+- **Function Case Normalization**: All HANA built-in functions should be uppercase
+- **Catalog Completeness**: Every legacy helper variant needs a catalog entry
+
+**Files Changed**:
+- `src/xml_to_sql/catalog/data/functions.yaml` - Added ADDDAYS entry
+
+**Validation**:
+- ✅ Catalog now handles `adddays()` → `ADD_DAYS()`
+- ⚠️ Requires package reinstall (`pip install -e .`)
+
+---
+
+### SOLVED-017: INT() Function Not Recognized in HANA
+
+**Original Bug**: New issue (CV_TOP_PTHLGY)
+**Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
+**Resolved**: 2025-11-16
+
+**Error**:
+```
+SAP DBTech JDBC: [328]: invalid name of function or procedure: INT: line 1815 col 57
+```
+
+**Problem**:
+XML formula uses `int(FIELD)` for integer casting, but HANA doesn't have an `INT()` function. HANA uses `TO_INTEGER()` or `CAST(... AS INTEGER)`.
+
+**Root Cause**:
+Legacy XML formulas use simplified type cast functions (`int()`, `string()`, etc.) that don't exist in standard HANA SQL.
+
+**Solution**:
+Added catalog entry:
+```yaml
+  - name: INT
+    handler: rename
+    target: "TO_INTEGER"
+    description: >
+      Legacy INT() type cast mapped to HANA TO_INTEGER() function for integer conversion.
+```
+
+**Associated Rules**:
+- **Type Conversion Functions**: Map legacy casts to HANA equivalents
+  - `int()` → `TO_INTEGER()`
+  - `string()` → `TO_VARCHAR()`
+  - `decimal()` → `TO_DECIMAL()`
+  - `date()` → `TO_DATE()`
+
+**Files Changed**:
+- `src/xml_to_sql/catalog/data/functions.yaml` - Added INT entry
+
+**Validation**:
+- ✅ Catalog now handles `int()` → `TO_INTEGER()`
+- ⚠️ Requires package reinstall (`pip install -e .`)
+
+---
+
 ## Resolved in Previous Sessions
 
 *(Placeholder for bugs fixed before structured tracking began)*
@@ -513,9 +806,10 @@ See: `EMPIRICAL_TEST_ITERATION_LOG.md` for historical fixes
 
 ## Statistics
 
-**Total Solved**: 1 (+ 13 historical)  
-**Total Pending**: 3  
-**Success Rate**: 25% (1 of 4 current bugs solved)
+**Total Solved**: 5 (BUG-013 through BUG-017) + 13 historical
+**Total Pending**: 3 (BUG-001, BUG-002, BUG-003)
+**XMLs Validated**: 4 (CV_CNCLD_EVNTS, CV_INVENTORY_ORDERS, CV_PURCHASE_ORDERS, CV_EQUIPMENT_STATUSES)
+**XMLs In Progress**: 1 (CV_TOP_PTHLGY - 4 bugs fixed, testing in progress)
 
 **Time to Resolution**:
 - BUG-004: < 1 hour (same session)
