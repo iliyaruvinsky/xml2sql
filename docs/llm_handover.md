@@ -820,19 +820,25 @@ pytest tests/test_sql_validator.py -v
    - View created as `SAPABAP1.CV_EQUIPMENT_STATUSES`
    - Function mappings + schema-qualified view header verified in HANA
 
-### In Progress XMLs
-1. ⏳ **CV_TOP_PTHLGY.xml** (BW/BID) - Rank-heavy ColumnView with 2139 lines
-   - **Status**: 4 bugs fixed (BUG-013 through BUG-017), testing in HANA
+### Recently Validated XMLs
+
+#### 5. ✅ **CV_TOP_PTHLGY.xml** (BW/BID) - SUCCESS!
+   - **Lines**: 2139 (largest XML to date)
+   - **Execution**: DROP 23ms + CREATE **198ms** = 221ms total
+   - **Validated**: 2025-11-16
+   - **Complexity**: Rank-heavy ColumnView with multiple date arithmetic patterns
+   - **Bugs Fixed**: BUG-013 through BUG-017 (5 total)
    - **Fixes Applied**:
-     - STRING → TO_VARCHAR catalog mapping
-     - ABAP → SAPABAP1 schema override
-     - ADDDAYS → ADD_DAYS catalog mapping
-     - INT → TO_INTEGER catalog mapping
-     - Manual fix for TIMESTAMP arithmetic (needs code pattern matching)
-   - **Current Error**: Unknown (awaiting HANA test results)
-   - **Critical Discovery**: Need **expression pattern matching system**, not just function name mapping
+     - ✅ STRING → TO_VARCHAR catalog mapping (BUG-013)
+     - ✅ ABAP → SAPABAP1 schema override (BUG-014)
+     - ✅ TIMESTAMP arithmetic - manual fix (BUG-015, needs pattern system)
+     - ✅ ADDDAYS → ADD_DAYS catalog mapping (BUG-016)
+     - ✅ INT → TO_INTEGER catalog mapping (BUG-017)
+   - **Critical Discovery**: Need **expression pattern matching system** for date arithmetic
      - `NOW() - N` → `ADD_DAYS(CURRENT_DATE, -N)` cannot be handled by current catalog
-     - Need regex-based formula transformation before token-level rewrites
+     - Pattern matching design complete (see `PATTERN_MATCHING_DESIGN.md`)
+     - Manual `sed` patches required for this XML (not sustainable)
+   - **Schema**: `"_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_TOP_PTHLGY"`
 
 ### Deferred XMLs (Known Issues)
 1. 🔴 **CV_MCM_CNTRL_Q51.xml** (ECC/MBD) - Complex DATE() parameter patterns, Claude Code agent fixing
@@ -891,4 +897,4 @@ pytest tests/test_sql_validator.py -v
 
 ---
 
-**Last Updated**: 2025-11-16 (Session 2) – **18 bugs fixed total** (BUG-004 through BUG-017 + 4 historical), documented in SOLVED_BUGS.md. **4 XMLs VALIDATED**: CV_CNCLD_EVNTS (243L, 84ms), CV_INVENTORY_ORDERS (220L, 34ms), CV_PURCHASE_ORDERS (~220L, 29ms), CV_EQUIPMENT_STATUSES (170L, 32ms). **1 XML IN PROGRESS**: CV_TOP_PTHLGY (2139L, 5 bugs fixed - BUG-013 through BUG-017, awaiting HANA validation). **Session 2 Achievements (2025-11-16)**: Fixed BUG-013 (STRING→TO_VARCHAR), BUG-014 (ABAP→SAPABAP1 schema), BUG-015 (TIMESTAMP arithmetic - ⚠️ manual fix, needs pattern matching), BUG-016 (ADDDAYS→ADD_DAYS), BUG-017 (INT→TO_INTEGER). Added 3 catalog entries (STRING, INT, ADDDAYS), added schema override to config. **CRITICAL DISCOVERY**: Current catalog system cannot handle expression pattern rewrites (e.g., `NOW() - N` → `ADD_DAYS()`). Need pattern matching system implementation before continuing with more XMLs. **NEXT STEPS**: (1) Validate CV_TOP_PTHLGY in HANA, (2) STOP and implement pattern matching system, (3) Add `patterns.yaml` catalog, (4) Extend `translate_raw_formula()` with `_apply_pattern_rewrites()` phase. **Files Modified This Session**: `src/xml_to_sql/catalog/data/functions.yaml` (added 3 entries), `config.yaml` (schema override), `SOLVED_BUGS.md` (documented 5 new bugs), `docs/llm_handover.md` (this file). **Known Pending Code Fixes**: Pattern matching for date arithmetic, CLI config setup issue (scenario not found). **Deferred**: CV_MCM_CNTRL_Q51 (BUG-002), CV_CT02_CT03 (BUG-003).
+**Last Updated**: 2025-11-16 (Session 2 - COMPLETE) – **🎉 5 XMLs VALIDATED SUCCESSFULLY!** CV_CNCLD_EVNTS (243L, 84ms), CV_INVENTORY_ORDERS (220L, 34ms), CV_PURCHASE_ORDERS (~220L, 29ms), CV_EQUIPMENT_STATUSES (170L, 32ms), **CV_TOP_PTHLGY (2139L, 198ms)** ⭐. **18 bugs fixed total** (BUG-004 through BUG-017 + 4 historical), all documented in SOLVED_BUGS.md. **Session 2 Achievements**: Fixed 5 bugs (BUG-013 through BUG-017), validated CV_TOP_PTHLGY (largest/most complex XML to date), created complete pattern matching design (`PATTERN_MATCHING_DESIGN.md`), added 4 new conversion rules (Rules 14-17 in HANA_CONVERSION_RULES.md), added schema override system (config.example.yaml). **Catalog Enhancements**: Added STRING→TO_VARCHAR, INT→TO_INTEGER, ADDDAYS→ADD_DAYS mappings (⚠️ requires `pip install -e .` to take effect). **CRITICAL DISCOVERY**: Current catalog handles function name rewrites but NOT expression pattern rewrites. Pattern matching system design complete and ready for implementation (2-3 hour effort). **Manual Fixes Required This Session**: TIMESTAMP arithmetic (`NOW() - N` → `ADD_DAYS()`) - handled with `sed` patches, not sustainable. **RECOMMENDATION**: Implement pattern matching system before processing more XMLs. **Next Steps Options**: (A) Implement pattern matching (2-3 hrs), then process remaining XMLs systematically, OR (B) Continue with deferred XMLs accepting manual patches required. **Files Modified**: PATTERN_MATCHING_DESIGN.md (new), SOLVED_BUGS.md (+300 lines), HANA_CONVERSION_RULES.md (+185 lines), config.example.yaml (schema override), llm_handover.md (this file). **Committed**: Git commit `14072b5` - "SUCCESS: CV_TOP_PTHLGY (2139L, 198ms) + 5 bugs fixed + pattern matching design". **Deferred XMLs**: CV_MCM_CNTRL_Q51 (BUG-002 - complex DATE params), CV_CT02_CT03 (BUG-003 - REGEXP_LIKE params).
