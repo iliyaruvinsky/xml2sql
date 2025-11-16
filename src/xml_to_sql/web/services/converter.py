@@ -76,6 +76,7 @@ def convert_xml_to_sql(
     client: str = "PROD",
     language: str = "EN",
     schema_overrides: Optional[dict[str, str]] = None,
+    view_schema: Optional[str] = "_SYS_BIC",
     currency_udf_name: Optional[str] = None,
     currency_rates_table: Optional[str] = None,
     currency_schema: Optional[str] = None,
@@ -92,6 +93,7 @@ def convert_xml_to_sql(
         client: Default client value
         language: Default language value
         schema_overrides: Dictionary of schema name overrides
+        view_schema: Schema where generated view should be created (HANA mode)
         currency_udf_name: Currency conversion UDF name
         currency_rates_table: Exchange rates table name
         currency_schema: Schema for currency artifacts
@@ -291,6 +293,17 @@ def convert_xml_to_sql(
             "logical_model_present": logical_model_present,
         })
 
+        # Determine view name / schema placement
+        scenario_id = scenario_ir.metadata.scenario_id or "GENERATED_VIEW"
+        effective_view_schema = (view_schema.strip() if view_schema else None)
+        if mode_enum == DatabaseMode.HANA:
+            # Default schema for HANA views is SAPABAP1 unless explicitly overridden
+            if effective_view_schema is None:
+                effective_view_schema = "SAPABAP1"
+        qualified_view_name = (
+            f"{effective_view_schema}.{scenario_id}" if effective_view_schema else scenario_id
+        )
+
         # Stage 3: Generate SQL
         start_ms, start_dt = _start_stage("Generate SQL")
         
@@ -311,7 +324,7 @@ def convert_xml_to_sql(
             hana_version=hana_version_enum,
             xml_format=xml_format,
             create_view=True,
-            view_name=scenario_ir.metadata.scenario_id,
+            view_name=qualified_view_name,
             currency_udf=currency_udf_name,
             currency_schema=currency_schema,
             currency_table=currency_rates_table,

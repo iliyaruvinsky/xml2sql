@@ -16,6 +16,7 @@ class ConversionConfig(BaseModel):
     client: str = Field(default="PROD", description="Default client value")
     language: str = Field(default="EN", description="Default language value")
     schema_overrides: Dict[str, str] = Field(default_factory=dict, description="Schema name overrides")
+    view_schema: Optional[str] = Field(default="_SYS_BIC", description="Schema where generated view should be created")
     currency_udf_name: Optional[str] = Field(default=None, description="Currency conversion UDF name")
     currency_rates_table: Optional[str] = Field(default=None, description="Exchange rates table name")
     currency_schema: Optional[str] = Field(default=None, description="Schema for currency artifacts")

@@ -1,0 +1,127 @@
+PROJECT CONSISTENCY VALIDATION REPORT
+======================================================================
+
+ERRORS: 104
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: models.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: sql/validator.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: renderer.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: sql/renderer.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: validator.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: sql/corrector.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: validator.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: sql/__init__.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: validator.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: corrector.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: models.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: models.py
+  [ERROR] MISSING_FILE: AUDIT_REPORT.md references missing file: models.py
+  [ERROR] MISSING_FILE: AUTO_CORRECTION_TESTING_GUIDE.md references missing file: python run_server.py
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_SOLD_MATERIALS.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_SALES_BOM.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_RECENTLY_CREATED_PRODUCTS.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_KMDM_MATERIALS.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_CURRENT_MAT_SORT.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_MATERIAL_DETAILS.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_SOLD_MATERIALS_PROD.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: 01_V_C_SOLD_MATERIALS.sql
+  [ERROR] MISSING_FILE: CLIENT_DEPLOYMENT_GUIDE.md references missing file: V_C_SOLD_MATERIALS.sql
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: src/xml_to_sql/catalog/data/conversion_rules.yaml
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: src/xml_to_sql/catalog/rules_engine.py
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: conversion_rules.yaml
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: HANA_MODE_CONVERSION_RULES.md
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: conversion_rules.yaml
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: src/xml_to_sql/catalog/rules_engine.py
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: src/xml_to_sql/catalog/data/conversion_rules.yaml
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: HANA_MODE_CONVERSION_RULES.md
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: src/xml_to_sql/catalog/rules_engine.py
+  [ERROR] MISSING_FILE: CONVERSION_RULES_IMPLEMENTATION_PLAN.md references missing file: src/xml_to_sql/catalog/transformation_tracker.py
+  [ERROR] MISSING_FILE: FEATURE_SUPPORT_MAP.md references missing file: HANA_MODE_CONVERSION_RULES.md
+  [ERROR] MISSING_FILE: FEATURE_SUPPORT_MAP.md references missing file: HANA_MODE_CONVERSION_RULES.md
+  [ERROR] MISSING_FILE: FEATURE_SUPPORT_MAP.md references missing file: HANA_MODE_CONVERSION_RULES.md
+  [ERROR] MISSING_FILE: FINAL_SESSION_STATUS.md references missing file: column_view_parser.py
+  [ERROR] MISSING_FILE: FINAL_SESSION_STATUS.md references missing file: src/xml_to_sql/catalog/data/conversion_rules.yaml
+  [ERROR] MISSING_FILE: FINAL_SESSION_STATUS.md references missing file: src/xml_to_sql/config/*.py
+  [ERROR] MISSING_FILE: FINAL_SESSION_STATUS.md references missing file: column_view_parser.py
+  [ERROR] MISSING_FILE: HANA_CONVERSION_RULES.md references missing file: cli/app.py
+  [ERROR] MISSING_FILE: HANA_CONVERSION_RULES.md references missing file: web/services/converter.py
+  [ERROR] MISSING_FILE: HANA_CONVERSION_RULES.md references missing file: parser/column_view_parser.py
+  [ERROR] MISSING_FILE: HANA_CONVERSION_RULES.md references missing file: functions.yaml
+  [ERROR] MISSING_FILE: HANA_CONVERSION_RULES.md references missing file: functions.yaml
+  [ERROR] MISSING_FILE: HANA_CONVERSION_RULES.md references missing file: src/xml_to_sql/catalog/data/conversion_rules.yaml
+  [ERROR] MISSING_FILE: JOIN_FIX_REPORT.md references missing file: scenario_parser.py
+  [ERROR] MISSING_FILE: JOIN_FIX_REPORT.md references missing file: scenario_parser.py
+  [ERROR] MISSING_FILE: MANUAL_TESTING_GUIDE.md references missing file: config.test.yaml
+  [ERROR] MISSING_FILE: PARAMETER_HANDLING_STRATEGY.md references missing file: src/xml_to_sql/sql/hana_function_renderer.py
+  [ERROR] MISSING_FILE: PARAMETER_HANDLING_STRATEGY.md references missing file: HANA_MODE_CONVERSION_RULES.md
+  [ERROR] MISSING_FILE: PARAMETER_HANDLING_STRATEGY.md references missing file: src/xml_to_sql/sql/hana_function_renderer.py
+  [ERROR] MISSING_FILE: PARAMETER_HANDLING_STRATEGY.md references missing file: docs/HANA_PARAMETERIZED_VIEWS.md
+  [ERROR] MISSING_FILE: PATTERN_MATCHING_DESIGN.md references missing file: functions.yaml
+  [ERROR] MISSING_FILE: PATTERN_MATCHING_DESIGN.md references missing file: function_translator.py
+  [ERROR] MISSING_FILE: PATTERN_MATCHING_DESIGN.md references missing file: tests/test_pattern_rewrites.py
+  [ERROR] MISSING_FILE: PATTERN_MATCHING_DESIGN.md references missing file: patterns.yaml
+  [ERROR] MISSING_FILE: SAP_INSTANCE_TYPE_STRATEGY.md references missing file: src/xml_to_sql/bw/naming_conventions.py
+  [ERROR] MISSING_FILE: SAP_INSTANCE_TYPE_STRATEGY.md references missing file: src/xml_to_sql/catalog/data/conversion_rules.yaml
+  [ERROR] MISSING_FILE: SESSION_SUMMARY_2025-11-13.md references missing file: src/xml_to_sql/catalog/data/conversion_rules.yaml
+  [ERROR] MISSING_FILE: SNOWFLAKE_CONVERSION_RULES.md references missing file: catalog/data/functions.yaml
+  [ERROR] MISSING_FILE: SNOWFLAKE_CONVERSION_RULES.md references missing file: catalog/data/functions.yaml
+  [ERROR] MISSING_FILE: SNOWFLAKE_CONVERSION_RULES.md references missing file: src/xml_to_sql/catalog/data/conversion_rules.yaml
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: column_view_parser.py
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: functions.yaml
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: web/api/routes.py
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: web/services/converter.py
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: Target (SQL Scripts)/CV_{CNCLD_EVNTS,INVENTORY_ORDERS,PURCHASE_ORDERS,EQUIPMENT_STATUSES}.sql
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: function_translator.py
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: function_translator.py
+  [ERROR] MISSING_FILE: SOLVED_BUGS.md references missing file: function_translator.py
+  [ERROR] MISSING_FILE: SQL_VALIDATION_ENHANCEMENT_PLAN.md references missing file: type_inference.py
+  [ERROR] MISSING_FILE: TESTING_SUMMARY.md references missing file: venv\Scripts\python -m xml_to_sql.cli.app list --config config.yaml
+  [ERROR] MISSING_FILE: TEST_VERIFICATION_REPORT.md references missing file: config.test.yaml
+  [ERROR] MISSING_FILE: TEST_VERIFICATION_REPORT.md references missing file: V_C_KMDM_MATERIALS.sql
+  [ERROR] MISSING_FILE: TEST_VERIFICATION_REPORT.md references missing file: V_C_RECENTLY_CREATED_PRODUCTS.sql
+  [ERROR] MISSING_FILE: TEST_VERIFICATION_REPORT.md references missing file: venv\Scripts\python -m xml_to_sql.cli convert --config config.yaml
+  [ERROR] MISSING_FILE: TEST_VERIFICATION_REPORT.md references missing file: V_C_MATERIAL_DETAILS.sql
+  [ERROR] MISSING_FILE: WEB_GUI_IMPLEMENTATION_SUMMARY.md references missing file: python run_server.py
+  [ERROR] MISSING_FILE: WEB_GUI_IMPLEMENTATION_SUMMARY.md references missing file: python run_server.py
+  [ERROR] MISSING_FILE: conversion_pipeline.md references missing file: <scenario_id>.sql
+  [ERROR] MISSING_FILE: conversion_pipeline.md references missing file: Source (XML Files)/*.xml|*.md|*.txt
+  [ERROR] MISSING_FILE: conversion_pipeline.md references missing file: Target (SQL Scripts)/<scenario_id>.sql
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: pytest --ignore=tests/test_sql_validator.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: validator.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: db.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: tests/test_sql_corrector.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: db.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: tests/test_sql_corrector.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: conversion_rules.yaml
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: function_translator.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: tests/test_sql_corrector.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: resources/catalog/*.yaml
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: tests/test_sql_corrector.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: conversion_rules.yaml
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: renderer.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: converter.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: converter.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: corrector.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: validator.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: db.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: db.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: function_translator.py
+  [ERROR] MISSING_FILE: llm_handover.md references missing file: renderer.py
+
+WARNINGS: 8
+  [WARN] DUPLICATE_NAMES: Similar documentation names: ['README.md', 'README.md']
+  [WARN] DUPLICATE_NAMES: Similar documentation names: ['TESTING_SUMMARY.md', 'TESTING.md']
+  [WARN] TEMP_DOC: Potentially temporary doc: TESTING_SUMMARY.md
+  [WARN] TEMP_DOC: Potentially temporary doc: TEST_VERIFICATION_REPORT.md
+  [WARN] MISPLACED_TEST: Test file in root: test_pattern_matching.py
+  [WARN] MISPLACED_TEST: Test file in root: test_string_fix.py
+  [WARN] MISPLACED_TEST: Test file in root: test_validation_api.py
+  [WARN] TEMP_FILE: Temporary SQL file: test_output.sql
+
+INFO: 7
+  [INFO] CATALOG: functions.yaml exists
+  [INFO] CATALOG: patterns.yaml exists
+  [INFO] CATALOG: loader.py references functions.yaml
+  [INFO] CATALOG: pattern_loader.py references patterns.yaml
+  [INFO] CACHE: Found 63 __pycache__ directories
+  [INFO] CONFIG: config.yaml exists
+  [INFO] CONFIG: config.example.yaml exists

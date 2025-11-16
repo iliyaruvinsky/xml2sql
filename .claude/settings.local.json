@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python validate_project_consistency.py:*)",
+      "Bash(git mv:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

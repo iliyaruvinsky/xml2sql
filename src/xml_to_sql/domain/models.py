@@ -81,6 +81,7 @@ class NodeKind(str, Enum):
     AGGREGATION = "AGGREGATION"
     CALCULATION = "CALCULATION"
     UNION = "UNION"
+    RANK = "RANK"
 
 
 @dataclass(slots=True)
@@ -135,6 +136,20 @@ class UnionNode(Node):
     """Union node with multiple inputs that are combined with UNION ALL."""
 
     union_all: bool = True
+
+
+@dataclass(slots=True)
+class OrderBySpec:
+    column: str
+    direction: str = "ASC"
+
+
+@dataclass(slots=True)
+class RankNode(Node):
+    partition_by: List[str] = field(default_factory=list)
+    order_by: List[OrderBySpec] = field(default_factory=list)
+    rank_column: str = "RANK_COLUMN"
+    threshold: Optional[int] = None
 
 
 @dataclass(slots=True)
@@ -281,6 +296,8 @@ __all__ = [
     "SnowflakeType",
     "DataTypeSpec",
     "UnionNode",
+    "OrderBySpec",
+    "RankNode",
     "Variable",
 ]
 

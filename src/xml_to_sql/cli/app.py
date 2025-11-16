@@ -74,6 +74,8 @@ def convert(
             client = scenario_cfg.overrides.effective_client(config_obj.default_client)
             language = scenario_cfg.overrides.effective_language(config_obj.default_language)
             output_name = scenario_cfg.output_name or scenario_cfg.id
+            view_schema = scenario_cfg.overrides.effective_schema(config_obj.default_view_schema)
+            qualified_view_name = f"{view_schema}.{output_name}" if view_schema else output_name
             
             # Detect if this is a BW object
             instance_type = scenario_cfg.instance_type or "auto"
@@ -130,7 +132,7 @@ def convert(
             except Exception:
                 xml_format = None
 
-            sql_content = render_scenario(
+                sql_content = render_scenario(
                 scenario_ir,
                 schema_overrides=config_obj.schema_overrides,
                 client=client,
@@ -139,7 +141,7 @@ def convert(
                 hana_version=hana_ver_enum,
                 xml_format=xml_format,
                 create_view=True,
-                view_name=output_name,
+                    view_name=qualified_view_name,
                 currency_udf=config_obj.currency.udf_name,
                 currency_schema=config_obj.currency.schema,
                 currency_table=config_obj.currency.rates_table,

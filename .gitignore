@@ -60,6 +60,9 @@ logs/
 *.tmp
 *.bak
 *.swp
+test_output.sql
+test_*.sql
+temp*.sql
 
 # OS
 Thumbs.db

@@ -25,8 +25,10 @@ from ..domain import (
     LogicalModel,
     Node,
     NodeKind,
+    OrderBySpec,
     Predicate,
     PredicateKind,
+    RankNode,
     Scenario,
     ScenarioMetadata,
     SnowflakeType,
@@ -192,6 +194,23 @@ def _parse_view_node(scenario: Scenario, node_el: etree._Element) -> Node:
             output_attributes=output_attributes,
             view_attributes=view_attributes,
             calculated_attributes=calculated_attributes,
+        )
+
+    if node_type.endswith("Rank"):
+        partition_cols, order_specs, rank_column, threshold = _parse_rank_window(node_el)
+        return RankNode(
+            node_id=node_name,
+            kind=NodeKind.RANK,
+            inputs=inputs,
+            mappings=mappings,
+            filters=filters,
+            output_attributes=output_attributes,
+            view_attributes=view_attributes,
+            calculated_attributes=calculated_attributes,
+            partition_by=partition_cols,
+            order_by=order_specs,
+            rank_column=rank_column,
+            threshold=threshold,
         )
 
     return Node(
@@ -394,6 +413,53 @@ def _parse_join_conditions(node_el: etree._Element, inputs: List[str]) -> List[J
         ))
     
     return conditions
+
+
+def _extract_column_name(ref: Optional[str]) -> Optional[str]:
+    if not ref:
+        return None
+    cleaned = _clean_ref(ref)
+    return cleaned.split("/")[-1] if "/" in cleaned else cleaned
+
+
+def _parse_rank_window(node_el: etree._Element) -> Tuple[List[str], List[OrderBySpec], str, Optional[int]]:
+    window_el = node_el.find("./view:windowFunction", namespaces=_NS) or node_el.find("./windowFunction")
+    partition_cols: List[str] = []
+    order_specs: List[OrderBySpec] = []
+    rank_column = "RANK_COLUMN"
+    threshold: Optional[int] = None
+
+    if window_el is None:
+        return partition_cols, order_specs, rank_column, threshold
+
+    for partition_el in window_el.findall("./view:partitionElement", namespaces=_NS) + window_el.findall("./partitionElement"):
+        col_name = _extract_column_name(partition_el.text)
+        if col_name:
+            partition_cols.append(col_name)
+
+    for order_el in window_el.findall("./view:order", namespaces=_NS) + window_el.findall("./order"):
+        by_element = order_el.get("byElement")
+        col_name = _extract_column_name(by_element)
+        if col_name:
+            direction = order_el.get("direction", "ASC").upper()
+            order_specs.append(OrderBySpec(column=col_name, direction=direction))
+
+    rank_el = window_el.find("./view:rankElement", namespaces=_NS) or window_el.find("./rankElement")
+    if rank_el is not None and rank_el.text:
+        rank_col_name = _extract_column_name(rank_el.text)
+        if rank_col_name:
+            rank_column = rank_col_name
+
+    threshold_el = window_el.find("./view:rankThreshold", namespaces=_NS) or window_el.find("./rankThreshold")
+    if threshold_el is not None:
+        constant_el = threshold_el.find("./view:constantValue", namespaces=_NS) or threshold_el.find("./constantValue")
+        if constant_el is not None and constant_el.text:
+            try:
+                threshold = int(constant_el.text.strip())
+            except ValueError:
+                threshold = None
+
+    return partition_cols, order_specs, rank_column, threshold
 
 
 def _collect_aggregations(elements: Dict[str, ElementInfo]) -> Tuple[List[str], List[AggregationSpec]]:

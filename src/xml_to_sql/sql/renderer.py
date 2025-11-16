@@ -18,6 +18,7 @@ from ..domain import (
     NodeKind,
     Predicate,
     PredicateKind,
+    RankNode,
     Scenario,
     UnionNode,
 )
@@ -349,6 +350,8 @@ def _render_node(ctx: RenderContext, node: Node) -> str:
         return _render_aggregation(ctx, node)
     if node.kind == NodeKind.UNION and isinstance(node, UnionNode):
         return _render_union(ctx, node)
+    if node.kind == NodeKind.RANK and isinstance(node, RankNode):
+        return _render_rank(ctx, node)
     if node.kind == NodeKind.CALCULATION:
         return _render_calculation(ctx, node)
 
@@ -370,9 +373,11 @@ def _render_projection(ctx: RenderContext, node: Node) -> str:
     from_clause = _render_from(ctx, input_id)
 
     columns: List[str] = []
+    target_sql_map: Dict[str, str] = {}
     for mapping in node.mappings:
         col_expr = _render_expression(ctx, mapping.expression, from_clause)
         columns.append(f"{col_expr} AS {_quote_identifier(mapping.target_name)}")
+        target_sql_map[mapping.target_name.upper()] = col_expr
 
     # Collect calculated column names and build a map for expansion
     calc_column_names = set()
@@ -386,23 +391,24 @@ def _render_projection(ctx: RenderContext, node: Node) -> str:
         expanded_expr = calc_attr.expression
         
         # If this is a RAW expression, expand any calculated column references
-        if expanded_expr.expression_type == ExpressionType.RAW and calc_column_map:
+        if expanded_expr.expression_type == ExpressionType.RAW:
             formula = expanded_expr.value
+            import re
             # Replace references to previously defined calculated columns
             for prev_calc_name, prev_calc_expr in calc_column_map.items():
-                # Replace "PREV_CALC_NAME" with the actual expression
-                import re
                 pattern = rf'"{re.escape(prev_calc_name)}"'
                 if re.search(pattern, formula, re.IGNORECASE):
-                    # Found reference - replace with the expression
                     formula = re.sub(pattern, f'({prev_calc_expr})', formula, flags=re.IGNORECASE)
-            
-            # Create new expression with expanded formula
+            # Replace references to mapped columns
+            for target_name, source_expr in target_sql_map.items():
+                pattern = rf'"{re.escape(target_name)}"'
+                if re.search(pattern, formula, re.IGNORECASE):
+                    formula = re.sub(pattern, source_expr, formula, flags=re.IGNORECASE)
             expanded_expr = Expression(
                 expression_type=ExpressionType.RAW,
                 value=formula,
                 data_type=calc_attr.expression.data_type,
-                language=calc_attr.expression.language
+                language=calc_attr.expression.language,
             )
         
         calc_expr = _render_expression(ctx, expanded_expr, from_clause)
@@ -733,6 +739,56 @@ def _render_union(ctx: RenderContext, node: UnionNode) -> str:
     return sql
 
 
+def _render_rank(ctx: RenderContext, node: RankNode) -> str:
+    """Render a rank/window node to SQL."""
+
+    if not node.inputs:
+        ctx.warnings.append(f"Rank {node.node_id} has no inputs")
+        return "SELECT 1 AS placeholder"
+
+    input_id = node.inputs[0].lstrip("#")
+    from_clause = _render_from(ctx, input_id)
+
+    select_items: List[str] = []
+    for mapping in node.mappings:
+        col_expr = _render_expression(ctx, mapping.expression, from_clause)
+        select_items.append(f"{col_expr} AS {_quote_identifier(mapping.target_name)}")
+
+    partition_exprs = [
+        _render_column_ref(ctx, col, from_clause) for col in node.partition_by if col
+    ]
+    order_exprs: List[str] = []
+    for order_spec in node.order_by:
+        order_col = _render_column_ref(ctx, order_spec.column, from_clause)
+        direction = order_spec.direction.upper() if order_spec.direction else "ASC"
+        order_exprs.append(f"{order_col} {direction}")
+    if not order_exprs:
+        order_exprs.append("1")
+
+    window_parts: List[str] = []
+    if partition_exprs:
+        window_parts.append(f"PARTITION BY {', '.join(partition_exprs)}")
+    window_parts.append(f"ORDER BY {', '.join(order_exprs)}")
+    window_clause = " ".join(window_parts)
+
+    rank_expr = f"ROW_NUMBER() OVER ({window_clause})"
+    select_items.append(f"{rank_expr} AS {_quote_identifier(node.rank_column)}")
+
+    select_clause = ",\n    ".join(select_items)
+    select_sql = f"SELECT\n    {select_clause}\nFROM {from_clause}"
+
+    if node.threshold is not None:
+        inner_sql = _indent_sql(select_sql)
+        return (
+            "SELECT * FROM (\n"
+            f"{inner_sql}\n"
+            ") AS ranked\n"
+            f"WHERE {_quote_identifier(node.rank_column)} <= {node.threshold}"
+        )
+
+    return select_sql
+
+
 def _render_calculation(ctx: RenderContext, node: Node) -> str:
     """Render a calculation node (fallback for unsupported node types)."""
 
@@ -759,6 +815,10 @@ def _render_calculation(ctx: RenderContext, node: Node) -> str:
         sql += f"\nWHERE {where_clause}"
 
     return sql
+
+
+def _indent_sql(sql: str, indent: str = "  ") -> str:
+    return "\n".join(f"{indent}{line}" for line in sql.splitlines())
 
 
 def _render_from(ctx: RenderContext, input_id: str) -> str:
@@ -1029,12 +1089,25 @@ def _cleanup_hana_parameter_conditions(where_clause: str) -> str:
     return result
 
 
-def _quote_identifier(name: str) -> str:
-    """Quote a SQL identifier if needed."""
+def _quote_identifier_part(name: str) -> str:
+    """Quote a single identifier component if needed."""
 
+    if not name:
+        return '""'
+
+    sanitized = name
     if name and name[0].isalpha() and name.replace("_", "").isalnum():
-        return name.upper()
-    return f'"{name.upper()}"'
+        return sanitized.upper()
+    return f'"{name}"'
+
+
+def _quote_identifier(name: str) -> str:
+    """Quote an identifier, preserving schema qualification."""
+
+    if "." in name:
+        schema_part, object_part = name.split(".", 1)
+        return f"{_quote_identifier_part(schema_part)}.{_quote_identifier_part(object_part)}"
+    return _quote_identifier_part(name)
 
 
 def _assemble_sql(
@@ -1079,8 +1152,8 @@ def _generate_view_statement(view_name: str, mode: DatabaseMode, scenario: Optio
     elif mode == DatabaseMode.HANA:
         # HANA SQL views don't support parameterized syntax like calculation views
         # Parameters are substituted with default values instead
-        # Use simple CREATE VIEW syntax
-        return f"CREATE VIEW {quoted_name} AS"
+        # HANA doesn't support IF EXISTS in DROP VIEW - use CASCADE to drop view and dependencies
+        return f"DROP VIEW {quoted_name} CASCADE;\nCREATE VIEW {quoted_name} AS"
     else:
         # Default to Snowflake syntax
         return f"CREATE OR REPLACE VIEW {quoted_name} AS"

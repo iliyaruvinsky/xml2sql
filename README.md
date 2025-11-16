@@ -214,23 +214,52 @@ pytest tests/test_config_loader.py -v
 
 See [MANUAL_TESTING_GUIDE.md](MANUAL_TESTING_GUIDE.md) for comprehensive manual testing instructions.
 
+## Documentation
+
+### Core Documentation
+- **[QUICK_START.md](QUICK_START.md)** - 5-minute setup guide
+- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Developer reference and navigation
+- **[INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)** - Complete installation instructions
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and releases
+
+### Technical Documentation
+- **[docs/llm_handover.md](docs/llm_handover.md)** - LLM development handover (authoritative)
+- **[docs/rules/HANA_CONVERSION_RULES.md](docs/rules/HANA_CONVERSION_RULES.md)** - HANA-specific conversion rules
+- **[docs/rules/SNOWFLAKE_CONVERSION_RULES.md](docs/rules/SNOWFLAKE_CONVERSION_RULES.md)** - Snowflake-specific conversion rules
+- **[docs/bugs/BUG_TRACKER.md](docs/bugs/BUG_TRACKER.md)** - Active bug tracking
+- **[docs/bugs/SOLVED_BUGS.md](docs/bugs/SOLVED_BUGS.md)** - Solved bugs archive
+- **[docs/implementation/PATTERN_MATCHING_DESIGN.md](docs/implementation/PATTERN_MATCHING_DESIGN.md)** - Pattern matching system design
+
+### Architecture Documentation
+- **[docs/conversion_pipeline.md](docs/conversion_pipeline.md)** - Conversion pipeline architecture
+- **[docs/converter_flow.md](docs/converter_flow.md)** - Converter flow diagram
+- **[docs/ir_design.md](docs/ir_design.md)** - Intermediate representation design
+
 ## Project Structure
 
 ```
 xml2sql/
 ├── src/
 │   └── xml_to_sql/
-│       ├── cli/              # Command-line interface
-│       ├── config/            # Configuration management
-│       ├── domain/            # Intermediate representation models
-│       ├── parser/            # XML parsing logic
-│       └── sql/               # SQL generation
-├── tests/                     # Unit and integration tests
-├── docs/                      # Documentation
-├── Source (XML Files)/        # Input XML files
-├── Target (SQL Scripts)/     # Generated SQL files
-├── config.example.yaml        # Example configuration
-└── pyproject.toml            # Project metadata and dependencies
+│       ├── cli/                    # Command-line interface
+│       ├── config/                 # Configuration management
+│       ├── domain/                 # Intermediate representation models
+│       ├── parser/                 # XML parsing logic
+│       ├── sql/                    # SQL generation and validation
+│       └── catalog/                # Conversion catalogs (functions, patterns)
+│           └── data/
+│               ├── functions.yaml  # Function mapping catalog
+│               └── patterns.yaml   # Expression pattern catalog
+├── tests/                          # Unit and integration tests
+├── docs/                           # Documentation
+│   ├── rules/                      # Conversion rules
+│   ├── bugs/                       # Bug tracking
+│   ├── implementation/             # Implementation guides
+│   └── archive/                    # Historical documents
+├── Source (XML Files)/             # Input XML files
+├── Target (SQL Scripts)/           # Generated SQL files
+├── config.example.yaml             # Example configuration
+└── pyproject.toml                  # Project metadata and dependencies
 ```
 
 ## Troubleshooting

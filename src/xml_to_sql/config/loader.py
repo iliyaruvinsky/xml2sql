@@ -49,6 +49,7 @@ def load_config(path: str | Path) -> Config:
         schema_overrides=_coerce_str_dict(schema_overrides),
         currency=_parse_currency(currency_data),
         scenarios=_parse_scenarios(scenarios_data, default_mode, default_hana_ver),
+        default_view_schema=str(defaults.get("view_schema", "_SYS_BIC")),
     )
     return config
 

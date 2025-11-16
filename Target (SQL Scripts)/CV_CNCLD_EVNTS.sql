@@ -1,4 +1,5 @@
-CREATE VIEW CV_CNCLD_EVNTS AS
+DROP VIEW SAPABAP1.CV_CNCLD_EVNTS CASCADE;
+CREATE VIEW SAPABAP1.CV_CNCLD_EVNTS AS
 WITH
   ctleqr AS (
     SELECT * FROM (
@@ -36,10 +37,7 @@ WITH
           'מאושר בבקרה' AS VARIANT
       FROM SAPABAP1.ZBW_CTL_HD_RE
     ) AS calc
-    WHERE (calc."BUSOBJ_TYPE" = 'ZMR' AND
-    calc."CONTROL_MODEL" = 'Z02' AND
-    (calc."ZZPROCESS_STAT" = 'R' OR calc."ZZPROCESS_STAT" = 'M') AND
-    (calc."STT_CTRL" = 'AA' OR calc."STT_CTRL" = 'AM') )
+    WHERE (calc."BUSOBJ_TYPE" = 'ZMR' AND calc."CONTROL_MODEL" = 'Z02' AND (calc."ZZPROCESS_STAT" = 'R' OR calc."ZZPROCESS_STAT" = 'M') AND (calc."STT_CTRL" = 'AA' OR calc."STT_CTRL" = 'AM') AND ('''' = '' OR calc."ZZTREAT_DATE" = '''') AND ('''' = '' OR calc."PERID" = '''') AND ('''' = '' OR calc."ZZZPOSITION" = '''') AND ('''' = '' OR calc."ZZ_FA_T_QUOTA" = '''') AND ('''' = '' OR '''' = calc."CALMONTH") AND ('''' = '' OR '''' = calc."CALQUARTER") AND ( '''' = '' OR '''' = calc."CALYEAR"))
   ),
   ctleqa AS (
     SELECT * FROM (
@@ -75,9 +73,7 @@ WITH
           'דחוי בבקרה' AS VARIANT
       FROM SAPABAP1.ZBW_CTL_HD_RE
     ) AS calc
-    WHERE (calc."CONTROL_MODEL" = 'Z02' AND
-    (calc."ZZPROCESS_STAT" = 'A' OR calc."ZZPROCESS_STAT" = 'M') AND
-    (calc."STT_CTRL" = 'RA' OR calc."STT_CTRL" = 'RM') )
+    WHERE (calc."CONTROL_MODEL" = 'Z02' AND (calc."ZZPROCESS_STAT" = 'A' OR calc."ZZPROCESS_STAT" = 'M') AND (calc."STT_CTRL" = 'RA' OR calc."STT_CTRL" = 'RM') AND ('''' = '' OR calc."ZZTREAT_DATE" = '''') AND ('''' = '' OR calc."PERID" = '''') AND ('''' = '' OR calc."ZZZPOSITION" = '''') AND ('''' = '' OR calc."ZZ_FA_T_QUOTA" = '''') AND ('''' = '' OR '''' = calc."CALMONTH") AND ('''' = '' OR '''' = calc."CALQUARTER") AND ( '''' = '' OR '''' = calc."CALYEAR"))
   ),
   ctleqm AS (
     SELECT * FROM (
@@ -113,9 +109,7 @@ WITH
           'ממתין בבקרה' AS VARIANT
       FROM SAPABAP1.ZBW_CTL_HD_RE
     ) AS calc
-    WHERE (calc."CONTROL_MODEL" = 'Z02' AND
-    (calc."ZZPROCESS_STAT" = 'A' OR calc."ZZPROCESS_STAT" = 'R') AND
-    (calc."STT_CTRL" = 'HA' OR calc."STT_CTRL" = 'HM' OR calc."STT_CTRL" = 'MA' OR calc."STT_CTRL" = 'MM') )
+    WHERE (calc."CONTROL_MODEL" = 'Z02' AND (calc."ZZPROCESS_STAT" = 'A' OR calc."ZZPROCESS_STAT" = 'R') AND (calc."STT_CTRL" = 'HA' OR calc."STT_CTRL" = 'HM' OR calc."STT_CTRL" = 'MA' OR calc."STT_CTRL" = 'MM') AND ('''' = '' OR calc."ZZTREAT_DATE" = '''') AND ('''' = '' OR calc."PERID" = '''') AND ('''' = '' OR calc."ZZZPOSITION" = '''') AND ('''' = '' OR calc."ZZ_FA_T_QUOTA" = '''') AND ('''' = '' OR '''' = calc."CALMONTH") AND ('''' = '' OR '''' = calc."CALQUARTER") AND ( '''' = '' OR '''' = calc."CALYEAR"))
   ),
   union_1 AS (
     SELECT

@@ -23,6 +23,9 @@ class ScenarioOverrides:
     def effective_language(self, default_language: str) -> str:
         return self.language or default_language
 
+    def effective_schema(self, default_schema: Optional[str]) -> Optional[str]:
+        return self.schema or default_schema
+
 
 @dataclass(slots=True)
 class ScenarioConfig:
@@ -65,6 +68,7 @@ class Config:
     default_database_mode: DatabaseMode = DatabaseMode.SNOWFLAKE
     default_hana_version: HanaVersion = HanaVersion.HANA_2_0
     schema_overrides: Dict[str, str] = field(default_factory=dict)
+    default_view_schema: Optional[str] = None
     currency: CurrencyConfig = field(default_factory=CurrencyConfig)
     scenarios: List[ScenarioConfig] = field(default_factory=list)
 
