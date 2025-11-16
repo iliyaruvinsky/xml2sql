@@ -7,7 +7,7 @@ from typing import List, Optional, Sequence, Tuple
 
 from ..domain import Expression, ExpressionType
 from ..domain.types import DatabaseMode, HanaVersion
-from ..catalog import FunctionRule, get_function_catalog
+from ..catalog import FunctionRule, get_function_catalog, PatternRule, get_pattern_catalog
 
 
 def translate_hana_function(func_name: str, args: List[Expression], ctx) -> str:
@@ -207,26 +207,30 @@ def translate_raw_formula(formula: str, ctx) -> str:
         return "NULL"
 
     result = _substitute_placeholders(result, ctx)
-    
+
     # Apply mode-specific transformations
     mode = getattr(ctx, "database_mode", DatabaseMode.SNOWFLAKE)
-    
+
     if mode == DatabaseMode.HANA:
         # HANA mode: Convert to CASE WHEN, convert IN to OR conditions
-        # IMPORTANT: Apply catalog rewrites FIRST (creates IN clauses from in() helper)
-        # THEN convert IN to OR for HANA compatibility
-        # THEN convert IF to CASE WHEN (HANA requires CASE in SELECT clauses)
+        # IMPORTANT ORDER:
+        # 1. Apply PATTERN rewrites FIRST (NOW() - N → ADD_DAYS())
+        # 2. Then catalog rewrites (function name mappings: string → TO_VARCHAR)
+        # 3. Then convert IN to OR for HANA compatibility
+        # 4. Then convert IF to CASE WHEN (HANA requires CASE in SELECT clauses)
+        result = _apply_pattern_rewrites(result, ctx, mode)
         result = _apply_catalog_rewrites(result, ctx)
+        result = _normalize_isnull_calls(result)
         result = _uppercase_if_statements(result)
-        # Fix NOW() - ensure uppercase with parentheses
-        result = re.sub(r'\bnow\(\)', 'NOW()', result, flags=re.IGNORECASE)
-        result = re.sub(r'\bnow\b(?!\()', 'NOW()', result, flags=re.IGNORECASE)
+        # NOTE: NOW() is now handled by pattern rewrites (NOW - N) and catalog (NOW -> CURRENT_TIMESTAMP)
         result = _convert_in_to_or_for_hana(result)
         result = _convert_if_to_case_for_hana(result)
         result = _translate_string_concat_to_hana(result)
         result = _translate_column_references(result, ctx)
     else:  # Snowflake mode
         # Snowflake mode: IF -> IFF, + -> ||
+        # Apply pattern rewrites before catalog rewrites
+        result = _apply_pattern_rewrites(result, ctx, mode)
         result = _translate_if_statements(result, ctx)
         result = _apply_catalog_rewrites(result, ctx)
         result = _translate_string_concatenation(result)
@@ -367,9 +371,11 @@ def _remove_parameter_clauses_hana(formula: str) -> str:
         result = before + after
         changed = True
 
-    # Final cleanup: remove double spaces, empty parens, malformed fragments
+    # Final cleanup: remove double spaces, orphaned empty parens from parameters, malformed fragments
     result = re.sub(r'\s+', ' ', result)  # Collapse multiple spaces
-    result = re.sub(r'\(\s*\)', '', result)  # Remove empty parens
+    # Only remove empty parens that are orphaned (preceded/followed by operators or parens)
+    # Don't remove () from function calls like now()
+    result = re.sub(r'[\s(]\(\s*\)[\s)]', '', result)  # Remove orphaned empty parens
     result = re.sub(r'\s*AND\s+AND\s*', ' AND ', result, flags=re.IGNORECASE)  # Double AND
     result = re.sub(r'\s*OR\s+OR\s*', ' OR ', result, flags=re.IGNORECASE)  # Double OR
 
@@ -781,6 +787,63 @@ def _translate_column_references(formula: str, ctx) -> str:
         return f'"{col_name.upper()}"'
 
     result = re.sub(r'"([^"]+)"', replace_quoted, formula)
+    return result
+
+
+def _normalize_isnull_calls(formula: str) -> str:
+    """Convert ISNULL(x) to (x IS NULL) for HANA SQL."""
+
+    def replace(match: re.Match[str]) -> str:
+        expr = match.group(1).strip()
+        return f"(({expr}) IS NULL)"
+
+    pattern = re.compile(r"\bisnull\s*\(\s*([^)]+?)\s*\)", re.IGNORECASE)
+    return re.sub(pattern, replace, formula)
+
+
+def _apply_pattern_rewrites(formula: str, ctx, mode: DatabaseMode) -> str:
+    """Apply regex-based pattern rewrites BEFORE function name rewrites.
+
+    This handles expression transformations that can't be done with simple
+    function name substitution (e.g., NOW() - 365 → ADD_DAYS()).
+
+    Pattern rewrites are applied in the order they appear in patterns.yaml.
+    Each pattern is applied once in a single pass (no recursion).
+
+    Args:
+        formula: The formula string to transform
+        ctx: Translation context (unused currently, but kept for consistency)
+        mode: Target database mode (HANA or Snowflake)
+
+    Returns:
+        Formula with pattern rewrites applied
+
+    Example:
+        >>> _apply_pattern_rewrites("NOW() - 365", ctx, DatabaseMode.HANA)
+        'ADD_DAYS(CURRENT_DATE, -365)'
+    """
+
+    catalog = get_pattern_catalog()
+    result = formula
+
+    for rule in catalog.values():
+        # Get the mode-specific replacement template
+        replacement_template = rule.hana if mode == DatabaseMode.HANA else rule.snowflake
+
+        if not replacement_template:
+            continue  # Skip if no replacement for this mode
+
+        # Convert $1, $2, etc. to \1, \2, etc. for Python regex groups
+        replacement = replacement_template.replace('$', '\\')
+
+        # Apply regex substitution (case-insensitive)
+        result = re.sub(
+            rule.match,
+            replacement,
+            result,
+            flags=re.IGNORECASE
+        )
+
     return result
 
 

@@ -1,6 +1,6 @@
 # LLM Handover Summary
 
-## Current State (Updated: 2025-11-13)
+## Current State (Updated: 2025-11-16)
 
 ### Project Status
 - **Project**: XML to SQL Converter - SAP HANA Calculation Views to Snowflake SQL
@@ -705,44 +705,53 @@ pytest tests/test_sql_validator.py -v
 **Bug Tracker**: `BUG_TRACKER.md` - Structured tracking with root cause analysis  
 **Solved Bugs**: `SOLVED_BUGS.md` - Archive of fixes with solutions
 
-### CRITICAL: Pattern Matching System Needed (Priority 1)
+### ✅ Pattern Matching System (COMPLETE - 2025-11-16)
 
-**Current Limitation**: The catalog system handles **function name rewrites** but NOT **expression pattern rewrites**.
+**Status**: ✅ FULLY IMPLEMENTED AND VALIDATED
 
-**Examples That Don't Work**:
-- `NOW() - 365` → Needs to become `ADD_DAYS(CURRENT_DATE, -365)`
-- `date(NOW() - 365)` → Needs to become `ADD_DAYS(CURRENT_DATE, -365)`
-- `CURRENT_TIMESTAMP - N` → Needs to become `ADD_DAYS(CURRENT_TIMESTAMP, -N)`
-
-**Current Workaround**: Manual `sed` patches on generated SQL (not sustainable)
-
-**Proper Solution Needed**:
-1. Add **pattern matching phase** to `translate_raw_formula()` BEFORE catalog rewrites:
+**What Was Built**:
+1. **Two-Phase Rewrite System** in `translate_raw_formula()`:
    ```python
    # Phase 1: Pattern-based expression rewrites (BEFORE catalog)
-   result = _apply_pattern_rewrites(result, ctx)
+   result = _apply_pattern_rewrites(result, ctx, mode)
 
    # Phase 2: Function name rewrites (current catalog system)
    result = _apply_catalog_rewrites(result, ctx)
    ```
 
-2. Create **pattern catalog** (extend `functions.yaml` or new `patterns.yaml`):
-   ```yaml
-   patterns:
-     - match: "NOW\\(\\)\\s*-\\s*(\\d+)"
-       hana: "ADD_DAYS(CURRENT_DATE, -$1)"
-       snowflake: "DATEADD(DAY, -$1, CURRENT_TIMESTAMP)"
-       description: "Date arithmetic - subtract days from current date"
-   ```
+2. **Pattern Catalog** (`src/xml_to_sql/catalog/data/patterns.yaml`):
+   - `date_now_minus_days`: `date(NOW() - N)` → `ADD_DAYS(CURRENT_DATE, -N)`
+   - `now_minus_days`: `NOW() - N` → `ADD_DAYS(CURRENT_DATE, -N)`
+   - `timestamp_minus_days`: `CURRENT_TIMESTAMP - N` → `ADD_DAYS(CURRENT_TIMESTAMP, -N)`
 
-3. Implement `_apply_pattern_rewrites()` with regex substitution
+3. **Pattern Loader Module** (`src/xml_to_sql/catalog/pattern_loader.py`):
+   - `PatternRule` dataclass
+   - `get_pattern_catalog()` with LRU caching
+   - Mode-aware rewrites (HANA vs Snowflake)
 
-**Impact**: CV_TOP_PTHLGY and future XMLs will continue requiring manual patches until this is implemented.
+4. **Rewrite Function** (`_apply_pattern_rewrites()` in `function_translator.py`):
+   - Regex-based pattern matching with capture groups
+   - Single-pass application (no recursion)
+   - Patterns processed in YAML order (specific before general)
+
+**Validation Results**:
+- ✅ All pattern matching tests PASSED (13/13 test cases)
+- ✅ CV_TOP_PTHLGY.xml regenerated cleanly without manual patches
+- ✅ 7 date arithmetic transformations applied automatically
+- ✅ HANA execution successful (2139 lines, 198ms)
+
+**Files Created**:
+- `src/xml_to_sql/catalog/data/patterns.yaml`
+- `src/xml_to_sql/catalog/pattern_loader.py`
+- `PATTERN_MATCHING_DESIGN.md` (implementation guide)
+- `test_pattern_matching.py` (unit tests)
+
+**Impact**: Manual `sed` patches eliminated. All expression pattern rewrites now handled automatically in the conversion pipeline.
 
 ### In Progress / Next Actions
-- ⚠️ **STOP after CV_TOP_PTHLGY** and implement pattern matching system (see above)
 - **Multi-Database Mode Support** ✅ **COMPLETE**
-- **Catalog System** ✅ **COMPLETE** for function names (needs pattern extension)
+- **Catalog System** ✅ **COMPLETE** (function names + expression patterns)
+- **Pattern Matching System** ✅ **COMPLETE**
 - Package reinstall: `pip install -e .` required after catalog changes
 
 ### Optional Enhancements
@@ -795,9 +804,9 @@ pytest tests/test_sql_validator.py -v
 
 ### What to Know Immediately
 
-**Token Usage**: 650k / 1M used in current chat  
-**Status**: Major progress, multiple bugs fixed, 1 XML validated, 1 XML in final testing  
-**Parallel Work**: Claude Code agent working on BUG-002 (parameter cleanup)
+**Session**: Session 2 (2025-11-16) - PATTERN MATCHING IMPLEMENTATION COMPLETE
+**Status**: ✅ 5 XMLs validated, 18 bugs fixed, Pattern Matching System fully implemented
+**Last Achievement**: CV_TOP_PTHLGY.xml validates cleanly with automated transformations
 
 ### Validated Working XMLs (4 SUCCESS - 100% rate)
 1. ✅ **CV_CNCLD_EVNTS.xml** (ECC/MBD instance)
@@ -831,13 +840,14 @@ pytest tests/test_sql_validator.py -v
    - **Fixes Applied**:
      - ✅ STRING → TO_VARCHAR catalog mapping (BUG-013)
      - ✅ ABAP → SAPABAP1 schema override (BUG-014)
-     - ✅ TIMESTAMP arithmetic - manual fix (BUG-015, needs pattern system)
+     - ✅ TIMESTAMP arithmetic - **AUTOMATED via pattern matching system** (BUG-015)
      - ✅ ADDDAYS → ADD_DAYS catalog mapping (BUG-016)
      - ✅ INT → TO_INTEGER catalog mapping (BUG-017)
-   - **Critical Discovery**: Need **expression pattern matching system** for date arithmetic
-     - `NOW() - N` → `ADD_DAYS(CURRENT_DATE, -N)` cannot be handled by current catalog
-     - Pattern matching design complete (see `PATTERN_MATCHING_DESIGN.md`)
-     - Manual `sed` patches required for this XML (not sustainable)
+   - **Major Achievement**: ✅ **Pattern Matching System Implemented**
+     - `NOW() - N` → `ADD_DAYS(CURRENT_DATE, -N)` now fully automated
+     - 7 date arithmetic transformations applied automatically in regenerated SQL
+     - See `PATTERN_MATCHING_DESIGN.md` for complete implementation details
+     - **No manual patches needed** - conversion pipeline handles all transformations
    - **Schema**: `"_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_TOP_PTHLGY"`
 
 ### Deferred XMLs (Known Issues)

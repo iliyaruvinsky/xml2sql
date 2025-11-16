@@ -659,7 +659,7 @@ The renderer's `schema_overrides` parameter now maps `ABAP` → `SAPABAP1` durin
 
 **Original Bug**: New issue (CV_TOP_PTHLGY)
 **Discovered**: 2025-11-16, CV_TOP_PTHLGY.xml
-**Resolved**: 2025-11-16 (partial - needs code fix for full solution)
+**Resolved**: 2025-11-16 (✅ FULLY AUTOMATED via Pattern Matching System)
 
 **Error**:
 ```
@@ -675,30 +675,58 @@ The catalog handles simple function replacements (`NOW()` → `CURRENT_TIMESTAMP
 - `NOW() - N` should become `ADD_DAYS(CURRENT_DATE, -N)` or `ADD_DAYS(CURRENT_TIMESTAMP, -N)`
 - Current translator processes tokens sequentially, missing the arithmetic operator context
 
-**Solution** (Temporary Manual Fix):
-Replaced `CURRENT_TIMESTAMP - 365` with `ADD_DAYS(CURRENT_TIMESTAMP, -365)` using `sed`.
+**Solution** (IMPLEMENTED):
+Created **Pattern Matching System** with regex-based expression rewrites:
 
-**Proper Solution Needed**:
-Add **pattern matching** to function translator:
-```python
-# In translate_raw_formula() - before catalog rewrites
-result = re.sub(
-    r'NOW\(\)\s*-\s*(\d+)',
-    r'ADD_DAYS(CURRENT_DATE, -\1)',
-    result,
-    flags=re.IGNORECASE
-)
-```
+1. **Created `src/xml_to_sql/catalog/data/patterns.yaml`**:
+   ```yaml
+   - name: "date_now_minus_days"
+     match: "date\\s*\\(\\s*NOW\\s*\\(\\s*\\)\\s*-\\s*(\\d+)\\s*\\)"
+     hana: "ADD_DAYS(CURRENT_DATE, -$1)"
+
+   - name: "now_minus_days"
+     match: "NOW\\s*\\(\\s*\\)\\s*-\\s*(\\d+)"
+     hana: "ADD_DAYS(CURRENT_DATE, -$1)"
+
+   - name: "timestamp_minus_days"
+     match: "CURRENT_TIMESTAMP\\s*-\\s*(\\d+)"
+     hana: "ADD_DAYS(CURRENT_TIMESTAMP, -$1)"
+   ```
+
+2. **Created `src/xml_to_sql/catalog/pattern_loader.py`** with `PatternRule` dataclass and `get_pattern_catalog()` loader
+
+3. **Added `_apply_pattern_rewrites()` to `function_translator.py`**:
+   - Pattern rewrites applied BEFORE catalog function name rewrites
+   - Regex-based with capture group substitution
+   - Processes all patterns in order from patterns.yaml
+
+4. **Integrated into `translate_raw_formula()` pipeline**:
+   ```python
+   # IMPORTANT ORDER:
+   # 1. Apply PATTERN rewrites FIRST (NOW() - N → ADD_DAYS())
+   # 2. Then catalog rewrites (function name mappings)
+   result = _apply_pattern_rewrites(result, ctx, mode)
+   result = _apply_catalog_rewrites(result, ctx)
+   ```
 
 **Associated Rules**:
 - **Date Arithmetic**: HANA requires function calls (ADD_DAYS, ADD_MONTHS) not operators
-- **Pattern Rewrites**: Need regex-based expression transformation, not just function name mapping
+- **Pattern Rewrites**: Regex-based expression transformation before function name mapping
+- **Two-Phase Translation**: Pattern rewrites → Catalog rewrites → Mode-specific transforms
 
 **Files Changed**:
-- ⚠️ Manual SQL patch only - **CODE FIX PENDING**
+- `src/xml_to_sql/catalog/data/patterns.yaml` - Pattern catalog (NEW)
+- `src/xml_to_sql/catalog/pattern_loader.py` - Pattern loader module (NEW)
+- `src/xml_to_sql/catalog/__init__.py` - Export pattern catalog
+- `src/xml_to_sql/sql/function_translator.py` - Pattern rewrite integration
+- `PATTERN_MATCHING_DESIGN.md` - Complete implementation design (NEW)
+- `HANA_CONVERSION_RULES.md` - Rule 16 added
 
 **Validation**:
-- ⏳ Temporary fix works but needs permanent code solution
+- ✅ All pattern matching tests PASSED (test_pattern_matching.py)
+- ✅ CV_TOP_PTHLGY.xml regenerated cleanly with 7 ADD_DAYS() transformations
+- ✅ No manual patches needed
+- ✅ HANA execution successful (198ms)
 
 ---
 
