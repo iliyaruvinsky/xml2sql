@@ -2,21 +2,21 @@
 # This file tracks the last fully validated commit with HANA Studio testing
 # DO NOT update without actual HANA Studio validation of ALL listed XMLs
 
-last_validated_commit: "4eff5fb3214125cfb70b02d3e6a46d5cd7422ce6"
-commit_date: "2025-11-17"
-commit_message: "SESSION 3: HANA multi-instance testing + validation infrastructure"
-validation_date: "2025-11-17"
+last_validated_commit: "e809a4d"
+commit_date: "2025-11-18"
+commit_message: "SESSION 7: Fix BUG-021 and BUG-022 - Parameter cleanup enhancement"
+validation_date: "2025-11-18"
 validated_by: "User (HANA Studio execution)"
 
 # XMLs validated in HANA Studio with this commit
 validated_xmls:
-  count: 5
+  count: 8
   success_rate: "100%"
   files:
     - name: "CV_CNCLD_EVNTS.xml"
-      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      source: "Source (XML Files)/HANA 1.XX XML Views/ECC_ON_HANA/"
       execution_time: "74ms"
-      notes: "BUG-020 fixed after this commit (SESSION 4)"
+      notes: "BUG-020 fixed (SESSION 4)"
     - name: "CV_INVENTORY_ORDERS.xml"
       source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
       execution_time: "42ms"
@@ -33,6 +33,18 @@ validated_xmls:
       source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
       execution_time: "211ms"
       notes: "Working"
+    - name: "CV_CT02_CT03.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/ECC_ON_HANA/"
+      execution_time: "39ms"
+      notes: "BUG-019 fixed (SESSION 5)"
+    - name: "CV_MCM_CNTRL_Q51.xml"
+      source: "Source (XML Files)/HANA 2.XX MACCABI XML Views/ECC_ON_HANA/"
+      execution_time: "82ms"
+      notes: "BUG-021 fixed (SESSION 7)"
+    - name: "CV_MCM_CNTRL_REJECTED.xml"
+      source: "Source (XML Files)/HANA 2.XX MACCABI XML Views/ECC_ON_HANA/"
+      execution_time: "53ms"
+      notes: "BUG-022 fixed (SESSION 7)"
 
 # Critical patterns that MUST NOT be changed without HANA testing
 critical_patterns:
@@ -61,9 +73,28 @@ critical_patterns:
     bug_reference: "BUG-020"
     validated_commit: "Applied after 4eff5fb, validated separately"
 
+  parameter_cleanup_empty_string_in_numeric:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "1156-1193"
+    function: "_cleanup_hana_parameter_conditions()"
+    why_critical: "Removes '' IN (0) patterns that cause HANA type conversion errors"
+    bug_reference: "BUG-021"
+    validated_commit: "e809a4d"
+    error_when_missing: "SAP DBTech JDBC: [339]: invalid number: not a valid number string ''"
+
+  parameter_cleanup_empty_where:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "1199-1204, 513-524, 527-533, 591-596, 682-687, 768-773, 830-836"
+    function: "_cleanup_hana_parameter_conditions() + post-validation in 6 rendering functions"
+    why_critical: "Prevents empty WHERE () clauses after parameter cleanup"
+    bug_reference: "BUG-022"
+    validated_commit: "e809a4d"
+    error_when_missing: "SAP DBTech JDBC: [257]: sql syntax error: incorrect syntax near ')'"
+    pattern: "Check if where_clause_stripped in ('', '()') after cleanup"
+
 # Golden SQL copies location
 golden_sql_location: "Target (SQL Scripts)/VALIDATED/"
-golden_sql_count: 5
+golden_sql_count: 8
 
 # Validation commands
 validation_commands:
