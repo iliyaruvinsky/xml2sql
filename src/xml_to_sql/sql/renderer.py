@@ -477,9 +477,26 @@ def _render_projection(ctx: RenderContext, node: Node) -> str:
             # Check if already qualified (preceded by alias.)
             return quoted_id  # Will be replaced by pattern below
         
+        # ====================================================================
+        # ⚠️ CRITICAL - Column Qualification for SAP BEx Columns (BUG-019)
+        # ====================================================================
+        # This regex must match ALL quoted identifiers including SAP special chars
+        # Pattern: r'(?<!\.)"([^"]+)" matches /BIC/*, /BI0/*, and all other quoted names
+        #
+        # WRONG PATTERN (pre-BUG-019): r'(?<!\.)"([A-Z_][A-Z0-9_]*)"'
+        # - Only matched alphanumeric identifiers
+        # - Excluded SAP columns like "/BIC/EYTRTNUM"
+        # - Caused: sql syntax error: incorrect syntax near "AND"
+        #
+        # CORRECT PATTERN (BUG-019 fix, validated 39ms HANA execution):
+        # - r'(?<!\.)"([^"]+)"' matches ANY characters inside quotes
+        # - See: BUG-019-FIX-SUMMARY.md and FIXES_AFTER_COMMIT_4eff5fb.md
+        # ====================================================================
+
         # Replace all "IDENTIFIER" with calc."IDENTIFIER" if not already qualified
         # Pattern: Match "..." but not when preceded by a dot (already qualified)
-        pattern = r'(?<!\.)("[A-Z_][A-Z0-9_]*")'
+        # BUG-019: Match ANY quoted identifier including SAP columns like "/BIC/FIELD"
+        pattern = r'(?<!\.)("[^"]+")'
         qualified_where = re.sub(pattern, r'calc.\1', qualified_where)
         
         # Fix double qualification (calc.calc. → calc.)
@@ -496,14 +513,25 @@ def _render_projection(ctx: RenderContext, node: Node) -> str:
         # FINAL cleanup: Remove parameter conditions AFTER all qualification
         if ctx.database_mode == DatabaseMode.HANA:
             qualified_where = _cleanup_hana_parameter_conditions(qualified_where)
-        
-        sql = f"SELECT * FROM (\n  SELECT\n      {select_clause.replace(chr(10) + '    ', chr(10) + '      ')}\n  FROM {from_clause}\n) AS calc\nWHERE {qualified_where}"
+            # BUG-022: Check if WHERE clause is effectively empty after cleanup
+            qualified_where_stripped = qualified_where.strip()
+            if qualified_where_stripped in ('', '()'):
+                qualified_where = ''
+
+        if qualified_where:
+            sql = f"SELECT * FROM (\n  SELECT\n      {select_clause.replace(chr(10) + '    ', chr(10) + '      ')}\n  FROM {from_clause}\n) AS calc\nWHERE {qualified_where}"
+        else:
+            sql = f"SELECT * FROM (\n  SELECT\n      {select_clause.replace(chr(10) + '    ', chr(10) + '      ')}\n  FROM {from_clause}\n) AS calc"
     else:
         # No subquery needed
         # For HANA mode, still clean up parameter conditions
         if ctx.database_mode == DatabaseMode.HANA and where_clause:
             where_clause = _cleanup_hana_parameter_conditions(where_clause)
-        
+            # BUG-022: Check if WHERE clause is effectively empty after cleanup
+            where_clause_stripped = where_clause.strip()
+            if where_clause_stripped in ('', '()'):
+                where_clause = ''
+
         sql = f"SELECT\n    {select_clause}\nFROM {from_clause}"
         if where_clause:
             sql += f"\nWHERE {where_clause}"
@@ -570,6 +598,13 @@ def _render_join(ctx: RenderContext, node: JoinNode) -> str:
 
     select_clause = ",\n    ".join(columns)
     where_clause = _render_filters(ctx, node.filters, left_alias)
+
+    # BUG-022: Clean up parameter conditions for HANA mode
+    if ctx.database_mode == DatabaseMode.HANA and where_clause:
+        where_clause = _cleanup_hana_parameter_conditions(where_clause)
+        where_clause_stripped = where_clause.strip()
+        if where_clause_stripped in ('', '()'):
+            where_clause = ''
 
     sql = f"SELECT\n    {select_clause}\nFROM {left_alias}\n{join_type_str} JOIN {right_alias} ON {on_clause}"
     if where_clause:
@@ -655,6 +690,13 @@ def _render_aggregation(ctx: RenderContext, node: AggregationNode) -> str:
     select_clause = ",\n    ".join(select_items)
     where_clause = _render_filters(ctx, node.filters, from_clause)
 
+    # BUG-022: Clean up parameter conditions for HANA mode
+    if ctx.database_mode == DatabaseMode.HANA and where_clause:
+        where_clause = _cleanup_hana_parameter_conditions(where_clause)
+        where_clause_stripped = where_clause.strip()
+        if where_clause_stripped in ('', '()'):
+            where_clause = ''
+
     # Build GROUP BY clause first
     group_by_clause = ""
     if group_by_cols:
@@ -733,6 +775,14 @@ def _render_union(ctx: RenderContext, node: UnionNode) -> str:
 
     if node.filters:
         where_clause = _render_filters(ctx, node.filters, None)
+
+        # BUG-022: Clean up parameter conditions for HANA mode
+        if ctx.database_mode == DatabaseMode.HANA and where_clause:
+            where_clause = _cleanup_hana_parameter_conditions(where_clause)
+            where_clause_stripped = where_clause.strip()
+            if where_clause_stripped in ('', '()'):
+                where_clause = ''
+
         if where_clause:
             sql = f"SELECT * FROM (\n{sql}\n) AS union_result\nWHERE {where_clause}"
 
@@ -809,6 +859,14 @@ def _render_calculation(ctx: RenderContext, node: Node) -> str:
 
     select_clause = ",\n    ".join(columns)
     where_clause = _render_filters(ctx, node.filters, from_clause)
+
+    # BUG-022: Clean up parameter conditions for HANA mode
+    if ctx.database_mode == DatabaseMode.HANA and where_clause:
+        where_clause = _cleanup_hana_parameter_conditions(where_clause)
+        # After cleanup, check if WHERE clause is empty or just empty parens
+        where_clause_stripped = where_clause.strip()
+        if where_clause_stripped in ('', '()'):
+            where_clause = ''
 
     sql = f"SELECT\n    {select_clause}\nFROM {from_clause}"
     if where_clause:
@@ -993,8 +1051,8 @@ def _cleanup_hana_parameter_conditions(where_clause: str) -> str:
     max_iterations = 20
     
     for _ in range(max_iterations):
-        # Find ('' = pattern
-        match = re.search(r"\(''\s*=\s*'[^']*'\s+OR\s+", result, re.IGNORECASE)
+        # Find ('' = pattern or ('''' = pattern (escaped quote) - BUG-020 fix
+        match = re.search(r"\((?:''|'''')\s*=\s*'[^']*'\s+OR\s+", result, re.IGNORECASE)
         if not match:
             break
         
@@ -1085,7 +1143,107 @@ def _cleanup_hana_parameter_conditions(where_clause: str) -> str:
     
     # Clean up AND followed by empty pattern
     result = re.sub(r'\s+AND\s+\(\s*\)', '', result, flags=re.IGNORECASE)
-    
+
+    # BUG-019: Simplify CASE WHEN with constant true conditions in REGEXP_LIKE
+    # Pattern: REGEXP_LIKE(column, CASE WHEN '''' = '' THEN '*' ELSE ... END)
+    # Since '''' (single quote) != '' (empty string), this is always false,
+    # but '' = '' is always true. Need to simplify to just '*'
+    # Also handle '' = '' pattern (always true)
+
+    # Step 1: Simplify CASE WHEN '' = '' THEN value ELSE ... END to just value
+    # This handles the always-true condition
+    # Use a more robust pattern that handles any ELSE clause content
+    def simplify_case_when(match):
+        """Simplify CASE WHEN constant_true_condition to just the THEN value."""
+        return f"'{match.group(1)}'"
+
+    # Match CASE WHEN with any ELSE clause content (including column references)
+    result = re.sub(
+        r"CASE\s+WHEN\s+(?:''|'''')\s*=\s*''\s+THEN\s+'([^']*)'\s+ELSE\s+.*?END",
+        simplify_case_when,
+        result,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+
+    # Step 2: Remove REGEXP_LIKE(column, '*') entirely - matches everything, pointless filter
+    # Pattern: REGEXP_LIKE(column, '*') AND ... or ... AND REGEXP_LIKE(column, '*')
+    result = re.sub(
+        r"REGEXP_LIKE\s*\([^,]+,\s*'\*'\s*\)\s+AND\s+",
+        "",
+        result,
+        flags=re.IGNORECASE
+    )
+    result = re.sub(
+        r"\s+AND\s+REGEXP_LIKE\s*\([^,]+,\s*'\*'\s*\)",
+        "",
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Step 3: Remove entire WHERE clauses with only wildcard REGEXP_LIKE
+    # Pattern: WHERE (REGEXP_LIKE(..., '*'))
+    # Use DOTALL to handle multiline patterns
+    result = re.sub(
+        r"WHERE\s*\(\s*REGEXP_LIKE\s*\([^)]+,\s*'\*'\s*\)\s*\)",
+        "",
+        result,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+
+    # Step 4: Remove entire WHERE clauses that become empty after cleanup
+    # Pattern: WHERE ()
+    result = re.sub(r'WHERE\s*\(\s*\)', '', result, flags=re.IGNORECASE)
+
+    # BUG-021: Remove empty string IN numeric patterns that cause HANA type conversion errors
+    # Error: SAP DBTech JDBC: [339]: invalid number: not a valid number string '' at implicit type conversion
+    # Pattern: ('' IN (0) OR column IN (...)) → simplify to just second part
+    # Also: '' IN (numeric_value) → remove entirely
+
+    # Step 1: Remove ('' IN (number) OR ... ) patterns - keep only the second part
+    # Match: ('' IN (digit) OR something)
+    result = re.sub(
+        r"\(\s*''\s+IN\s+\(\s*\d+\s*\)\s+OR\s+([^)]+)\)",
+        r"(\1)",
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Step 2: Remove standalone '' IN (number) patterns with surrounding AND
+    # Pattern: AND '' IN (0) AND → AND
+    result = re.sub(
+        r"\s+AND\s+''\s+IN\s+\(\s*\d+\s*\)\s+AND\s+",
+        " AND ",
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Step 3: Remove '' IN (number) at start: ('' IN (0) AND ...)
+    result = re.sub(
+        r"\(\s*''\s+IN\s+\(\s*\d+\s*\)\s+AND\s+",
+        "(",
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Step 4: Remove '' IN (number) at end: (... AND '' IN (0))
+    result = re.sub(
+        r"\s+AND\s+''\s+IN\s+\(\s*\d+\s*\)\s*\)",
+        ")",
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # BUG-022: Remove empty WHERE clauses that result from parameter cleanup
+    # Pattern: WHERE () or WHERE ( ) (with optional whitespace)
+    # This can occur when all conditions inside WHERE are cleaned up by BUG-021 fixes
+    # Error: SAP DBTech JDBC: [257]: sql syntax error: incorrect syntax near ")"
+    result = re.sub(
+        r'\bWHERE\s+\(\s*\)',
+        '',
+        result,
+        flags=re.IGNORECASE
+    )
+
     return result
 
 
@@ -1150,6 +1308,27 @@ def _generate_view_statement(view_name: str, mode: DatabaseMode, scenario: Optio
     if mode == DatabaseMode.SNOWFLAKE:
         return f"CREATE OR REPLACE VIEW {quoted_name} AS"
     elif mode == DatabaseMode.HANA:
+        # ====================================================================
+        # ⚠️ CRITICAL SECTION - VALIDATED IN HANA STUDIO (commit 4eff5fb)
+        # ====================================================================
+        # DO NOT CHANGE WITHOUT:
+        # 1. Reading GOLDEN_COMMIT.yaml for last validated state
+        # 2. Reading FIXES_AFTER_COMMIT_4eff5fb.md for bug fix history
+        # 3. Testing in actual HANA Studio with ALL validated XMLs (see GOLDEN_COMMIT.yaml)
+        # 4. Updating GOLDEN_COMMIT.yaml after successful HANA validation
+        #
+        # KNOWN WRONG APPROACH: CREATE OR REPLACE VIEW
+        # - Tested in HANA Studio: DOES NOT WORK
+        # - Error: "cannot use duplicate view name"
+        # - Web search results claiming HANA supports it are WRONG for our use case
+        # - Incident: SESSION 7 (2025-11-18) - see FIXES_AFTER_COMMIT_4eff5fb.md
+        #
+        # VALIDATED WORKING APPROACH: DROP VIEW ... CASCADE; CREATE VIEW
+        # - Tested: 5/5 XMLs passing in HANA Studio (2025-11-17)
+        # - Execution times: 29ms - 211ms (all successful)
+        # - See: Target (SQL Scripts)/VALIDATED/ for golden SQL copies
+        # ====================================================================
+
         # HANA SQL views don't support parameterized syntax like calculation views
         # Parameters are substituted with default values instead
         # HANA doesn't support IF EXISTS in DROP VIEW - use CASCADE to drop view and dependencies

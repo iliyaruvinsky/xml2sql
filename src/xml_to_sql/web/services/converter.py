@@ -309,18 +309,18 @@ def convert_xml_to_sql(
             if effective_view_schema is None:
                 effective_view_schema = "_SYS_BIC"
 
-        # Build qualified view name with optional HANA package path
-        # If hana_package is provided (e.g., "Macabi_BI.EYAL.EYAL_CDS"),
-        # generate: _SYS_BIC.Macabi_BI.EYAL.EYAL_CDS/CV_NAME (without quotes - renderer will add them)
-        # Otherwise: _SYS_BIC.CV_NAME
+        # Build qualified view name
+        # For HANA catalog calculation views in _SYS_BIC, package paths are REQUIRED
+        # Format: _SYS_BIC."PACKAGE.PATH/VIEW_NAME"
+        # For other schemas, use simple schema.viewname format
         # NOTE: Do NOT add quotes here - the SQL renderer's _quote_identifier will handle quoting
-        if hana_package and mode_enum == DatabaseMode.HANA:
-            # Use package path with / separator (HANA catalog convention)
+        # BUG-019: Package paths only apply to _SYS_BIC catalog
+        if hana_package and effective_view_schema == "_SYS_BIC":
+            # Catalog calculation view with package path
             view_name_with_package = f"{hana_package}/{scenario_id}"
-            qualified_view_name = (
-                f'{effective_view_schema}.{view_name_with_package}' if effective_view_schema else view_name_with_package
-            )
+            qualified_view_name = f'{effective_view_schema}.{view_name_with_package}'
         else:
+            # Simple view name without package path
             qualified_view_name = (
                 f"{effective_view_schema}.{scenario_id}" if effective_view_schema else scenario_id
             )

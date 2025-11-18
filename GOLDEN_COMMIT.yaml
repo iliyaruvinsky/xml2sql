@@ -1,0 +1,92 @@
+# Golden Commit Tracking
+# This file tracks the last fully validated commit with HANA Studio testing
+# DO NOT update without actual HANA Studio validation of ALL listed XMLs
+
+last_validated_commit: "4eff5fb3214125cfb70b02d3e6a46d5cd7422ce6"
+commit_date: "2025-11-17"
+commit_message: "SESSION 3: HANA multi-instance testing + validation infrastructure"
+validation_date: "2025-11-17"
+validated_by: "User (HANA Studio execution)"
+
+# XMLs validated in HANA Studio with this commit
+validated_xmls:
+  count: 5
+  success_rate: "100%"
+  files:
+    - name: "CV_CNCLD_EVNTS.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "74ms"
+      notes: "BUG-020 fixed after this commit (SESSION 4)"
+    - name: "CV_INVENTORY_ORDERS.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "42ms"
+      notes: "Working"
+    - name: "CV_PURCHASE_ORDERS.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "46ms"
+      notes: "Working"
+    - name: "CV_EQUIPMENT_STATUSES.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "29ms"
+      notes: "Working"
+    - name: "CV_TOP_PTHLGY.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "211ms"
+      notes: "Working"
+
+# Critical patterns that MUST NOT be changed without HANA testing
+critical_patterns:
+  hana_view_creation:
+    file: "src/xml_to_sql/sql/renderer.py"
+    line: 1156
+    pattern: 'return f"DROP VIEW {quoted_name} CASCADE;\nCREATE VIEW {quoted_name} AS"'
+    why_critical: "HANA does not support CREATE OR REPLACE VIEW for our use case"
+    tested_alternative_that_failed: "CREATE OR REPLACE VIEW"
+    error_when_alternative_used: "cannot use duplicate view name"
+    incident_reference: "docs/SESSION_7_FALSE_DOCUMENTATION_INCIDENT.md"
+
+  column_qualification_regex:
+    file: "src/xml_to_sql/sql/renderer.py"
+    line: 482
+    pattern: 'r''(?<!\.)("[^"]+")'''
+    why_critical: "Matches SAP BEx columns with special characters (/BIC/*, /BI0/*)"
+    bug_reference: "BUG-019"
+    validated_commit: "Applied after 4eff5fb, validated separately"
+
+  in_function_conversion:
+    file: "src/xml_to_sql/sql/function_translator.py"
+    line: 639
+    function: "_convert_in_function_to_operator()"
+    why_critical: "Converts XML IN(col, val1, val2) to HANA col IN (val1, val2)"
+    bug_reference: "BUG-020"
+    validated_commit: "Applied after 4eff5fb, validated separately"
+
+# Golden SQL copies location
+golden_sql_location: "Target (SQL Scripts)/VALIDATED/"
+golden_sql_count: 5
+
+# Validation commands
+validation_commands:
+  regenerate_sql: "python -m xml_to_sql.cli.app convert --config config.yaml --mode hana --file 'Source (XML Files)/...'"
+  compare_with_golden: "python regression_test.py --compare-with-golden"
+  run_critical_tests: "pytest tests/test_critical_patterns.py"
+
+# Update instructions
+update_instructions: |
+  To update this golden commit:
+  1. Test ALL validated XMLs in HANA Studio
+  2. Document execution times and any errors
+  3. If all pass, update last_validated_commit
+  4. Update validation_date
+  5. Update validated_xmls section with new results
+  6. Commit this file with message: "Update GOLDEN_COMMIT after HANA validation"
+
+# Session 7 lessons learned
+incident_log:
+  - date: "2025-11-18"
+    session: "SESSION 7"
+    issue: "False documentation claiming CREATE OR REPLACE VIEW works"
+    impact: "Code was changed to CREATE OR REPLACE VIEW, broke all SQL generation"
+    resolution: "Reverted to commit 4eff5fb, reapplied BUG-019 and BUG-020 fixes"
+    lesson: "Documentation can lie, working code and HANA execution results cannot"
+    reference: "FIXES_AFTER_COMMIT_4eff5fb.md"

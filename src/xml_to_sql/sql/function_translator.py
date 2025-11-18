@@ -223,7 +223,20 @@ def translate_raw_formula(formula: str, ctx) -> str:
         result = _normalize_isnull_calls(result)
         result = _uppercase_if_statements(result)
         # NOTE: NOW() is now handled by pattern rewrites (NOW - N) and catalog (NOW -> CURRENT_TIMESTAMP)
-        result = _convert_in_to_or_for_hana(result)
+
+        # BUG-020 FIX: Convert function-style IN() to operator-style
+        # XML: IN(col, val1, val2) → SQL: col IN (val1, val2)
+        result = _convert_in_function_to_operator(result)
+
+        # BUG-020 FIX: HANA 2.0+ supports IN() natively, no need to convert to OR
+        # Only convert IN→OR for HANA 1.x
+        hana_version = getattr(ctx, "hana_version", None)
+        # Handle both Enum and string values
+        version_str = hana_version.value if hasattr(hana_version, 'value') else hana_version
+
+        if version_str and str(version_str).startswith("1."):
+            result = _convert_in_to_or_for_hana(result)
+
         result = _convert_if_to_case_for_hana(result)
         result = _translate_string_concat_to_hana(result)
         result = _translate_column_references(result, ctx)
@@ -633,6 +646,136 @@ def _convert_if_to_case_for_hana(formula: str) -> str:
         if_end = i  # Position of closing )
         result = result[:if_start] + case_expr + result[if_end + 1:]
     
+    return result
+
+
+def _convert_in_function_to_operator(formula: str) -> str:
+    """Convert function-style IN() to operator-style for HANA.
+
+    XML uses: IN(column, 'a', 'b', 'c')
+    HANA requires: column IN ('a', 'b', 'c')
+
+    ====================================================================
+    ⚠️ CRITICAL - BUG-020 FIX (SESSION 4, validated 66ms HANA execution)
+    ====================================================================
+    This function converts XML function-style IN() to HANA operator-style.
+
+    WITHOUT this conversion:
+    - SQL: IN(RIGHT("CALMONTH", 2), '01', '02', '03')
+    - Error: "sql syntax error: incorrect syntax near IF"
+
+    WITH this conversion:
+    - SQL: RIGHT("CALMONTH", 2) IN ('01', '02', '03')
+    - Result: ✅ HANA execution successful
+
+    See: FIXES_AFTER_COMMIT_4eff5fb.md for full details
+    ====================================================================
+    """
+    import re
+
+    result = formula
+    max_iterations = 20  # Prevent infinite loops
+    iteration = 0
+    search_start = 0  # Track where to start searching to avoid re-processing
+
+    while iteration < max_iterations:
+        iteration += 1
+
+        # Find IN( pattern starting from search_start
+        match = re.search(r'\bIN\s*\(', result[search_start:], re.IGNORECASE)
+        if not match:
+            break
+
+        # Adjust positions relative to full string
+        in_start = search_start + match.start()
+        in_end = search_start + match.end()  # Position after "IN("
+
+        # Find matching closing paren, tracking nested parens and quotes
+        depth = 1
+        i = in_end
+        in_quote = False
+        quote_char = None
+
+        while i < len(result) and depth > 0:
+            c = result[i]
+
+            # Handle quotes
+            if c in ('"', "'") and (i == 0 or result[i-1] != '\\'):
+                if not in_quote:
+                    in_quote = True
+                    quote_char = c
+                elif c == quote_char:
+                    in_quote = False
+                    quote_char = None
+
+            if not in_quote:
+                if c == '(':
+                    depth += 1
+                elif c == ')':
+                    depth -= 1
+
+            i += 1
+
+        if depth != 0:
+            # Couldn't find matching paren, break
+            break
+
+        close_paren = i - 1
+
+        # Extract arguments: IN(arg1, arg2, arg3, ...)
+        args_str = result[in_end:close_paren]
+
+        # Split by comma at depth 0, respecting nested parens and quotes
+        args = []
+        current_arg = []
+        paren_depth = 0  # Track parentheses depth INSIDE the arguments
+        in_quote = False
+        quote_char = None
+
+        for j, c in enumerate(args_str):
+            # Handle quotes
+            if c in ('"', "'"):
+                if not in_quote:
+                    in_quote = True
+                    quote_char = c
+                elif c == quote_char and (j == 0 or args_str[j-1] != '\\'):
+                    in_quote = False
+                    quote_char = None
+
+            if not in_quote:
+                if c == '(':
+                    paren_depth += 1
+                elif c == ')':
+                    paren_depth -= 1
+                elif c == ',' and paren_depth == 0:
+                    # This is a top-level comma - split here
+                    args.append(''.join(current_arg).strip())
+                    current_arg = []
+                    continue
+
+            current_arg.append(c)
+
+        if current_arg:
+            args.append(''.join(current_arg).strip())
+
+        if len(args) < 2:
+            # Not enough args, skip this IN
+            break
+
+        # First arg is the expression, rest are values
+        expression = args[0]
+        values = args[1:]
+
+        # Build: expression IN (val1, val2, val3)
+        values_list = ', '.join(values)
+        replacement = f"{expression} IN ({values_list})"
+
+        # Replace in result
+        result = result[:in_start] + replacement + result[close_paren + 1:]
+
+        # Move search_start past the replacement to avoid re-processing
+        search_start = in_start + len(replacement)
+
     return result
 
 

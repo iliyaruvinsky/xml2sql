@@ -813,6 +813,165 @@ Added catalog entry:
 
 ---
 
+### SOLVED-021: Empty String IN Numeric Type Conversion Error
+
+**Original Bug**: BUG-021 (CV_MCM_CNTRL_Q51)
+**Discovered**: 2025-11-18, CV_MCM_CNTRL_Q51.xml
+**Resolved**: 2025-11-18
+
+**Error**:
+```
+SAP DBTech JDBC: [339]: invalid number: not a valid number string '' at implicit type conversion
+Could not execute 'CREATE VIEW "_SYS_BIC"."EYAL.EYAL_CTL/CV_MCM_CNTRL_Q51" AS WITH projection_1 AS ( ...'
+```
+
+**Problem**:
+Parameter substitution resulted in malformed WHERE clause:
+```sql
+WHERE ('' IN (0) OR calc."ZZTREAT_COMM_CD" IN (''))
+```
+
+HANA attempts implicit type conversion of empty string `''` to match numeric value `0` in IN clause, causing error [339].
+
+**Root Cause**:
+Variable parameters with empty defaults were not properly cleaned up, resulting in:
+- `'' IN (0)` - empty string compared against numeric value
+- HANA's strict type system requires compatible types for IN clause comparisons
+- Empty parameters should be removed entirely from WHERE conditions
+
+**Solution**:
+Enhanced `_cleanup_hana_parameter_conditions()` in `renderer.py` (lines 1156-1193) to remove all `'' IN (numeric)` patterns:
+
+```python
+# BUG-021: Remove empty string IN numeric patterns
+# Pattern: ('' IN (0) OR column IN (...)) → keep only second part
+result = re.sub(
+    r"\(\s*''\s+IN\s+\(\s*\d+\s*\)\s+OR\s+([^)]+)\)",
+    r"(\1)",
+    result,
+    flags=re.IGNORECASE
+)
+
+# Remove standalone '' IN (number) patterns in various positions
+# At start: ('' IN (0) AND ...) → (...)
+# At end: (... AND '' IN (0)) → (...)
+# Surrounded: AND '' IN (0) AND → AND
+```
+
+**Associated Rules**:
+- **Parameter Cleanup**: Remove invalid parameter patterns before SQL generation
+- **Type Safety**: HANA requires type-compatible comparisons in IN clauses
+- **Empty String Handling**: Empty parameters should be removed, not compared
+
+**Files Changed**:
+- `src/xml_to_sql/sql/renderer.py` - Enhanced parameter cleanup (lines 1156-1193)
+
+**Validation**:
+- ✅ CV_MCM_CNTRL_Q51.xml: 82ms total (18ms DROP + 63ms CREATE)
+- ✅ HANA Studio execution successful
+- ✅ No type conversion errors
+
+**Code Flow**:
+1. XML parameter variables generate `($$param$$ IN (0) OR column IN (...))` patterns
+2. Parameter substitution replaces `$$param$$` with `''`
+3. Result: `('' IN (0) OR column IN (...))`
+4. `_cleanup_hana_parameter_conditions()` detects and removes `'' IN (0)` pattern
+5. Final SQL: `(column IN (...))`
+6. HANA executes successfully without type conversion error
+
+---
+
+### SOLVED-022: Empty WHERE Clause After Parameter Cleanup
+
+**Original Bug**: BUG-022 (CV_MCM_CNTRL_REJECTED)
+**Discovered**: 2025-11-18, CV_MCM_CNTRL_REJECTED.xml
+**Resolved**: 2025-11-18
+
+**Error**:
+```
+SAP DBTech JDBC: [257]: sql syntax error: incorrect syntax near ")": line 22 col 12 (at pos 1052)
+Could not execute 'CREATE VIEW "_SYS_BIC"."EYAL.EYAL_CTL/CV_MCM_CNTRL_REJECTED" AS WITH projection_5 AS ( ...'
+```
+
+**Problem**:
+After BUG-021 cleanup removed invalid parameter patterns, empty WHERE clauses remained:
+```sql
+SELECT ...
+FROM SAPABAP1.ZCACSM_DOCINV
+WHERE ()
+```
+
+**Root Cause**:
+1. BUG-021 fix successfully removed `'' IN (0)` patterns from WHERE clauses
+2. When ALL conditions were removed, empty parentheses `()` remained
+3. String `"()"` is truthy in Python, so `if where_clause:` still added `WHERE ()`
+4. HANA rejects `WHERE ()` as invalid syntax
+5. Cleanup function was called but didn't verify result was non-empty
+
+**Solution**: Enhanced all rendering functions with post-cleanup validation
+
+**Code Changes** (renderer.py):
+
+1. **Projection with subquery** (lines 513-524):
+```python
+if ctx.database_mode == DatabaseMode.HANA:
+    qualified_where = _cleanup_hana_parameter_conditions(qualified_where)
+    # BUG-022: Check if WHERE clause is effectively empty after cleanup
+    qualified_where_stripped = qualified_where.strip()
+    if qualified_where_stripped in ('', '()'):
+        qualified_where = ''
+
+if qualified_where:
+    sql = f"... WHERE {qualified_where}"
+else:
+    sql = f"... (no WHERE clause)"
+```
+
+2. **Projection without subquery** (lines 527-533):
+```python
+if ctx.database_mode == DatabaseMode.HANA and where_clause:
+    where_clause = _cleanup_hana_parameter_conditions(where_clause)
+    where_clause_stripped = where_clause.strip()
+    if where_clause_stripped in ('', '()'):
+        where_clause = ''
+```
+
+3. **Join rendering** (lines 591-596)
+4. **Aggregation rendering** (lines 682-687)
+5. **Union rendering** (lines 768-773)
+6. **Calculation rendering** (lines 830-836)
+
+7. **Cleanup function** (lines 1199-1204):
+```python
+# BUG-022: Remove empty WHERE clauses
+result = re.sub(
+    r'\bWHERE\s+\(\s*\)',
+    '',
+    result,
+    flags=re.IGNORECASE
+)
+```
+
+**Validation**:
+- ✅ CV_MCM_CNTRL_REJECTED.xml: 53ms total (8ms DROP + 45ms CREATE)
+- ✅ HANA Studio execution successful
+- ✅ No syntax errors on empty WHERE clauses
+
+**Related Issues**:
+- BUG-021: Initial parameter cleanup that could leave empty WHERE clauses
+- Demonstrates importance of validating cleanup results, not just performing cleanup
+
+**Code Flow**:
+1. XML datasource has filters with only parameter variables
+2. Parameter substitution creates `WHERE ('' IN (0) OR ...)`
+3. BUG-021 cleanup removes `'' IN (0)` pattern
+4. Result after BUG-021: `WHERE ()`
+5. BUG-022 cleanup detects empty/`()` result
+6. WHERE clause omitted entirely
+7. HANA executes successfully
+
+---
+
 ## Resolved in Previous Sessions
 
 *(Placeholder for bugs fixed before structured tracking began)*

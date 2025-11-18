@@ -1120,4 +1120,118 @@ c921084 Remove old distribution archives
 
 ---
 
-**Last Updated**: 2025-11-16 (Session 2 - COMPLETE)
+## SESSION 7 UPDATE (2025-11-18): Parameter Cleanup Enhancement
+
+### What Happened This Session
+
+**Focus**: Fixing parameter substitution issues causing HANA type conversion and syntax errors
+
+**Test Results**:
+- ✅ **CV_MCM_CNTRL_Q51.xml** (ECC_ON_HANA): FIXED - 82ms execution (BUG-021)
+- ✅ **CV_MCM_CNTRL_REJECTED.xml** (ECC_ON_HANA): FIXED - 53ms execution (BUG-022)
+
+**Overall Progress**: 8/8 XMLs tested - 100% success rate
+
+### Bugs Fixed This Session
+
+1. **BUG-021**: Empty String IN Numeric Type Conversion
+   - **Problem**: Parameter substitution resulted in `'' IN (0)` patterns
+   - **Error**: HANA [339] "invalid number: not a valid number string ''"
+   - **Fix**: Enhanced `_cleanup_hana_parameter_conditions()` with 4 regex patterns to remove `'' IN (numeric)` patterns
+   - **Location**: `src/xml_to_sql/sql/renderer.py:1156-1193`
+   - **Status**: ✅ SOLVED (82ms HANA validation)
+
+2. **BUG-022**: Empty WHERE Clause After Parameter Cleanup
+   - **Problem**: After BUG-021 cleanup removed all conditions, empty `WHERE ()` remained
+   - **Error**: HANA [257] "sql syntax error: incorrect syntax near ')'"
+   - **Root Cause**: String `"()"` is truthy in Python, so `if where_clause:` still added `WHERE ()`
+   - **Fix**: Added post-cleanup validation in 6 rendering functions + cleanup regex
+   - **Locations**:
+     - Cleanup function: `renderer.py:1199-1204`
+     - Projection (subquery): `renderer.py:513-524`
+     - Projection (no subquery): `renderer.py:527-533`
+     - Join: `renderer.py:591-596`
+     - Aggregation: `renderer.py:682-687`
+     - Union: `renderer.py:768-773`
+     - Calculation: `renderer.py:830-836`
+   - **Status**: ✅ SOLVED (53ms HANA validation)
+
+### Files Modified
+
+1. **src/xml_to_sql/sql/renderer.py**:
+   - Added BUG-021 cleanup patterns (lines 1156-1193)
+   - Added BUG-022 empty WHERE cleanup (lines 1199-1204)
+   - Added post-cleanup validation in 6 rendering functions
+   - Total: ~90 lines added
+
+2. **docs/bugs/SOLVED_BUGS.md**:
+   - Added SOLVED-021 entry with complete documentation
+   - Added SOLVED-022 entry with complete documentation
+   - Total: ~160 lines added
+
+3. **FIXES_AFTER_COMMIT_4eff5fb.md**:
+   - Added BUG-021 section with fix details
+   - Added BUG-022 section with 7-part fix
+   - Updated application order and files to modify
+   - Total: ~200 lines added
+
+4. **iliya_hana_testing_results.md**:
+   - Added CV_MCM_CNTRL_Q51 test results with BUG-021 details
+   - Added CV_MCM_CNTRL_REJECTED test results with BUG-022 details
+
+### Technical Insights
+
+**Parameter Substitution Flow**:
+1. XML contains variable parameters like `$$IP_CALMONTH$$`
+2. Parameters with empty defaults generate patterns like `($param$ IN (0) OR column IN (...))`
+3. Substitution replaces `$param$` with `''`
+4. Result: `('' IN (0) OR column IN (...))`
+5. BUG-021 cleanup removes `'' IN (0)` → `(column IN (...))`
+6. If ALL conditions removed, BUG-022 ensures `WHERE ()` is omitted
+
+**Post-Cleanup Validation Pattern**:
+```python
+if ctx.database_mode == DatabaseMode.HANA and where_clause:
+    where_clause = _cleanup_hana_parameter_conditions(where_clause)
+    where_clause_stripped = where_clause.strip()
+    if where_clause_stripped in ('', '()'):
+        where_clause = ''
+```
+
+This pattern ensures empty WHERE clauses are never added to SQL.
+
+### Documentation Created
+
+1. **SOLVED-021**: Complete analysis in SOLVED_BUGS.md
+   - Error description, root cause, solution code
+   - Validation results, code flow diagram
+
+2. **SOLVED-022**: Complete analysis in SOLVED_BUGS.md
+   - 7-part fix documentation with code samples
+   - Related issues, validation results
+
+3. **FIXES_AFTER_COMMIT_4eff5fb.md**:
+   - Step-by-step reapplication guide for BUG-021 and BUG-022
+   - Line numbers, code snippets, application order
+
+### What's Ready for Next Session
+
+✅ All 8 XMLs tested and working
+✅ Parameter cleanup system comprehensive and robust
+✅ Documentation complete and detailed
+✅ FIXES document updated for future reapplication
+✅ Testing results documented in iliya_hana_testing_results.md
+🎯 Ready for new GOLDEN_COMMIT creation
+🎯 Ready to test additional XML files
+
+### Lessons Learned
+
+1. **Truthy strings in Python**: Empty strings like `"()"` are truthy, need explicit checks
+2. **Comprehensive cleanup**: Need to apply cleanup in ALL rendering functions, not just one
+3. **Post-cleanup validation**: Always verify cleanup results before using them
+4. **Type mismatches**: HANA's strict type system requires compatible types in comparisons
+5. **Cascading fixes**: One fix (BUG-021) can create new issues (BUG-022) that need addressing
+
+---
+
+**Last Updated**: 2025-11-18 (Session 7 - COMPLETE)
