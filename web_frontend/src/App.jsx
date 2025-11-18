@@ -13,16 +13,22 @@ function App() {
   const [singleFiles, setSingleFiles] = useState([])
   const [singleResult, setSingleResult] = useState(null)
   const [singleLoading, setSingleLoading] = useState(false)
+  const [singleProgressStages, setSingleProgressStages] = useState([])
   const [batchFiles, setBatchFiles] = useState([])
   const [batchResult, setBatchResult] = useState(null)
   const [batchLoading, setBatchLoading] = useState(false)
   const [config, setConfig] = useState({
+    database_mode: 'hana',
+    hana_version: '2.0',
+    hana_package: null,
     client: 'PROD',
     language: 'EN',
-    schema_overrides: {},
+    schema_overrides: { 'ABAP': 'SAPABAP1' },
+    view_schema: '_SYS_BIC',
     currency_udf_name: null,
     currency_rates_table: null,
     currency_schema: null,
+    auto_fix: false,
   })
   const [showHistory, setShowHistory] = useState(false)
 
@@ -35,7 +41,7 @@ function App() {
       <div className="app-container">
         <div className="app-header">
           <h1>XML to SQL Converter</h1>
-          <p>Convert SAP HANA calculation view XML to Snowflake SQL</p>
+          <p>Convert SAP HANA calculation view XML to SQL</p>
         </div>
 
         <div className="mode-selector">
@@ -73,10 +79,15 @@ function App() {
                       onFilesChange={(newFiles) => {
                         setSingleFiles(newFiles)
                         setSingleResult(null)
+                        setSingleProgressStages([])
                       }}
                       config={config}
                       onConfigChange={handleConfigChange}
-                      onConversionComplete={setSingleResult}
+                      onConversionComplete={(result) => {
+                        setSingleResult(result)
+                        setSingleProgressStages([])
+                      }}
+                      onProgressUpdate={setSingleProgressStages}
                       loading={singleLoading}
                       setLoading={setSingleLoading}
                     />
@@ -108,8 +119,13 @@ function App() {
               </div>
 
               <div className="right-panel">
-                {mode === 'single' && singleResult && (
-                  <SqlPreview result={singleResult} />
+                {mode === 'single' && (
+                  <SqlPreview
+                    result={singleResult}
+                    loading={singleLoading}
+                    progressStages={singleProgressStages}
+                    progressFilename={singleFiles[0]?.name}
+                  />
                 )}
                 {mode === 'batch' && batchResult && (
                   <BatchResults batchResult={batchResult} />

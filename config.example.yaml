@@ -51,3 +51,10 @@ scenarios:
     output: "V_C_SOLD_MATERIALS_PROD"
     enabled: true
 
+  # Example with HANA package path (for HANA mode only)
+  - id: "CV_TOP_PTHLGY"
+    source: "HANA 1.XX XML Views/BW_ON_HANA/CV_TOP_PTHLGY.xml"
+    output: "CV_TOP_PTHLGY"
+    hana_package: "Macabi_BI.EYAL.EYAL_CDS"  # HANA repository package path
+    enabled: true
+

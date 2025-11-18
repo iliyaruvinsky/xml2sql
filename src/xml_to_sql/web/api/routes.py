@@ -38,6 +38,116 @@ from .models import (
 router = APIRouter(prefix="/api", tags=["conversion"])
 
 
+# NOTE: More specific routes must come BEFORE less specific ones in FastAPI
+# So /convert/single/stream must be defined before /convert/single
+
+@router.post("/convert/single/stream")
+async def convert_single_stream(
+    file: UploadFile = File(..., description="XML file to convert"),
+    config_json: str = Form(default="{}", description="Configuration as JSON string"),
+    db: Session = Depends(get_db),
+):
+    """Convert a single XML file to SQL with real-time progress streaming via SSE."""
+    from .sse_helper import format_sse_message, stage_to_sse_dict
+
+    # Validate file type
+    if not file.filename or not file.filename.lower().endswith((".xml", ".XML")):
+        raise HTTPException(status_code=400, detail="File must be an XML file")
+
+    # Parse configuration
+    try:
+        config = ConversionConfig(**json.loads(config_json))
+    except (json.JSONDecodeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=f"Invalid configuration: {str(e)}")
+
+    # Read file content
+    xml_content_bytes = await file.read()
+
+    async def event_generator():
+        """Generate SSE events as conversion progresses."""
+        import asyncio
+        from concurrent.futures import ThreadPoolExecutor
+
+        try:
+            # Start conversion message
+            yield format_sse_message("start", {"filename": file.filename})
+
+            # Track stages for streaming
+            streamed_stages = []
+
+            def progress_callback(stage):
+                """Capture and stream stage updates."""
+                stage_dict = stage_to_sse_dict(stage)
+                streamed_stages.append(stage_dict)
+
+            # Run the synchronous conversion in a thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            with ThreadPoolExecutor() as executor:
+                result = await loop.run_in_executor(
+                    executor,
+                    lambda: convert_xml_to_sql(
+                        xml_content=xml_content_bytes,
+                        database_mode=config.database_mode,
+                        hana_version=config.hana_version,
+                        hana_package=config.hana_package,
+                        client=config.client,
+                        language=config.language,
+                        schema_overrides=config.schema_overrides,
+                        view_schema=config.view_schema,
+                        currency_udf_name=config.currency_udf_name,
+                        currency_rates_table=config.currency_rates_table,
+                        currency_schema=config.currency_schema,
+                        auto_fix=config.auto_fix,
+                        on_stage_update=progress_callback,
+                    )
+                )
+
+            # Stream all stages that were captured
+            for stage in streamed_stages:
+                yield format_sse_message("stage_update", stage)
+
+            # Send completion event with full result
+            if result.error:
+                yield format_sse_message("error", {
+                    "error": result.error,
+                    "scenario_id": result.scenario_id
+                })
+            else:
+                # Save to database
+                conversion = Conversion(
+                    filename=file.filename,
+                    scenario_id=result.scenario_id,
+                    xml_content=xml_content_bytes.decode('utf-8', errors='ignore'),
+                    sql_content=result.sql_content or "",
+                    status="success",
+                    database_mode=config.database_mode,
+                    created_at=datetime.now(),
+                )
+                db.add(conversion)
+                db.commit()
+                db.refresh(conversion)
+
+                yield format_sse_message("complete", {
+                    "conversion_id": conversion.id,
+                    "scenario_id": result.scenario_id,
+                    "sql_content": result.sql_content,
+                    "warnings": [w.message for w in result.warnings] if result.warnings else [],
+                })
+
+        except Exception as e:
+            yield format_sse_message("error", {"error": str(e)})
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        },
+    )
+
+
 @router.post("/convert/single", response_model=ConversionResponse)
 async def convert_single(
     file: UploadFile = File(..., description="XML file to convert"),
@@ -74,6 +184,7 @@ async def convert_single(
         xml_content=xml_content_bytes,
         database_mode=config.database_mode,
         hana_version=config.hana_version,
+        hana_package=config.hana_package,
         client=config.client,
         language=config.language,
         schema_overrides=config.schema_overrides,
@@ -287,6 +398,7 @@ async def convert_batch(
             xml_content=xml_content_bytes,
             database_mode=config.database_mode,
             hana_version=config.hana_version,
+            hana_package=config.hana_package,
             client=config.client,
             language=config.language,
             schema_overrides=config.schema_overrides,

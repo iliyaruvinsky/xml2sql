@@ -71,8 +71,9 @@ class ConversionResult:
 
 def convert_xml_to_sql(
     xml_content: bytes,
-    database_mode: str = "snowflake",
+    database_mode: str = "hana",
     hana_version: Optional[str] = None,
+    hana_package: Optional[str] = None,
     client: str = "PROD",
     language: str = "EN",
     schema_overrides: Optional[dict[str, str]] = None,
@@ -82,6 +83,7 @@ def convert_xml_to_sql(
     currency_schema: Optional[str] = None,
     auto_fix: bool = False,
     auto_fix_config: Optional[AutoFixConfig] = None,
+    on_stage_update: Optional[callable] = None,
 ) -> ConversionResult:
     """
     Convert XML content to SQL with mode and version awareness.
@@ -90,6 +92,7 @@ def convert_xml_to_sql(
         xml_content: XML file content as bytes
         database_mode: Target database mode (snowflake/hana)
         hana_version: HANA version for version-specific SQL (when mode=hana)
+        hana_package: HANA package path (e.g., Macabi_BI.EYAL.EYAL_CDS)
         client: Default client value
         language: Default language value
         schema_overrides: Dictionary of schema name overrides
@@ -99,6 +102,8 @@ def convert_xml_to_sql(
         currency_schema: Schema for currency artifacts
         auto_fix: Enable auto-correction of SQL issues
         auto_fix_config: Configuration for auto-correction
+        on_stage_update: Optional callback function called after each stage completes.
+                        Receives the completed ConversionStage object.
 
     Returns:
         ConversionResult with SQL content and metadata
@@ -118,7 +123,7 @@ def convert_xml_to_sql(
         stages.append(stage)
         return int(start_time * 1000), start_dt
     
-    def _complete_stage(start_ms: int, details: Optional[dict] = None, 
+    def _complete_stage(start_ms: int, details: Optional[dict] = None,
                         xml_snippet: Optional[str] = None, sql_snippet: Optional[str] = None):
         """Mark current stage as completed."""
         if stages:
@@ -130,6 +135,9 @@ def convert_xml_to_sql(
                 stages[-1].xml_snippet = xml_snippet
             if sql_snippet:
                 stages[-1].sql_snippet = sql_snippet
+            # Call callback if provided
+            if on_stage_update:
+                on_stage_update(stages[-1])
     
     def _fail_stage(start_ms: int, error: str):
         """Mark current stage as failed."""
@@ -297,12 +305,25 @@ def convert_xml_to_sql(
         scenario_id = scenario_ir.metadata.scenario_id or "GENERATED_VIEW"
         effective_view_schema = (view_schema.strip() if view_schema else None)
         if mode_enum == DatabaseMode.HANA:
-            # Default schema for HANA views is SAPABAP1 unless explicitly overridden
+            # Default schema for HANA views is _SYS_BIC unless explicitly overridden
             if effective_view_schema is None:
-                effective_view_schema = "SAPABAP1"
-        qualified_view_name = (
-            f"{effective_view_schema}.{scenario_id}" if effective_view_schema else scenario_id
-        )
+                effective_view_schema = "_SYS_BIC"
+
+        # Build qualified view name with optional HANA package path
+        # If hana_package is provided (e.g., "Macabi_BI.EYAL.EYAL_CDS"),
+        # generate: _SYS_BIC.Macabi_BI.EYAL.EYAL_CDS/CV_NAME (without quotes - renderer will add them)
+        # Otherwise: _SYS_BIC.CV_NAME
+        # NOTE: Do NOT add quotes here - the SQL renderer's _quote_identifier will handle quoting
+        if hana_package and mode_enum == DatabaseMode.HANA:
+            # Use package path with / separator (HANA catalog convention)
+            view_name_with_package = f"{hana_package}/{scenario_id}"
+            qualified_view_name = (
+                f'{effective_view_schema}.{view_name_with_package}' if effective_view_schema else view_name_with_package
+            )
+        else:
+            qualified_view_name = (
+                f"{effective_view_schema}.{scenario_id}" if effective_view_schema else scenario_id
+            )
 
         # Stage 3: Generate SQL
         start_ms, start_dt = _start_stage("Generate SQL")

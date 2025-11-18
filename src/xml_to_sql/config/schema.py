@@ -34,6 +34,7 @@ class ScenarioConfig:
     id: str
     database_mode: DatabaseMode = DatabaseMode.SNOWFLAKE
     hana_version: Optional[HanaVersion] = HanaVersion.HANA_2_0
+    hana_package: Optional[str] = None  # HANA package path: "Macabi_BI.EYAL.EYAL_CDS"
     instance_type: Optional[str] = None  # 'ecc', 'bw', 'auto'
     bw_package: Optional[str] = None  # For BW wrapper: "Macabi_BI.COOM"
     source: Optional[str] = None

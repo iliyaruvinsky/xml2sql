@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './ConversionFlow.css'
 
 function ConversionFlow({ stages }) {
-  const [viewMode, setViewMode] = useState('summary') // 'summary' or 'detailed'
+  const [viewMode, setViewMode] = useState('progress') // 'progress', 'summary', or 'detailed'
   const [expandedStage, setExpandedStage] = useState(null)
 
   if (!stages || stages.length === 0) {
@@ -52,6 +52,68 @@ function ConversionFlow({ stages }) {
     if (!ms) return ''
     if (ms < 1000) return `${ms}ms`
     return `${(ms / 1000).toFixed(2)}s`
+  }
+
+  const calculateProgressStats = () => {
+    const totalStages = stages.length
+    const completedStages = stages.filter(s => s.status === 'completed').length
+    const totalTime = stages.reduce((sum, s) => sum + (s.duration_ms || 0), 0)
+    const progressPercent = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0
+
+    return {
+      totalStages,
+      completedStages,
+      totalTime,
+      progressPercent
+    }
+  }
+
+  const renderProgressSummary = () => {
+    const stats = calculateProgressStats()
+
+    return (
+      <div className="progress-summary">
+        <div className="progress-stats">
+          <div className="stat-card">
+            <div className="stat-label">Total Time</div>
+            <div className="stat-value">{formatDuration(stats.totalTime)}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Stages Completed</div>
+            <div className="stat-value">{stats.completedStages} / {stats.totalStages}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-label">Progress</div>
+            <div className="stat-value">{stats.progressPercent}%</div>
+          </div>
+        </div>
+        <div className="progress-bar-container">
+          <div className="progress-bar-fill" style={{ width: `${stats.progressPercent}%` }}>
+            {stats.progressPercent > 10 && <span className="progress-text">{stats.progressPercent}%</span>}
+          </div>
+        </div>
+        <div className="stage-timing-breakdown">
+          {stages.map((stage, index) => {
+            const percentage = stats.totalTime > 0 ? ((stage.duration_ms || 0) / stats.totalTime * 100).toFixed(1) : 0
+            const skipped = isSkipped(stage)
+            return (
+              <div key={index} className={`timing-bar ${getStatusClass(stage.status, stage)}`}>
+                <div className="timing-label">
+                  <span className="timing-stage-name">{stage.stage_name}</span>
+                  <span className="timing-duration">{formatDuration(stage.duration_ms)} ({percentage}%)</span>
+                </div>
+                <div className="timing-bar-bg">
+                  <div
+                    className={`timing-bar-fill ${skipped ? 'skipped' : ''}`}
+                    style={{ width: `${percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
   }
 
   const renderSummaryView = () => {
@@ -180,10 +242,16 @@ function ConversionFlow({ stages }) {
         <h3>Conversion Flow</h3>
         <div className="view-toggle">
           <button
+            className={viewMode === 'progress' ? 'active' : ''}
+            onClick={() => setViewMode('progress')}
+          >
+            Progress
+          </button>
+          <button
             className={viewMode === 'summary' ? 'active' : ''}
             onClick={() => setViewMode('summary')}
           >
-            Summary
+            Flow
           </button>
           <button
             className={viewMode === 'detailed' ? 'active' : ''}
@@ -194,7 +262,9 @@ function ConversionFlow({ stages }) {
         </div>
       </div>
 
-      {viewMode === 'summary' ? renderSummaryView() : renderDetailedView()}
+      {viewMode === 'progress' && renderProgressSummary()}
+      {viewMode === 'summary' && renderSummaryView()}
+      {viewMode === 'detailed' && renderDetailedView()}
     </div>
   )
 }

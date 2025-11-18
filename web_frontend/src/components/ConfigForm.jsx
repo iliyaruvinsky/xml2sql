@@ -99,6 +99,25 @@ const fieldHelpContent = {
       </div>
     ),
   },
+  hanaPackage: {
+    tooltip:
+      'Purpose: HANA repository package path where the calculation view is stored.\nFormat: Use dot notation (.) for the package hierarchy, e.g., Macabi_BI.EYAL.EYAL_CDS\nWhen to use: For HANA mode, specify the package path to generate the correct view name.\nExample: If your CV is in Macabi_BI → EYAL → EYAL_CDS folder, enter: Macabi_BI.EYAL.EYAL_CDS\nResult: Generated view will be "_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_NAME"',
+    content: (
+      <div className="field-help">
+        <strong>Purpose:</strong> HANA repository package path where the calculation view is stored.
+        <br />
+        <strong>Format:</strong> Use dot notation (.) for the package hierarchy
+        <br />
+        <strong>Example:</strong> <code>Macabi_BI.EYAL.EYAL_CDS</code>
+        <br />
+        <strong>When to use:</strong> For HANA mode, this specifies the package folder structure where your calculation view lives in HANA Studio.
+        <br />
+        <strong>Result:</strong> The generated view will be <code>"_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_NAME"</code>
+        <br />
+        <strong>Note:</strong> Leave empty to use just the view name without package path.
+      </div>
+    ),
+  },
   autoCorrection: {
     tooltip:
       'What it does: Automatically fixes common SQL syntax and semantic issues in the generated SQL.\n\nWhen to apply: Enable this BEFORE converting your XML to SQL if you want the system to automatically correct issues during conversion. This setting affects the conversion process itself.\n\nWhy to apply: Saves time by resolving frequent SQL errors, making the generated SQL more production-ready for Snowflake. Particularly useful for migrating legacy HANA SQL patterns that may have compatibility issues.\n\nExamples of fixes:\n• Reserved keywords: ORDER becomes `ORDER` (quoted)\n• String concatenation: "text1" + "text2" becomes "text1" || "text2"\n• Function translation: IF(condition, val1, val2) becomes IFF(condition, val1, val2)\n\nConfidence levels: The system applies high-confidence fixes automatically. All corrections are shown in the SQL Preview after conversion.',
@@ -240,11 +259,11 @@ function ConfigForm({ config, onConfigChange }) {
             </label>
             <select
               id="database_mode"
-              value={config.database_mode || 'snowflake'}
+              value={config.database_mode || 'hana'}
               onChange={(e) => updateConfig({ database_mode: e.target.value })}
             >
-              <option value="snowflake">Snowflake</option>
               <option value="hana">SAP HANA</option>
+              <option value="snowflake">Snowflake</option>
             </select>
             <p className="field-hint">
               Select the target database system for SQL generation. This determines syntax, functions, and data types used in the generated SQL.
@@ -252,25 +271,51 @@ function ConfigForm({ config, onConfigChange }) {
           </div>
 
           {config.database_mode === 'hana' && (
-            <div className="form-group">
-              <label htmlFor="hana_version">
-                HANA Version
-              </label>
-              <select
-                id="hana_version"
-                value={config.hana_version || '2.0'}
-                onChange={(e) => updateConfig({ hana_version: e.target.value })}
-              >
-                <option value="1.0">HANA 1.0</option>
-                <option value="2.0">HANA 2.0</option>
-                <option value="2.0_SPS01">HANA 2.0 SPS01</option>
-                <option value="2.0_SPS03">HANA 2.0 SPS03</option>
-                <option value="2.0_SPS04">HANA 2.0 SPS04</option>
-              </select>
-              <p className="field-hint">
-                Select HANA version for version-specific SQL syntax and features. Older versions may not support all features.
-              </p>
-            </div>
+            <>
+              <div className="form-group">
+                <label htmlFor="hana_version">
+                  HANA Version
+                </label>
+                <select
+                  id="hana_version"
+                  value={config.hana_version || '2.0'}
+                  onChange={(e) => updateConfig({ hana_version: e.target.value })}
+                >
+                  <option value="1.0">HANA 1.0</option>
+                  <option value="2.0">HANA 2.0</option>
+                  <option value="2.0_SPS01">HANA 2.0 SPS01</option>
+                  <option value="2.0_SPS03">HANA 2.0 SPS03</option>
+                  <option value="2.0_SPS04">HANA 2.0 SPS04</option>
+                </select>
+                <p className="field-hint">
+                  Select HANA version for version-specific SQL syntax and features. Older versions may not support all features.
+                </p>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="hana_package">
+                  HANA Package Path (Optional)
+                  <span
+                    className="help-icon"
+                    title={fieldHelpContent.hanaPackage.tooltip}
+                  >
+                    ℹ️
+                  </span>
+                </label>
+                {showHelp && fieldHelpContent.hanaPackage.content}
+                <input
+                  id="hana_package"
+                  type="text"
+                  value={config.hana_package || ''}
+                  onChange={(e) => updateConfig({ hana_package: e.target.value || null })}
+                  placeholder="e.g., Macabi_BI.EYAL.EYAL_CDS"
+                />
+                <p className="field-hint">
+                  Enter the HANA repository package path (folder structure) where your calculation view is stored.
+                  Example: <code>Macabi_BI.EYAL.EYAL_CDS</code> will generate view name <code>"_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_NAME"</code>
+                </p>
+              </div>
+            </>
           )}
         </div>
 
@@ -300,45 +345,47 @@ function ConfigForm({ config, onConfigChange }) {
           </div>
         </div>
 
-        <div className="form-group">
-          <label>
-            Schema Overrides
-            <span 
-              className="help-icon" 
-              title={fieldHelpContent.schemaOverrides.tooltip}
-            >
-              ℹ️
-            </span>
-          </label>
-          {showHelp && fieldHelpContent.schemaOverrides.content}
-          {schemaOverrides.map((override, index) => (
-            <div key={index} className="schema-override-row">
-              <input
-                type="text"
-                placeholder="Original schema (e.g., SAPK5D)"
-                value={override.key}
-                onChange={(e) => updateSchemaOverride(index, 'key', e.target.value)}
-              />
-              <span>→</span>
-              <input
-                type="text"
-                placeholder="Snowflake schema (e.g., PRODUCTION_DATA)"
-                value={override.value}
-                onChange={(e) => updateSchemaOverride(index, 'value', e.target.value)}
-              />
-              <button
-                className="remove-override-btn"
-                onClick={() => removeSchemaOverride(index)}
-                title="Remove this override"
+        {config.database_mode === 'snowflake' && (
+          <div className="form-group">
+            <label>
+              Schema Overrides
+              <span
+                className="help-icon"
+                title={fieldHelpContent.schemaOverrides.tooltip}
               >
-                ×
-              </button>
-            </div>
-          ))}
-          <button className="add-override-btn" onClick={addSchemaOverride}>
-            + Add Schema Override
-          </button>
-        </div>
+                ℹ️
+              </span>
+            </label>
+            {showHelp && fieldHelpContent.schemaOverrides.content}
+            {schemaOverrides.map((override, index) => (
+              <div key={index} className="schema-override-row">
+                <input
+                  type="text"
+                  placeholder="Original schema (e.g., SAPK5D)"
+                  value={override.key}
+                  onChange={(e) => updateSchemaOverride(index, 'key', e.target.value)}
+                />
+                <span>→</span>
+                <input
+                  type="text"
+                  placeholder="Snowflake schema (e.g., PRODUCTION_DATA)"
+                  value={override.value}
+                  onChange={(e) => updateSchemaOverride(index, 'value', e.target.value)}
+                />
+                <button
+                  className="remove-override-btn"
+                  onClick={() => removeSchemaOverride(index)}
+                  title="Remove this override"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            <button className="add-override-btn" onClick={addSchemaOverride}>
+              + Add Schema Override
+            </button>
+          </div>
+        )}
 
         <div className="form-section">
           <h3>

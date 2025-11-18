@@ -1,12 +1,23 @@
 # LLM Handover Summary
 
-## Current State (Updated: 2025-11-16)
+## Current State (Updated: 2025-11-17 - End of Session 3)
 
 ### Project Status
-- **Project**: XML to SQL Converter - SAP HANA Calculation Views to Snowflake SQL
-- **Status**: Production-ready with complete SQL validation and auto-correction system (All Phases Complete)
+- **Project**: XML to SQL Converter - SAP HANA Calculation Views to SQL (HANA & Snowflake)
+- **Status**: HANA Mode Active Testing - Multi-instance validation in progress (83% success rate)
 - **Repository**: https://github.com/iliyaruvinsky/xml2sql
-- **Version**: v2.2.0 released (latest distribution `xml2sql-distribution-20251113-125805.zip`)
+- **Version**: v2.2.0 (HANA mode development and validation)
+- **Current Phase**: Testing HANA SQL generation across multiple SAP instances
+- **Next Action**: Continue testing more XML files from different sources
+
+### Quick Start for New Computer
+
+1. **Clone repository**: `git clone https://github.com/iliyaruvinsky/xml2sql.git`
+2. **Install dependencies**: `pip install -e ".[dev]"`
+3. **Start web server**: Run `restart_server.bat` (Windows) or `python -m uvicorn src.xml_to_sql.web.main:app --reload`
+4. **Access UI**: http://localhost:8000
+5. **Test XML**: Upload XML, set HANA package path, convert, execute in HANA Studio
+6. **Review status**: Check `docs/TESTING_LOG.md` and `Target (SQL Scripts)/VALIDATED/README.md`
 
 ### Completed Features
 
@@ -512,6 +523,107 @@ pytest tests/test_sql_validator.py -v
 ```
 
 **Note**: Test discovery may have issues with paths containing spaces (e.g., "Google Drive"). Tests can be verified by direct Python import/execution.
+
+---
+
+## SESSION 3 UPDATE (2025-11-17): HANA Mode Multi-Instance Testing
+
+### What Happened This Session
+
+**Focus**: Testing HANA SQL generation across multiple SAP instances (BW_ON_HANA, ECC_ON_HANA)
+
+**Test Results**:
+- ✅ **BW_ON_HANA**: 4/4 XMLs working perfectly (100% success)
+  - CV_TOP_PTHLGY.xml ✅
+  - CV_EQUIPMENT_STATUSES.xml ✅
+  - CV_INVENTORY_ORDERS.xml ✅
+  - CV_PURCHASE_ORDERS.xml ✅
+- ⚠️ **ECC_ON_HANA**: 1/2 XMLs working (50% success)
+  - CV_CNCLD_EVNTS.xml ✅ (74ms execution)
+  - CV_CT02_CT03.xml ❌ (BUG-019 - documented below)
+
+**Overall Success Rate**: 5/6 files working (83%)
+
+### Bugs Fixed This Session
+
+1. **BUG-016**: Double-quoted view names (`""_SYS_BIC""` instead of `"_SYS_BIC"`)
+   - **Fix**: Removed manual quoting from `converter.py:320` and `cli/app.py:87`
+   - **Status**: ✅ SOLVED
+
+2. **BUG-017**: Escaped empty string parameters (`''''` instead of `''`)
+   - **Fix**: Updated cleanup regex in `renderer.py:1018` from `''{0,2}` to `'{2,4}`
+   - **Status**: ✅ SOLVED
+
+### Known Issues Documented
+
+**BUG-019**: CV_CT02_CT03 - REGEXP_LIKE with Calculated Columns in WHERE
+- **Status**: Active - Needs Research
+- **Impact**: 1/6 test files (17% of test suite)
+- **Problem**: WHERE clause references calculated columns in REGEXP_LIKE filters
+- **Root Cause**: Filters rendered with source table alias instead of subquery alias "calc"
+- **Example**:
+  ```sql
+  -- WRONG: REGEXP_LIKE(SAPABAP1."/BIC/AEZO_CT0200"."/BIC/EYTRTNUM", ...)
+  -- CORRECT: REGEXP_LIKE(calc."/BIC/EYTRTNUM", ...)
+  ```
+- **Attempted Fixes** (all failed):
+  1. Regex replacement - didn't match pattern
+  2. Use "calc" when calculated columns exist - broke CV_TOP_PTHLGY
+  3. Pre-scan filters for calculated column references - broke topological sort
+- **Decision**: Document as known limitation, continue testing other files
+- **Details**: See `docs/TESTING_LOG.md` and `docs/bugs/BUG_TRACKER.md`
+
+### New Infrastructure Created
+
+1. **Validation Backup System**:
+   - Created `Target (SQL Scripts)/VALIDATED/` folder
+   - Contains golden copies of 5 working SQL files
+   - Includes README.md with validation status table
+   - Purpose: Regression testing, comparison baseline, backup before risky changes
+
+2. **Testing Automation**:
+   - `restart_server.bat` - Hard restart script (kills processes, clears cache, reinstalls package)
+   - `check_server.bat` - Server status verification script
+   - Ensures clean testing environment between tests
+
+3. **Comprehensive Documentation**:
+   - `docs/TESTING_LOG.md` - Detailed testing log with results, bugs, lessons learned
+   - `SESSION_3_SUMMARY.md` - Executive summary of session
+   - Updated `docs/bugs/BUG_TRACKER.md` with BUG-019
+
+### Lessons Learned
+
+1. **Always backup working SQL** - Created VALIDATED folder with golden copies
+2. **Hard restart between tests** - Prevents stale code issues from caching
+3. **Don't use regex for structural SQL problems** - Need parser/renderer level fixes
+4. **Test before claiming success** - Multiple "fixes" broke previously working files
+5. **Git revert is your friend** - Used `git checkout` 3 times to recover from broken state
+6. **One bug at a time** - Fixing multiple issues together creates confusion
+
+### Key Decisions Made
+
+1. **Prioritize working files over edge cases** - 83% success rate is acceptable for now
+2. **Document limitations clearly** - BUG-019 documented with full analysis
+3. **Build safety systems** - Validation backups prevent regression
+4. **Focus on patterns** - Test more files before attempting complex fixes
+
+### What's Ready for Next Session
+
+✅ Server running cleanly
+✅ All BW_ON_HANA views validated and working
+✅ Validation backup system in place
+✅ Testing process documented
+✅ Clean codebase (all breaking changes reverted)
+⏳ One known issue documented for future investigation
+✅ Ready to continue testing remaining XML files
+
+### Files to Test Next
+
+- Remaining files from `Source (XML Files)/HANA 1.XX XML Views/ECC_ON_HANA/`
+- Any files from other instance types
+- Build comprehensive test coverage across all XML patterns
+
+---
 
 ## Next Steps: Phase 4 (Auto-Correction Engine)
 

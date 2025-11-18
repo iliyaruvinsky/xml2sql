@@ -5,9 +5,25 @@ import { downloadSql } from '../services/api'
 import XmlViewer from './XmlViewer'
 import ValidationResults from './ValidationResults'
 import ConversionFlow from './ConversionFlow'
+import ConversionProgress from './ConversionProgress'
 import './SqlPreview.css'
 
-function SqlPreview({ result }) {
+function SqlPreview({ result, loading, progressStages, progressFilename }) {
+  // Show progress if loading and we have stages
+  if (loading && progressStages && progressStages.length > 0) {
+    return (
+      <div className="sql-preview-container">
+        <div className="card">
+          <ConversionProgress stages={progressStages} filename={progressFilename || 'file.xml'} />
+        </div>
+      </div>
+    )
+  }
+
+  // Show nothing if no result yet
+  if (!result) {
+    return null
+  }
   const [mainTab, setMainTab] = useState('sql') // 'sql', 'flow', 'validation'
   const [viewMode, setViewMode] = useState('split') // 'split', 'tabs'
   const [activeTab, setActiveTab] = useState('xml') // 'xml' or 'sql' for tabs view

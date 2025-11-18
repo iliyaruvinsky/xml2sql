@@ -1,0 +1,1239 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "XML to SQL Converter",
+        "description": "Convert SAP HANA calculation view XML definitions into Snowflake SQL artifacts",
+        "version": "2.2.0"
+    },
+    "paths": {
+        "/api/convert/single": {
+            "post": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Convert Single",
+                "description": "Convert a single XML file to SQL.",
+                "operationId": "convert_single_api_convert_single_post",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_convert_single_api_convert_single_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConversionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/convert/batch": {
+            "post": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Convert Batch",
+                "description": "Convert multiple XML files to SQL.",
+                "operationId": "convert_batch_api_convert_batch_post",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_convert_batch_api_convert_batch_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BatchConversionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/download/{conversion_id}": {
+            "get": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Download Sql",
+                "description": "Download SQL file for a conversion.",
+                "operationId": "download_sql_api_download__conversion_id__get",
+                "parameters": [
+                    {
+                        "name": "conversion_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Conversion Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/download/batch/{batch_id}": {
+            "get": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Download Batch Zip",
+                "description": "Download all SQL files from a batch as a ZIP.",
+                "operationId": "download_batch_zip_api_download_batch__batch_id__get",
+                "parameters": [
+                    {
+                        "name": "batch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Batch Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/history": {
+            "get": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Get History",
+                "description": "Get conversion history with pagination.",
+                "operationId": "get_history_api_history_get",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "title": "Page"
+                        }
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 50,
+                            "title": "Page Size"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HistoryListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Delete History Bulk",
+                "description": "Delete multiple conversions or all history.",
+                "operationId": "delete_history_bulk_api_history_delete",
+                "parameters": [
+                    {
+                        "name": "ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Comma-separated list of conversion IDs to delete. If omitted, all history will be deleted.",
+                            "title": "Ids"
+                        },
+                        "description": "Comma-separated list of conversion IDs to delete. If omitted, all history will be deleted."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Delete History Bulk Api History Delete"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/history/{conversion_id}": {
+            "get": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Get History Detail",
+                "description": "Get detailed information about a conversion.",
+                "operationId": "get_history_detail_api_history__conversion_id__get",
+                "parameters": [
+                    {
+                        "name": "conversion_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Conversion Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HistoryDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Delete History",
+                "description": "Delete a conversion from history.",
+                "operationId": "delete_history_api_history__conversion_id__delete",
+                "parameters": [
+                    {
+                        "name": "conversion_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Conversion Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Delete History Api History  Conversion Id  Delete"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/config/defaults": {
+            "get": {
+                "tags": [
+                    "conversion"
+                ],
+                "summary": "Get Default Config",
+                "description": "Get default configuration template.",
+                "operationId": "get_default_config_api_config_defaults_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Get Default Config Api Config Defaults Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "description": "Health check endpoint.",
+                "operationId": "health_check_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/version": {
+            "get": {
+                "summary": "Get Version",
+                "description": "Get application version.",
+                "operationId": "get_version_api_version_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "BatchConversionResponse": {
+                "properties": {
+                    "batch_id": {
+                        "type": "string",
+                        "title": "Batch Id"
+                    },
+                    "total_files": {
+                        "type": "integer",
+                        "title": "Total Files"
+                    },
+                    "successful": {
+                        "type": "integer",
+                        "title": "Successful"
+                    },
+                    "failed": {
+                        "type": "integer",
+                        "title": "Failed"
+                    },
+                    "results": {
+                        "items": {
+                            "$ref": "#/components/schemas/BatchFileResult"
+                        },
+                        "type": "array",
+                        "title": "Results"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "batch_id",
+                    "total_files",
+                    "successful",
+                    "failed",
+                    "created_at"
+                ],
+                "title": "BatchConversionResponse",
+                "description": "Response model for batch conversion."
+            },
+            "BatchFileResult": {
+                "properties": {
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "conversion_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Conversion Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "error_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "filename",
+                    "status"
+                ],
+                "title": "BatchFileResult",
+                "description": "Result for a single file in batch conversion."
+            },
+            "Body_convert_batch_api_convert_batch_post": {
+                "properties": {
+                    "files": {
+                        "items": {
+                            "type": "string",
+                            "format": "binary"
+                        },
+                        "type": "array",
+                        "title": "Files",
+                        "description": "XML files to convert"
+                    },
+                    "config_json": {
+                        "type": "string",
+                        "title": "Config Json",
+                        "description": "Configuration as JSON string",
+                        "default": "{}"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "files"
+                ],
+                "title": "Body_convert_batch_api_convert_batch_post"
+            },
+            "Body_convert_single_api_convert_single_post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File",
+                        "description": "XML file to convert"
+                    },
+                    "config_json": {
+                        "type": "string",
+                        "title": "Config Json",
+                        "description": "Configuration as JSON string",
+                        "default": "{}"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file"
+                ],
+                "title": "Body_convert_single_api_convert_single_post"
+            },
+            "ConversionMetadata": {
+                "properties": {
+                    "scenario_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Scenario Id"
+                    },
+                    "nodes_count": {
+                        "type": "integer",
+                        "title": "Nodes Count",
+                        "default": 0
+                    },
+                    "filters_count": {
+                        "type": "integer",
+                        "title": "Filters Count",
+                        "default": 0
+                    },
+                    "calculated_attributes_count": {
+                        "type": "integer",
+                        "title": "Calculated Attributes Count",
+                        "default": 0
+                    },
+                    "logical_model_present": {
+                        "type": "boolean",
+                        "title": "Logical Model Present",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "title": "ConversionMetadata",
+                "description": "Metadata about the conversion."
+            },
+            "ConversionResponse": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "scenario_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Scenario Id"
+                    },
+                    "sql_content": {
+                        "type": "string",
+                        "title": "Sql Content"
+                    },
+                    "xml_content": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Xml Content"
+                    },
+                    "warnings": {
+                        "items": {
+                            "$ref": "#/components/schemas/WarningResponse"
+                        },
+                        "type": "array",
+                        "title": "Warnings"
+                    },
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ConversionMetadata"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "validation": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ValidationResult"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "validation_logs": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Validation Logs"
+                    },
+                    "corrections": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CorrectionResult"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "stages": {
+                        "items": {
+                            "$ref": "#/components/schemas/ConversionStageInfo"
+                        },
+                        "type": "array",
+                        "title": "Stages"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status",
+                        "default": "success"
+                    },
+                    "error_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error Message"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "filename",
+                    "sql_content",
+                    "created_at"
+                ],
+                "title": "ConversionResponse",
+                "description": "Response model for single conversion."
+            },
+            "ConversionStageInfo": {
+                "properties": {
+                    "stage_name": {
+                        "type": "string",
+                        "title": "Stage Name"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "timestamp": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Timestamp"
+                    },
+                    "duration_ms": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Duration Ms"
+                    },
+                    "details": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Details"
+                    },
+                    "xml_snippet": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Xml Snippet"
+                    },
+                    "sql_snippet": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Sql Snippet"
+                    },
+                    "error": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "stage_name",
+                    "status"
+                ],
+                "title": "ConversionStageInfo",
+                "description": "Information about a conversion stage."
+            },
+            "CorrectionInfo": {
+                "properties": {
+                    "issue_code": {
+                        "type": "string",
+                        "title": "Issue Code"
+                    },
+                    "original_text": {
+                        "type": "string",
+                        "title": "Original Text"
+                    },
+                    "corrected_text": {
+                        "type": "string",
+                        "title": "Corrected Text"
+                    },
+                    "line_number": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Line Number"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description",
+                        "default": ""
+                    },
+                    "confidence": {
+                        "type": "string",
+                        "title": "Confidence"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "issue_code",
+                    "original_text",
+                    "corrected_text",
+                    "confidence"
+                ],
+                "title": "CorrectionInfo",
+                "description": "Information about a single correction applied."
+            },
+            "CorrectionResult": {
+                "properties": {
+                    "corrected_sql": {
+                        "type": "string",
+                        "title": "Corrected Sql"
+                    },
+                    "corrections_applied": {
+                        "items": {
+                            "$ref": "#/components/schemas/CorrectionInfo"
+                        },
+                        "type": "array",
+                        "title": "Corrections Applied"
+                    },
+                    "issues_fixed": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Issues Fixed"
+                    },
+                    "issues_remaining": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationIssue"
+                        },
+                        "type": "array",
+                        "title": "Issues Remaining"
+                    },
+                    "auto_fix_enabled": {
+                        "type": "boolean",
+                        "title": "Auto Fix Enabled",
+                        "default": false
+                    },
+                    "original_sql": {
+                        "type": "string",
+                        "title": "Original Sql",
+                        "default": ""
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "corrected_sql"
+                ],
+                "title": "CorrectionResult",
+                "description": "Result of auto-correction process."
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "HistoryDetailResponse": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "scenario_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Scenario Id"
+                    },
+                    "sql_content": {
+                        "type": "string",
+                        "title": "Sql Content"
+                    },
+                    "xml_content": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Xml Content"
+                    },
+                    "config_json": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Config Json"
+                    },
+                    "warnings": {
+                        "items": {
+                            "$ref": "#/components/schemas/WarningResponse"
+                        },
+                        "type": "array",
+                        "title": "Warnings"
+                    },
+                    "validation": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ValidationResult"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "validation_logs": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Validation Logs"
+                    },
+                    "corrections": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CorrectionResult"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "error_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error Message"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "file_size": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "File Size"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "filename",
+                    "sql_content",
+                    "status",
+                    "created_at"
+                ],
+                "title": "HistoryDetailResponse",
+                "description": "Response model for history detail."
+            },
+            "HistoryEntry": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "filename": {
+                        "type": "string",
+                        "title": "Filename"
+                    },
+                    "scenario_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Scenario Id"
+                    },
+                    "status": {
+                        "type": "string",
+                        "title": "Status"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "file_size": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "File Size"
+                    },
+                    "error_message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Error Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "filename",
+                    "status",
+                    "created_at"
+                ],
+                "title": "HistoryEntry",
+                "description": "History entry for list view."
+            },
+            "HistoryListResponse": {
+                "properties": {
+                    "entries": {
+                        "items": {
+                            "$ref": "#/components/schemas/HistoryEntry"
+                        },
+                        "type": "array",
+                        "title": "Entries"
+                    },
+                    "total": {
+                        "type": "integer",
+                        "title": "Total"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page",
+                        "default": 1
+                    },
+                    "page_size": {
+                        "type": "integer",
+                        "title": "Page Size",
+                        "default": 50
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "entries",
+                    "total"
+                ],
+                "title": "HistoryListResponse",
+                "description": "Response model for history list."
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "ValidationIssue": {
+                "properties": {
+                    "severity": {
+                        "type": "string",
+                        "title": "Severity"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "Code"
+                    },
+                    "line_number": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Line Number"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "severity",
+                    "message",
+                    "code"
+                ],
+                "title": "ValidationIssue",
+                "description": "Validation issue model."
+            },
+            "ValidationResult": {
+                "properties": {
+                    "is_valid": {
+                        "type": "boolean",
+                        "title": "Is Valid"
+                    },
+                    "errors": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationIssue"
+                        },
+                        "type": "array",
+                        "title": "Errors"
+                    },
+                    "warnings": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationIssue"
+                        },
+                        "type": "array",
+                        "title": "Warnings"
+                    },
+                    "info": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationIssue"
+                        },
+                        "type": "array",
+                        "title": "Info"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "is_valid"
+                ],
+                "title": "ValidationResult",
+                "description": "Validation result model."
+            },
+            "WarningResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "level": {
+                        "type": "string",
+                        "title": "Level",
+                        "default": "warning"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "title": "WarningResponse",
+                "description": "Warning message model."
+            }
+        }
+    }
+}

@@ -8,6 +8,37 @@
 
 ## Active Bugs
 
+### 🔴 BUG-019: CV_CT02_CT03 - REGEXP_LIKE with Calculated Columns in WHERE
+
+**Priority**: Medium
+**Status**: Active - Needs Research
+**Discovered**: 2025-11-17 Session 3
+**Affects**: ECC_ON_HANA XMLs with calculated columns referenced in REGEXP_LIKE filters
+
+**Symptom**:
+```
+SAP DBTech JDBC: [257]: sql syntax error: incorrect syntax near "AND": line 29 col 206
+```
+
+**Root Cause**: Filters rendered with source table alias instead of subquery alias "calc" when WHERE references calculated columns in REGEXP_LIKE pattern matching.
+
+**Example**:
+```sql
+-- WRONG: WHERE (REGEXP_LIKE(SAPABAP1."/BIC/AEZO_CT0200"."/BIC/EYTRTNUM", ...))
+-- CORRECT: WHERE (REGEXP_LIKE(calc."/BIC/EYTRTNUM", ...))
+```
+
+**Attempted Fixes** (all failed):
+1. Regex replacement - didn't match pattern
+2. Use "calc" when calculated columns exist - broke CV_TOP_PTHLGY
+3. Pre-scan filters for calculated column references - broke topological sort
+
+**Next Steps**: Test more ECC_ON_HANA XMLs, analyze pattern, consider if acceptable limitation
+
+**Details**: See `docs/TESTING_LOG.md` for full analysis
+
+---
+
 ### BUG-001: JOIN Column Resolution - Wrong Projection Reference
 
 **Status**: ✅ **SOLVED** (2025-11-13)  

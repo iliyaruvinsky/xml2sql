@@ -25,15 +25,15 @@ patterns:
 
   - name: "date_now_minus_days"
     match: "date\\s*\\(\\s*NOW\\s*\\(\\s*\\)\\s*-\\s*(\\d+)\\s*\\)"
-    hana: "ADD_DAYS(CURRENT_DATE, -$1)"
+    hana: "TO_DATE(ADD_DAYS(CURRENT_TIMESTAMP, -$1))"
     snowflake: "DATEADD(DAY, -$1, CURRENT_DATE)"
     description: >
       Legacy pattern date(NOW() - N) for "N days ago". This is MORE SPECIFIC
       than now_minus_days, so it must be processed first. After catalog rewrites
       NOW→CURRENT_TIMESTAMP and date→TO_DATE, this becomes
       TO_DATE(CURRENT_TIMESTAMP - N) which is invalid in HANA.
-      We catch the pattern early and convert directly to ADD_DAYS.
-      Example: date(NOW() - 270) → ADD_DAYS(CURRENT_DATE, -270)
+      We catch the pattern early and convert directly to ADD_DAYS with TO_DATE wrapper.
+      Example: date(NOW() - 270) → TO_DATE(ADD_DAYS(CURRENT_TIMESTAMP, -270))
 
   - name: "now_minus_days"
     match: "NOW\\s*\\(\\s*\\)\\s*-\\s*(\\d+)"

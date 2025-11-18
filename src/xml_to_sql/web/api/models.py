@@ -11,8 +11,9 @@ from pydantic import BaseModel, Field
 class ConversionConfig(BaseModel):
     """Configuration for conversion."""
 
-    database_mode: str = Field(default="snowflake", description="Target database (snowflake/hana)")
+    database_mode: str = Field(default="hana", description="Target database (snowflake/hana)")
     hana_version: Optional[str] = Field(default="2.0", description="HANA version for HANA mode (1.0, 2.0, 2.0_SPS01, 2.0_SPS03)")
+    hana_package: Optional[str] = Field(default=None, description="HANA package path (e.g., Macabi_BI.EYAL.EYAL_CDS)")
     client: str = Field(default="PROD", description="Default client value")
     language: str = Field(default="EN", description="Default language value")
     schema_overrides: Dict[str, str] = Field(default_factory=dict, description="Schema name overrides")

@@ -75,7 +75,20 @@ def convert(
             language = scenario_cfg.overrides.effective_language(config_obj.default_language)
             output_name = scenario_cfg.output_name or scenario_cfg.id
             view_schema = scenario_cfg.overrides.effective_schema(config_obj.default_view_schema)
-            qualified_view_name = f"{view_schema}.{output_name}" if view_schema else output_name
+
+            # Build qualified view name with optional HANA package path
+            # If hana_package is provided (e.g., "Macabi_BI.EYAL.EYAL_CDS"),
+            # generate: _SYS_BIC.Macabi_BI.EYAL.EYAL_CDS/CV_NAME (without quotes - renderer will add them)
+            # Otherwise: _SYS_BIC.CV_NAME or just CV_NAME
+            # NOTE: Do NOT add quotes here - the SQL renderer's _quote_identifier will handle quoting
+            if scenario_cfg.hana_package and scenario_cfg.database_mode == DatabaseMode.HANA:
+                # Use package path with / separator (HANA catalog convention)
+                view_name_with_package = f"{scenario_cfg.hana_package}/{output_name}"
+                qualified_view_name = (
+                    f'{view_schema}.{view_name_with_package}' if view_schema else view_name_with_package
+                )
+            else:
+                qualified_view_name = f"{view_schema}.{output_name}" if view_schema else output_name
             
             # Detect if this is a BW object
             instance_type = scenario_cfg.instance_type or "auto"

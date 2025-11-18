@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { convertSingle } from '../services/api'
+import { convertSingleWithProgress } from '../services/api'
 import './FileUpload.css'
 
 function FileUpload({
@@ -10,6 +10,7 @@ function FileUpload({
   config,
   onConfigChange,
   onConversionComplete,
+  onProgressUpdate,
   loading,
   setLoading,
 }) {
@@ -39,20 +40,15 @@ function FileUpload({
     if (files.length === 0) return
 
     setLoading(true)
+
+    // Use regular API (SSE disabled for now due to async blocking issues)
     try {
+      const { convertSingle } = await import('../services/api')
       const result = await convertSingle(files[0], config)
       onConversionComplete(result)
     } catch (error) {
-      // Extract error message from API response
       const errorDetail = error.response?.data?.detail || error.message
-      // Show error in a more user-friendly way
-      // If error contains newlines, it's a detailed message - show it in alert
-      // Otherwise show a simple message
-      if (errorDetail && errorDetail.includes('\n')) {
-        alert(errorDetail)
-      } else {
-        alert(`Conversion failed: ${errorDetail || 'Unknown error occurred'}`)
-      }
+      alert(`Conversion failed: ${errorDetail || 'Unknown error occurred'}`)
     } finally {
       setLoading(false)
     }

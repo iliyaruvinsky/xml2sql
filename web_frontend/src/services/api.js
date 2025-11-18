@@ -23,6 +23,98 @@ export const convertSingle = async (file, config) => {
   return response.data
 }
 
+// Single file conversion with SSE progress streaming
+export const convertSingleWithProgress = (file, config, onProgress, onComplete, onError) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('config_json', JSON.stringify(config))
+
+  // Use fetch API for SSE (EventSource doesn't support POST with body)
+  const baseUrl = import.meta.env.VITE_API_URL || ''
+  fetch(`${baseUrl}/api/convert/single/stream`, {
+    method: 'POST',
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      // Read the stream
+      const readStream = () => {
+        reader.read().then(({ done, value }) => {
+          if (done) {
+            return
+          }
+
+          // Decode the chunk
+          buffer += decoder.decode(value, { stream: true })
+
+          // Process complete SSE messages
+          const lines = buffer.split('\n\n')
+          buffer = lines.pop() || '' // Keep the incomplete message in buffer
+
+          lines.forEach(line => {
+            if (line.trim()) {
+              try {
+                // Parse SSE message
+                const eventMatch = line.match(/^event: (.+)/)
+                const dataMatch = line.match(/^data: (.+)/)
+
+                if (eventMatch && dataMatch) {
+                  const event = eventMatch[1]
+                  const data = JSON.parse(dataMatch[1])
+
+                  // Handle different event types
+                  switch (event) {
+                    case 'start':
+                      console.log('Conversion started:', data.filename)
+                      break
+                    case 'stage_update':
+                      if (onProgress) {
+                        onProgress(data)
+                      }
+                      break
+                    case 'complete':
+                      if (onComplete) {
+                        onComplete(data)
+                      }
+                      return
+                    case 'error':
+                      if (onError) {
+                        onError(data.error)
+                      }
+                      return
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to parse SSE message:', e, line)
+              }
+            }
+          })
+
+          // Continue reading
+          readStream()
+        }).catch(error => {
+          if (onError) {
+            onError(error.message)
+          }
+        })
+      }
+
+      readStream()
+    })
+    .catch(error => {
+      if (onError) {
+        onError(error.message)
+      }
+    })
+}
+
 // Batch conversion
 export const convertBatch = async (files, config) => {
   const formData = new FormData()
