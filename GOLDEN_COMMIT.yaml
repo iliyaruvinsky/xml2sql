@@ -2,21 +2,23 @@
 # This file tracks the last fully validated commit with HANA Studio testing
 # DO NOT update without actual HANA Studio validation of ALL listed XMLs
 
-last_validated_commit: "4eff5fb3214125cfb70b02d3e6a46d5cd7422ce6"
-commit_date: "2025-11-17"
-commit_message: "SESSION 3: HANA multi-instance testing + validation infrastructure"
-validation_date: "2025-11-17"
+last_validated_commit: "e809a4d"
+commit_date: "2025-11-22"
+commit_message: "SESSION 7 HANA validation - BUG-021, BUG-022, BUG-026, BUG-027, BUG-028, BUG-029, BUG-030 validated"
+validation_date: "2025-11-22"
 validated_by: "User (HANA Studio execution)"
+instance_type: "BW BID system"
+notes: "All XMLs tested before transition to MBD system"
 
 # XMLs validated in HANA Studio with this commit
 validated_xmls:
-  count: 5
+  count: 8
   success_rate: "100%"
   files:
     - name: "CV_CNCLD_EVNTS.xml"
       source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
       execution_time: "74ms"
-      notes: "BUG-020 fixed after this commit (SESSION 4)"
+      notes: "Clean - no bugs"
     - name: "CV_INVENTORY_ORDERS.xml"
       source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
       execution_time: "42ms"
@@ -31,39 +33,89 @@ validated_xmls:
       notes: "Working"
     - name: "CV_TOP_PTHLGY.xml"
       source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
-      execution_time: "211ms"
-      notes: "Working"
+      execution_time: "201ms"
+      notes: "No regression from BUG-029 surgical fix - case-insensitive matching preserved"
+    - name: "CV_MCM_CNTRL_Q51.xml"
+      source: "Source (XML Files)/ECC_ON_HANA/"
+      execution_time: "82ms"
+      notes: "BUG-021 fixed - empty string IN numeric cleanup"
+    - name: "CV_MCM_CNTRL_REJECTED.xml"
+      source: "Source (XML Files)/ECC_ON_HANA/"
+      execution_time: "53ms"
+      notes: "BUG-022 fixed - empty WHERE clause prevention"
+    - name: "CV_CT02_CT03.xml"
+      source: "Source (XML Files)/ECC_ON_HANA/"
+      execution_time: "39ms"
+      notes: "BUG-021 and BUG-022 patterns cleaned"
 
 # Critical patterns that MUST NOT be changed without HANA testing
 critical_patterns:
   hana_view_creation:
     file: "src/xml_to_sql/sql/renderer.py"
-    line: 1156
+    lines: "1594-1606"
+    function: "_generate_view_statement()"
     pattern: 'return f"DROP VIEW {quoted_name} CASCADE;\nCREATE VIEW {quoted_name} AS"'
     why_critical: "HANA does not support CREATE OR REPLACE VIEW for our use case"
     tested_alternative_that_failed: "CREATE OR REPLACE VIEW"
     error_when_alternative_used: "cannot use duplicate view name"
+    bug_reference: "BUG-029 (view name quoting - surgical fix)"
     incident_reference: "docs/SESSION_7_FALSE_DOCUMENTATION_INCIDENT.md"
 
-  column_qualification_regex:
+  view_name_quoting:
     file: "src/xml_to_sql/sql/renderer.py"
-    line: 482
-    pattern: 'r''(?<!\.)("[^"]+")'''
-    why_critical: "Matches SAP BEx columns with special characters (/BIC/*, /BI0/*)"
-    bug_reference: "BUG-019"
-    validated_commit: "Applied after 4eff5fb, validated separately"
+    lines: "1594-1606"
+    function: "_generate_view_statement()"
+    why_critical: "Surgical quoting ONLY in DDL - preserves case-insensitive column matching"
+    bug_reference: "BUG-029"
+    validated_commit: "e809a4d + SESSION 7 fixes"
+    regression_prevented: "Aggressive quoting broke CV_TOP_PTHLGY case-insensitive matching"
 
-  in_function_conversion:
-    file: "src/xml_to_sql/sql/function_translator.py"
-    line: 639
-    function: "_convert_in_function_to_operator()"
-    why_critical: "Converts XML IN(col, val1, val2) to HANA col IN (val1, val2)"
-    bug_reference: "BUG-020"
-    validated_commit: "Applied after 4eff5fb, validated separately"
+  cv_reference_package_path:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "954-962"
+    function: "_render_from()"
+    why_critical: "Package paths contain '.' that are NOT schema separators - must quote as single identifier"
+    bug_reference: "BUG-030"
+    validated_commit: "e809a4d + SESSION 7 fixes"
+
+  parameter_cleanup_12_patterns:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "1383-1491"
+    function: "_cleanup_hana_parameter_conditions()"
+    why_critical: "12 comprehensive patterns clean malformed parameter substitutions"
+    bug_reference: "BUG-021, BUG-022, BUG-026"
+    validated_commit: "e809a4d"
+
+  cte_topological_sort:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "298-313"
+    function: "_topological_sort()"
+    why_critical: "Proper input ID normalization ensures CTEs defined before referenced"
+    bug_reference: "BUG-028"
+    validated_commit: "e809a4d + SESSION 7 fixes"
+
+  join_column_qualification:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "996-1007"
+    function: "_render_expression()"
+    why_critical: "RAW expressions in JOINs must be qualified to avoid ambiguity"
+    bug_reference: "BUG-027"
+    validated_commit: "e809a4d + SESSION 7 fixes"
 
 # Golden SQL copies location
 golden_sql_location: "Target (SQL Scripts)/VALIDATED/"
-golden_sql_count: 5
+golden_sql_count: 8
+
+# Additional validated XMLs from SESSION 7 (not yet added to files list above):
+additional_validated:
+  - name: "CV_UPRT_PTLG.xml"
+    execution_time: "27ms"
+    bugs_fixed: "BUG-026 (parameter cleanup)"
+    notes: "First XML to validate BUG-026 fix"
+  - name: "CV_ELIG_TRANS_01.xml"
+    execution_time: "28ms"
+    bugs_fixed: "BUG-026, BUG-027, BUG-028, BUG-029, BUG-030"
+    notes: "Complex CV with CV-to-CV references - all fixes validated together"
 
 # Validation commands
 validation_commands:

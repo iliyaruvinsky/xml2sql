@@ -17,7 +17,104 @@ Each solved bug documents:
 
 ---
 
+## Note on Bug Numbering System
+
+**Historical bugs (BUG-001 through BUG-028)**:
+During initial documentation organization (November 2025), bugs were renumbered when moved to solved status, creating separate BUG-XXX and SOLVED-XXX sequences. This historical practice created:
+- Active bugs with BUG-XXX IDs (e.g., BUG-005, BUG-009)
+- Corresponding solved entries with SOLVED-XXX IDs (e.g., SOLVED-001, SOLVED-006)
+- Gaps in SOLVED numbering (missing SOLVED-009, 010, 018-020, 023-026)
+
+These historical IDs (BUG-001 through BUG-028, SOLVED-001 through SOLVED-028) remain **UNCHANGED** for historical reference and traceability.
+
+**Future bugs (BUG-029 onwards)**:
+Starting with BUG-029, the dual numbering system is **DEPRECATED**. All future bugs:
+- Keep their original BUG-XXX identifier throughout their entire lifecycle
+- Are documented with BUG-XXX in code comments (e.g., "# BUG-029: fix reason")
+- Are referenced with BUG-XXX in git commits (e.g., "BUGFIX: BUG-029 - description")
+- Are moved to this file with their original BUG-XXX ID (NOT renumbered to SOLVED-XXX)
+
+**Example**: BUG-029 discovered → BUG-029 in code → BUG-029 in commits → **BUG-029** in this document (not SOLVED-029)
+
+**Traceability**: This ensures code comments, git commits, and documentation all reference the same immutable bug ID.
+
+---
+
 ## Resolved Issues
+
+### SOLVED-027: Calculation View ResourceUri - Strip Internal Paths
+
+**Original Bug**: BUG-027
+**Discovered**: 2025-11-20, KMDM_Materials.XML
+**Resolved**: 2025-11-20
+
+**Error**:
+```
+SAP DBTech JDBC: [257]: sql syntax error: Could not find table/view /KMDM/calculationviews/MATERIAL_DETAILS in schema _SYS_BIC
+Could not find table/view /KMDM/Sold_Materials in schema _SYS_BIC
+```
+
+**Problem**:
+Generated SQL referenced calculation views with incorrect paths:
+```sql
+-- WRONG - includes /calculationviews/ and leading /
+FROM "/KMDM/calculationviews/MATERIAL_DETAILS"
+FROM "/KMDM/Sold_Materials"
+
+-- CORRECT - clean package/view path
+FROM "KMDM/MATERIAL_DETAILS"
+FROM "KMDM/Sold_Materials"
+```
+
+**Root Cause**:
+In `scenario_parser.py` line 128, XML `<resourceUri>` was used directly as `object_name`:
+- XML contains: `/KMDM/calculationviews/MATERIAL_DETAILS`
+- `/calculationviews/` is an internal HANA Studio XML organization folder
+- Leading `/` is part of XML path format but not SQL reference format
+- Both needed to be stripped for correct SQL generation
+
+**Solution**:
+Modified `scenario_parser.py` lines 128-137 to strip internal folders and leading slash:
+
+```python
+if resource_uri:
+    # BUG-027: Strip internal HANA Studio folder paths from resourceUri
+    # These folders (/calculationviews/, /analyticviews/, /attributeviews/) are
+    # XML organization folders in HANA Studio, not part of the actual view path
+    # Example: /KMDM/calculationviews/MATERIAL_DETAILS -> KMDM/MATERIAL_DETAILS
+    object_name = resource_uri
+    for internal_folder in ['/calculationviews/', '/analyticviews/', '/attributeviews/']:
+        object_name = object_name.replace(internal_folder, '/')
+    # Strip leading slash - resourceUri paths start with / but SQL references don't
+    if object_name.startswith('/'):
+        object_name = object_name[1:]
+```
+
+**Files Modified**:
+- `src/xml_to_sql/parser/scenario_parser.py` (lines 128-137)
+
+**Transformation**:
+```
+Input:  /KMDM/calculationviews/MATERIAL_DETAILS
+Output: KMDM/MATERIAL_DETAILS
+
+Input:  /Macabi_BI/analyticviews/CV_ANALYSIS
+Output: Macabi_BI/CV_ANALYSIS
+```
+
+**Impact**:
+- Affects ALL XMLs with `type="CALCULATION_VIEW"` data sources
+- KMDM_Materials.XML: Fixed 6 calculation view references
+- Critical for any XML referencing other calculation views
+
+**Validation**:
+- ✅ KMDM_Materials.XML regenerated successfully
+- ✅ All 6 CV references now correct (no /calculationviews/, no leading /)
+- ✅ SQL syntax validated in generated output
+
+**Related Rules**: New pattern - ResourceUri path normalization
+
+---
 
 ### SOLVED-001: ColumnView JOIN Node Parsing
 
@@ -972,6 +1069,106 @@ result = re.sub(
 
 ---
 
+### SOLVED-028: Join Table Not Qualified With Schema
+
+**Original Bug**: BUG-028
+**Discovered**: 2025-11-20, CV_COMMACT_UNION.xml (MBD)
+**Resolved**: 2025-11-20
+
+**Error**:
+```
+SAP DBTech JDBC: [259]: invalid table name: Could not find table/view _BIC_AZEKKO2 in schema _SYS_BIC: line 224 col 10 (at pos 11066)
+```
+
+**Problem**:
+Join nodes with direct table entity inputs generated bare table aliases without schema qualification:
+```sql
+-- WRONG - bare alias without schema or CTE
+FROM _bic_azekko2
+RIGHT OUTER JOIN union_1 ON _bic_azekko2.EBELN = union_1.REF_DOC_NR
+
+-- CORRECT - schema-qualified table with AS alias
+FROM SAPABAP1."/BIC/AZEKKO2" AS _bic_azekko2
+RIGHT OUTER JOIN union_1 AS union_1 ON _bic_azekko2.EBELN = union_1.REF_DOC_NR
+```
+
+**Root Cause**:
+The `_render_join()` function in renderer.py used `ctx.get_cte_alias()` for both join inputs, which simply lowercases node IDs. This works for CTE references but fails for direct table references that need schema qualification.
+
+**XML Structure** (lines 865-871 of CV_COMMACT_UNION.xml):
+```xml
+<input alias="_BIC_AZEKKO2">
+  <entity>#//"ABAP"./BIC/AZEKKO2</entity>
+  <mapping xsi:type="Type:ElementMapping" targetName="EBELN" sourceName="EBELN"/>
+  <mapping xsi:type="Type:ElementMapping" targetName="LIFNR" sourceName="LIFNR"/>
+</input>
+<input>
+  <viewNode xsi:type="View:Union">#//Union_1</viewNode>
+```
+
+The XML uses **column view format** (not scenario view), and column_view_parser.py correctly created a DataSource for the table entity. However, the join renderer didn't use the proper rendering function.
+
+**Solution**:
+Modified `_render_join()` function in renderer.py to use `_render_from()` instead of just `get_cte_alias()`:
+
+**Code Changes** (renderer.py):
+
+1. **Lines 549-558** - Get proper FROM clauses:
+```python
+left_id = node.inputs[0].lstrip("#")
+right_id = node.inputs[1].lstrip("#")
+
+# BUG-028: Render proper FROM clauses for both CTEs and data sources
+left_from = _render_from(ctx, left_id)
+right_from = _render_from(ctx, right_id)
+
+# Get aliases for column references
+left_alias = ctx.get_cte_alias(left_id)
+right_alias = ctx.get_cte_alias(right_id)
+```
+
+2. **Line 616** - Use rendered FROM clauses with AS aliases:
+```python
+# BUG-028: Use proper FROM rendering for both CTEs and tables, with AS clauses for aliases
+sql = f"SELECT\n    {select_clause}\nFROM {left_from} AS {left_alias}\n{join_type_str} JOIN {right_from} AS {right_alias} ON {on_clause}"
+```
+
+**Why This Works**:
+The `_render_from()` function (lines 882-895) properly handles three cases:
+1. **Data sources (tables)**: Returns schema-qualified name like `SAPABAP1."/BIC/AZEKKO2"`
+2. **CTE references**: Returns the CTE alias
+3. **Unknown references**: Falls back to lowercased alias
+
+By using `_render_from()` to get the FROM clause, then explicitly adding `AS {alias}`, we ensure:
+- Tables get schema qualification: `SAPABAP1."/BIC/AZEKKO2" AS _bic_azekko2`
+- CTEs get proper aliasing: `union_1 AS union_1`
+- Column references use the alias: `_bic_azekko2.EBELN`
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py` (lines 549-558, 616)
+
+**Impact**:
+- Fixes ALL column view joins with direct table entity inputs
+- Common pattern in BW calculation views that join DSO/InfoCubes with dimension tables
+- Critical fix - affects any XML with `<input><entity>` in join nodes
+
+**Validation**:
+- ✅ CV_COMMACT_UNION.xml: 50ms total (12ms DROP + 36ms CREATE)
+- ✅ HANA Studio execution successful
+- ✅ Properly qualified table reference with schema and alias
+
+**Related Rules**: Data source rendering in join contexts
+
+**Code Flow**:
+1. column_view_parser.py creates DataSource for table entity
+2. `_render_join()` calls `_render_from()` for each input
+3. `_render_from()` detects table data source, returns `SAPABAP1."/BIC/AZEKKO2"`
+4. Join renderer adds `AS _bic_azekko2` for aliasing
+5. Column references use alias: `_bic_azekko2.EBELN`
+6. HANA executes successfully
+
+---
+
 ## Resolved in Previous Sessions
 
 *(Placeholder for bugs fixed before structured tracking began)*
@@ -991,15 +1188,205 @@ See: `EMPIRICAL_TEST_ITERATION_LOG.md` for historical fixes
 
 ---
 
+### BUG-029: View Name Quoting in DROP/CREATE VIEW Statements
+
+**⚠️ PERMANENT ID**: BUG-029 (kept throughout lifecycle per new numbering system)
+
+**Discovered**: 2025-11-22, CV_ELIG_TRANS_01.xml
+**Resolved**: 2025-11-22 (SESSION 7)
+**Instance Type**: BW (MBD)
+
+**Error**:
+```
+SAP DBTech JDBC: [321]: invalid view name: CV_ELIG_TRANS_01: line 1 col 22 (at pos 21)
+```
+
+**Problem**:
+```sql
+-- WRONG - View name not quoted
+DROP VIEW "_SYS_BIC".CV_ELIG_TRANS_01 CASCADE;
+CREATE VIEW "_SYS_BIC".CV_ELIG_TRANS_01 AS
+```
+
+HANA requires ALL identifiers in DROP/CREATE VIEW statements to be quoted. The view name `CV_ELIG_TRANS_01` was generated unquoted instead of `"CV_ELIG_TRANS_01"`.
+
+**Root Cause**:
+The `_quote_identifier_part()` function returned UNQUOTED UPPERCASE for alphanumeric identifiers to preserve case-insensitivity in column references. However, view names in DDL statements have different quoting requirements than column names in SELECT clauses.
+
+**Initial Aggressive Fix Attempt (FAILED)**:
+Modified `_quote_identifier_part()` to ALWAYS quote all identifiers. This fixed BUG-029 but broke CV_TOP_PTHLGY with:
+```
+SAP DBTech JDBC: [260]: invalid column name: RANK_1.RANK_COLUMN
+```
+
+Reason: Quoted identifiers are case-sensitive in HANA. Column defined as `"Rank_Column"` doesn't match reference to `"RANK_COLUMN"`. Before fix: both unquoted → case-insensitive → worked. After aggressive fix: both quoted → case-sensitive → broken.
+
+**Surgical Solution Implemented**:
+Added quoting ONLY in `_generate_view_statement()` for DDL statements, preserving case-insensitivity elsewhere:
+
+```python
+def _generate_view_statement(view_name: str, mode: DatabaseMode, scenario: Optional[Scenario] = None) -> str:
+    """Generate CREATE VIEW statement for target database with parameters if needed."""
+    # BUG-029 FIX (SURGICAL): Always quote view names in DROP/CREATE VIEW statements
+    # Unlike _quote_identifier() which preserves case-insensitivity for column names,
+    # view names in DDL statements must be explicitly quoted to avoid HANA [321] errors
+    # Example: "_SYS_BIC".CV_ELIG_TRANS_01 → "_SYS_BIC"."CV_ELIG_TRANS_01"
+    if "." in view_name:
+        # Schema-qualified name: quote each part separately
+        parts = view_name.split(".")
+        quoted_name = ".".join(f'"{part}"' for part in parts)
+    else:
+        # Simple view name: quote it
+        quoted_name = f'"{view_name}"'
+
+    # Rest of function unchanged...
+```
+
+**Key Insight - Case-Sensitivity**:
+- Quoted identifiers: `"CV_Name"` ≠ `"CV_NAME"` (case-sensitive)
+- Unquoted identifiers: `CV_Name` = `CV_NAME` (case-insensitive)
+- View names in DDL: MUST be quoted
+- Column names in SELECT: SHOULD remain unquoted for case-insensitive matching
+
+**Result - CORRECT**:
+```sql
+DROP VIEW "_SYS_BIC"."CV_ELIG_TRANS_01" CASCADE;
+CREATE VIEW "_SYS_BIC"."CV_ELIG_TRANS_01" AS
+```
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py` lines 1594-1606: `_generate_view_statement()` function
+  - Added surgical quoting logic for view names in DDL
+  - Preserved `_quote_identifier_part()` for column names (case-insensitivity)
+
+**Impact**:
+- Affects ALL Calculation View conversions - every DROP/CREATE VIEW statement
+- Critical fix for HANA compatibility
+- Surgical approach preserves case-insensitive column matching
+
+**Validation**:
+- ✅ CV_ELIG_TRANS_01: 28ms (BUG-029 + BUG-030 fixes)
+- ✅ CV_TOP_PTHLGY: 201ms (no regression from surgical fix)
+- ✅ All previously validated XMLs still working
+
+**Affected XMLs**:
+- CV_ELIG_TRANS_01.xml (discovered)
+- All XMLs (affects view name generation for all CVs)
+
+**Related Rules**: See HANA_CONVERSION_RULES.md PRINCIPLE #5 (View Name Quoting in DDL)
+
+**Regression Testing**: Full regression test passed - no previously working XMLs broken
+
+---
+
+### BUG-030: CV Reference Package Path Incorrectly Split on Dot
+
+**⚠️ PERMANENT ID**: BUG-030 (kept throughout lifecycle per new numbering system)
+
+**Discovered**: 2025-11-22, CV_ELIG_TRANS_01.xml
+**Resolved**: 2025-11-22 (SESSION 7)
+**Instance Type**: BW (MBD)
+
+**Error**:
+```
+SAP DBTech JDBC: [471]: invalid data source name: _SYS_BIC: line 133 col 16 (at pos 6815)
+```
+
+**Problem**:
+```sql
+-- WRONG - Three-level qualification (package path split on ".")
+INNER JOIN "_SYS_BIC".MACABI_BI."Eligibility/CV_MD_EYPOSPER" AS cv_md_eyposper
+           ↑ quoted    ↑ unquoted ↑ quoted (3 parts - wrong!)
+
+-- CORRECT - Two-level qualification (package path as single identifier)
+INNER JOIN "_SYS_BIC"."Macabi_BI.Eligibility/CV_MD_EYPOSPER" AS cv_md_eyposper
+           ↑ quoted    ↑ entire package path + CV name (2 parts - correct!)
+```
+
+CV reference should have TWO parts:
+1. Schema: `"_SYS_BIC"` (quoted)
+2. View name with package path: `"Macabi_BI.Eligibility/CV_MD_EYPOSPER"` (quoted as single identifier)
+
+But generated SQL had THREE parts because the "." in package path was split.
+
+**Root Cause**:
+The `_render_from()` function used `_quote_identifier()` which splits on "." to quote each part separately:
+
+```python
+# WRONG (original code):
+view_name_with_package = f"{package}/{cv_name}"
+# Example: "Macabi_BI.Eligibility/CV_MD_EYPOSPER"
+
+return f'"_SYS_BIC".{_quote_identifier(view_name_with_package)}'
+# _quote_identifier() splits on "." so:
+# "Macabi_BI.Eligibility/CV_MD_EYPOSPER"
+# → splits into: ["Macabi_BI", "Eligibility/CV_MD_EYPOSPER"]
+# → quotes each: MACABI_BI (uppercase unquoted) + "Eligibility/CV_MD_EYPOSPER" (quoted)
+# → result: "_SYS_BIC".MACABI_BI."Eligibility/CV_MD_EYPOSPER" ❌
+```
+
+**Why This Breaks**:
+- Package paths contain "." as part of the hierarchical structure (e.g., `Macabi_BI.Eligibility`)
+- This "." is NOT a schema separator - it's part of the package name
+- `_quote_identifier()` incorrectly treats it as a separator
+- HANA interprets this as THREE-level qualification instead of TWO-level
+
+**Solution Implemented**:
+Don't use `_quote_identifier()` for CV references. Quote the entire package path + CV name as a single identifier:
+
+```python
+# In _render_from() function (renderer.py lines 954-962):
+if package:
+    view_name_with_package = f"{package}/{cv_name}"
+    # BUG-030: Package paths contain "." which is NOT a schema separator
+    # Don't use _quote_identifier() which would split on "."
+    # Example: "Macabi_BI.Eligibility/CV_MD_EYPOSPER" must be quoted as ONE identifier
+    return f'"_SYS_BIC"."{view_name_with_package}"'
+else:
+    # Fallback if package not found
+    ctx.warnings.append(f"Package not found for CV {cv_name}, using _SYS_BIC without path")
+    # BUG-030: Directly quote the CV name as well
+    return f'"_SYS_BIC"."{cv_name}"'
+```
+
+**Result - CORRECT**:
+```sql
+INNER JOIN "_SYS_BIC"."Macabi_BI.Eligibility/CV_MD_EYPOSPER" AS cv_md_eyposper
+```
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py` lines 954-962: `_render_from()` function
+  - Changed from `_quote_identifier(view_name_with_package)` to direct quoting
+  - Added BUG-030 comments explaining why not to use `_quote_identifier()`
+
+**Impact**:
+- Affects ALL XMLs that reference other Calculation Views
+- Critical for CV-to-CV joins
+- Without this fix, any XML referencing another CV will fail
+
+**Validation**:
+- ✅ CV_ELIG_TRANS_01: 28ms (references CV_MD_EYPOSPER successfully)
+- ✅ All previously validated XMLs still working
+
+**Affected XMLs**:
+- CV_ELIG_TRANS_01.xml (references CV_MD_EYPOSPER)
+- Any XML with CALCULATION_VIEW data sources
+
+**Related Rules**: See HANA_CONVERSION_RULES.md PRINCIPLE #6 (CV Reference Quoting)
+
+---
+
 ## Statistics
 
-**Total Solved**: 5 (BUG-013 through BUG-017) + 13 historical
-**Total Pending**: 3 (BUG-001, BUG-002, BUG-003)
-**XMLs Validated**: 4 (CV_CNCLD_EVNTS, CV_INVENTORY_ORDERS, CV_PURCHASE_ORDERS, CV_EQUIPMENT_STATUSES)
-**XMLs In Progress**: 1 (CV_TOP_PTHLGY - 4 bugs fixed, testing in progress)
+**Total Solved**: 25 (SOLVED-001 through SOLVED-028, BUG-029, BUG-030)
+**Total Pending**: 5 (BUG-019, BUG-002, BUG-003, plus 2 awaiting validation)
+**XMLs Validated**: 11 (CV_CNCLD_EVNTS, CV_INVENTORY_ORDERS, CV_PURCHASE_ORDERS, CV_EQUIPMENT_STATUSES, CV_TOP_PTHLGY, CV_MCM_CNTRL_Q51, CV_MCM_CNTRL_REJECTED, CV_COMMACT_UNION, CV_ELIG_TRANS_01, CV_UPRT_PTLG, CV_CT02_CT03)
+**Latest Success**: CV_ELIG_TRANS_01 (BW/MBD) - 28ms with BUG-029 and BUG-030 fixes
 
 **Time to Resolution**:
 - BUG-004: < 1 hour (same session)
+- BUG-029: Same session (discovered and fixed with surgical precision)
+- BUG-030: Same session
 
 ---
 

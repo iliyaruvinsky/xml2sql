@@ -37,6 +37,516 @@ Rules applied in priority order (lower number = earlier execution):
 
 ---
 
+## 🔴 CRITICAL: CONVERSION PRINCIPLES
+
+### PRINCIPLE #1: HANA CV Location ≠ SQL View Location (BUG-025)
+
+**⚠️ FUNDAMENTAL ARCHITECTURAL PRINCIPLE - ALWAYS APPLIES**
+
+**Discovery**: 2025-11-20, SESSION 8
+**Related Bug**: BUG-025
+**Affected Components**: DataSource references, JOIN operations, Star Join operations
+
+**The Problem**:
+When HANA Calculation Views reference OTHER calculation views, the converter was using incorrect schema references, causing "table not found" errors in _SYS_BIC catalog.
+
+**Root Cause**:
+HANA has TWO completely separate storage locations that must NEVER be confused:
+
+1. **HANA Calculation View Storage** (Source/Content):
+   - Location: `Content > Macabi_BI > Eligibility > Calculation Views`
+   - This is where HANA CV definitions live in the repository
+   - Format: Package hierarchy with dots: `Macabi_BI.Eligibility`
+
+2. **SQL View Creation Location** (Target/_SYS_BIC):
+   - Location: `Systems > _SYS_BIC > Views`
+   - This is where our generated SQL views are created
+   - Format: View name includes package path: `"_SYS_BIC"."Package.Path/ViewName"`
+
+**The Rule**:
+```
+IF DataSource.type == CALCULATION_VIEW AND database_mode == HANA:
+    THEN reference = "_SYS_BIC"."Package.Path/CV_NAME"
+    NOT reference = schema.cv_name_lowercase
+```
+
+**Example - WRONG**:
+```sql
+-- Converter was generating:
+INNER JOIN eligibility__cv_md_eyposper ON ...
+-- Error: Could not find table/view ELIGIBILITY__CV_MD_EYPOSPER in schema _SYS_BIC
+```
+
+**Example - CORRECT**:
+```sql
+-- Should generate:
+INNER JOIN "_SYS_BIC"."Macabi_BI.Eligibility/CV_MD_EYPOSPER" ON ...
+```
+
+**Implementation**:
+```python
+# In _render_from() function (renderer.py line 942):
+if ctx.database_mode == DatabaseMode.HANA and ds.source_type == DataSourceType.CALCULATION_VIEW:
+    from ..package_mapper import get_package
+    cv_name = ds.object_name
+    package = get_package(cv_name)
+    if package:
+        view_name_with_package = f"{package}/{cv_name}"
+        return f'"_SYS_BIC".{_quote_identifier(view_name_with_package)}'
+```
+
+**Why This Works in Other Cases**:
+- Base table references (SAPABAP1 schema): Use `SAPABAP1.table_name` - different schema entirely
+- CTE references: Use CTE aliases, not DataSource objects
+- Only CALCULATION_VIEW DataSource references in HANA mode need special handling
+
+**Visual Evidence**:
+Screenshot from HANA Studio shows clear separation:
+- Left panel: `_SYS_BIC > Views` (where SQL views live)
+- Bottom panel: `Content > Macabi_BI > Eligibility` (where HANA CVs live)
+
+**Files Modified**:
+- `xml2sql/src/xml_to_sql/sql/renderer.py`: Lines 942-970 (_render_from function)
+- Added import: `DataSourceType`
+
+**Testing**:
+- CV_ELIG_TRANS_01.xml: References CV_MD_EYPOSPER (BUG-025 discovered here)
+- All future XMLs with CV-to-CV references
+
+---
+
+### PRINCIPLE #2: Parameter Substitution Cleanup (BUG-026)
+
+**⚠️ MANDATORY CLEANUP AFTER PARAMETER SUBSTITUTION**
+
+**Discovery**: 2025-11-22, SESSION 7
+**Related Bug**: BUG-026
+**Affected Components**: WHERE clauses with HANA input parameters
+
+**The Problem**:
+When HANA calculation view parameters (`$IP_PARAM$`) are substituted with empty strings, the resulting SQL contains malformed WHERE clauses that cause syntax errors.
+
+**Root Cause**:
+Parameter placeholders in XML are designed to work with HANA's parameter framework. When converted to static SQL, they must be removed cleanly, but simple string replacement creates invalid patterns.
+
+**Example Malformed Patterns**:
+```sql
+-- After parameter substitution:
+"CALMONTH" IN  = '000000'      -- Orphaned IN keyword
+( = '00000000')                 -- Missing left operand
+( '''' = '')                    -- Escaped empty string comparison
+WHERE (("CALMONTH" = '000000')  -- Unbalanced parentheses
+"COLUMN" IN ('') or             -- Empty IN list
+WHERE (())                      -- Completely empty WHERE
+```
+
+**The Rule**:
+```
+AFTER parameter substitution with empty strings:
+  MUST apply 12 comprehensive cleanup patterns
+  MUST balance parentheses
+  MUST remove malformed operators and comparisons
+  MUST verify WHERE clause is syntactically valid
+```
+
+**Implementation - 12 Cleanup Patterns**:
+```python
+# In _cleanup_hana_parameter_conditions() function (renderer.py lines 1383-1491):
+
+# Pattern 1: Remove orphaned IN keyword
+"CALMONTH" IN  = '000000' → "CALMONTH" = '000000'
+
+# Pattern 2: Remove TO_DATE/DATE comparisons with NULL
+TO_DATE(column) >= NULL → (removed)
+
+# Pattern 3: Clean orphaned OR/AND before closing paren
+(condition OR ) → (condition)
+
+# Pattern 4: Clean double opening parens with operators
+(( OR condition → (condition
+
+# Pattern 5: Clean orphaned AND/OR after opening paren
+( AND condition → (condition
+
+# Pattern 6: Remove malformed comparisons with missing left operand
+( = '00000000') → (removed)
+
+# Pattern 7: Remove empty parentheses with just operators
+( AND ) → (removed)
+
+# Pattern 8: Remove empty string comparisons (4-quote patterns)
+( '''' = '') → (removed)
+
+# Pattern 9: Remove "COLUMN" IN ('') patterns
+"COLUMN" IN ('') or → (removed)
+
+# Pattern 10: Remove empty WHERE with nested parentheses
+WHERE (()) → (removed)
+
+# Pattern 11: Remove empty WHERE clauses
+WHERE () → (removed)
+
+# Pattern 12: Balance parentheses
+WHERE ((condition) → WHERE ((condition))
+```
+
+**Files Modified**:
+- `xml2sql/src/xml_to_sql/sql/renderer.py`: Lines 1383-1491
+
+**Validation**:
+- CV_UPRT_PTLG.xml ✅ VALIDATED (27ms execution)
+- CV_ELIG_TRANS_01.xml (awaiting validation)
+
+---
+
+### PRINCIPLE #3: CTE Topological Sort Ordering (BUG-028)
+
+**⚠️ CRITICAL: CTE DEPENDENCY ORDER MUST BE CORRECT**
+
+**Discovery**: 2025-11-22, SESSION 7
+**Related Bug**: BUG-028
+**Affected Components**: All multi-node calculation views
+
+**The Problem**:
+CTEs were generated in wrong order, causing "table not found" errors when a CTE referenced another CTE that was defined later in the SQL.
+
+**Root Cause**:
+The topological sort function used incorrect ID normalization. Input IDs like `#/0/prj_visits` were only stripped of "#" leaving `/0/prj_visits`, which didn't match node ID `prj_visits`, breaking dependency tracking.
+
+**Example - WRONG Order**:
+```sql
+WITH
+join_1 AS (
+  SELECT ...
+  FROM prj_visits  -- ERROR: prj_visits not defined yet!
+  LEFT OUTER JOIN prj_treatments ON ...
+),
+prj_visits AS (    -- Defined AFTER it's referenced
+  SELECT ...
+),
+```
+
+**Example - CORRECT Order**:
+```sql
+WITH
+prj_visits AS (    -- Defined FIRST
+  SELECT ...
+),
+prj_treatments AS (
+  SELECT ...
+),
+join_1 AS (        -- References previous CTEs
+  SELECT ...
+  FROM prj_visits  -- Now valid!
+  LEFT OUTER JOIN prj_treatments ON ...
+)
+```
+
+**The Rule**:
+```
+FOR each CTE that references another CTE:
+  Referenced CTE MUST appear BEFORE referencing CTE in WITH clause
+
+Input ID normalization:
+  "#/0/prj_visits" → "prj_visits"
+  "#//prj_visits"  → "prj_visits"
+  "#/prj_visits"   → "prj_visits"
+  All must match node ID for dependency tracking
+```
+
+**Implementation**:
+```python
+# In _topological_sort() function (renderer.py lines 298-313):
+from ..parser.scenario_parser import _clean_ref
+import re
+
+for input_id in node.inputs:
+    # Use _clean_ref() to remove "#" and normalize slashes
+    cleaned_input = _clean_ref(input_id)
+    # Remove digit+slash prefixes like "0/", "1/"
+    cleaned_input = re.sub(r'^\d+/', '', cleaned_input)
+
+    if cleaned_input in all_ids:
+        graph[cleaned_input].append(node_id)
+        in_degree[node_id] += 1
+```
+
+**Files Modified**:
+- `xml2sql/src/xml_to_sql/sql/renderer.py`: Lines 298-313
+
+**Validation**:
+- CV_ELIG_TRANS_01.xml (awaiting validation - had join_1 before prj_visits)
+
+---
+
+### PRINCIPLE #4: Column Qualification in JOIN Contexts (BUG-027)
+
+**⚠️ MANDATORY: QUALIFY COLUMN NAMES IN MULTI-TABLE CONTEXTS**
+
+**Discovery**: 2025-11-22, SESSION 7
+**Related Bug**: BUG-027
+**Affected Components**: JOIN nodes with calculated columns
+
+**The Problem**:
+Calculated columns in JOIN nodes that reference simple column names were not qualified with table aliases, causing "column ambiguously defined" errors when both JOIN inputs had columns with the same name.
+
+**Root Cause**:
+RAW expression types in `_render_expression()` function bypassed table alias qualification logic. Only COLUMN expression types were qualified, but calculated columns use RAW expressions.
+
+**Example - WRONG**:
+```sql
+join_1 AS (
+  SELECT
+      prj_visits.CALDAY AS CALDAY,
+      ...,
+      "CALDAY" AS CC_CALDAY  -- AMBIGUOUS! Which table's CALDAY?
+  FROM prj_visits
+  LEFT OUTER JOIN prj_treatments ON ...  -- Both have CALDAY column
+)
+```
+
+**Example - CORRECT**:
+```sql
+join_1 AS (
+  SELECT
+      prj_visits.CALDAY AS CALDAY,
+      ...,
+      prj_visits."CALDAY" AS CC_CALDAY  -- Qualified with table alias
+  FROM prj_visits
+  LEFT OUTER JOIN prj_treatments ON ...
+)
+```
+
+**The Rule**:
+```
+IN multi-table contexts (JOIN, UNION, etc.):
+  IF expression is RAW type
+  AND expression is simple column name (no functions)
+  AND table_alias is provided
+  THEN qualify column with table_alias
+```
+
+**Implementation**:
+```python
+# In _render_expression() function (renderer.py lines 996-1007):
+if expr.expression_type == ExpressionType.RAW:
+    translated = translate_raw_formula(expr.value, ctx)
+    if translated != expr.value:
+        return translated
+    result = _substitute_placeholders(expr.value, ctx)
+
+    # BUG-027: Qualify bare column names when table_alias provided
+    if table_alias and result.strip('"').isidentifier() and not '(' in result:
+        # Simple column name (no function calls) - qualify it
+        return f"{table_alias}.{result}"
+    return result
+```
+
+**Logic**:
+1. Check if `table_alias` is provided (indicates multi-table context)
+2. Check if result is simple identifier (not a function call with "(")
+3. If both true: qualify with `table_alias.column_name`
+
+**Files Modified**:
+- `xml2sql/src/xml_to_sql/sql/renderer.py`: Lines 996-1007
+
+**Validation**:
+- CV_ELIG_TRANS_01.xml ✅ VALIDATED (28ms execution)
+
+---
+
+### PRINCIPLE #5: View Name Quoting in DDL Statements (BUG-029)
+
+**⚠️ CRITICAL: DDL IDENTIFIERS MUST BE QUOTED WHILE PRESERVING COLUMN CASE-INSENSITIVITY**
+
+**Discovery**: 2025-11-22, SESSION 7
+**Related Bug**: BUG-029
+**Affected Components**: DROP VIEW, CREATE VIEW statements
+
+**The Problem**:
+View names in DROP/CREATE VIEW statements were not quoted, causing HANA [321] "invalid view name" errors. However, an aggressive fix that quoted ALL identifiers broke case-insensitive column matching.
+
+**Root Cause - Case-Sensitivity Paradox**:
+- **Quoted identifiers** (`"CV_NAME"`) are **case-sensitive** in HANA
+- **Unquoted identifiers** (`CV_NAME`) are **case-insensitive** in HANA
+- **View names in DDL**: MUST be quoted (HANA requirement)
+- **Column names in SELECT**: SHOULD be unquoted (for case-insensitive matching)
+
+**Example - Initial Problem**:
+```sql
+-- WRONG - View name not quoted
+DROP VIEW "_SYS_BIC".CV_ELIG_TRANS_01 CASCADE;
+-- Error: [321]: invalid view name: CV_ELIG_TRANS_01
+```
+
+**Example - Aggressive Fix (BROKE REGRESSION)**:
+```sql
+-- Fixed view name quoting BUT broke column matching:
+SELECT
+    "Rank_Column" AS RANK_COLUMN  -- Column defined with mixed case
+FROM ...
+WHERE "RANK_COLUMN" <= 1  -- Reference in uppercase
+
+-- Error: [260]: invalid column name: RANK_1.RANK_COLUMN
+-- Why: "Rank_Column" ≠ "RANK_COLUMN" (case-sensitive when both quoted)
+```
+
+**Example - CORRECT (Surgical Fix)**:
+```sql
+-- View name quoted in DDL:
+DROP VIEW "_SYS_BIC"."CV_ELIG_TRANS_01" CASCADE;
+CREATE VIEW "_SYS_BIC"."CV_ELIG_TRANS_01" AS
+
+-- Column names unquoted in SELECT (case-insensitive):
+SELECT
+    Rank_Column AS RANK_COLUMN  -- Unquoted = case-insensitive
+FROM ...
+WHERE RANK_COLUMN <= 1  -- Matches despite case difference
+```
+
+**The Rule**:
+```
+IN DROP/CREATE VIEW statements:
+  View names MUST be explicitly quoted
+  BUT column names in SELECT/WHERE/JOIN should remain unquoted
+
+Implement surgical quoting:
+  ONLY quote in _generate_view_statement() for DDL
+  PRESERVE _quote_identifier_part() behavior for columns
+```
+
+**Implementation**:
+```python
+# In _generate_view_statement() function (renderer.py lines 1594-1606):
+def _generate_view_statement(view_name: str, mode: DatabaseMode, scenario: Optional[Scenario] = None) -> str:
+    """Generate CREATE VIEW statement for target database with parameters if needed."""
+    # BUG-029 FIX (SURGICAL): Always quote view names in DROP/CREATE VIEW statements
+    # Unlike _quote_identifier() which preserves case-insensitivity for column names,
+    # view names in DDL statements must be explicitly quoted to avoid HANA [321] errors
+    if "." in view_name:
+        # Schema-qualified name: quote each part separately
+        parts = view_name.split(".")
+        quoted_name = ".".join(f'"{part}"' for part in parts)
+    else:
+        # Simple view name: quote it
+        quoted_name = f'"{view_name}"'
+
+    return f"DROP VIEW {quoted_name} CASCADE;\nCREATE VIEW {quoted_name} AS"
+```
+
+**Key Insight**:
+- Don't modify `_quote_identifier_part()` - it correctly preserves case-insensitivity for columns
+- Only quote view names at DDL generation time
+- This surgical approach prevents regression in existing validated XMLs
+
+**Files Modified**:
+- `xml2sql/src/xml_to_sql/sql/renderer.py`: Lines 1594-1606
+
+**Validation**:
+- ✅ CV_ELIG_TRANS_01: 28ms (BUG-029 fix)
+- ✅ CV_TOP_PTHLGY: 201ms (no regression - case-insensitive matching preserved)
+- ✅ All previously validated XMLs still working
+
+**Regression Testing**:
+Full regression test passed - surgical fix avoided breaking 8 previously validated XMLs.
+
+---
+
+### PRINCIPLE #6: CV Reference Package Path Quoting (BUG-030)
+
+**⚠️ CRITICAL: PACKAGE PATHS CONTAIN DOTS THAT ARE NOT SCHEMA SEPARATORS**
+
+**Discovery**: 2025-11-22, SESSION 7
+**Related Bug**: BUG-030
+**Affected Components**: Calculation View references in FROM/JOIN clauses
+
+**The Problem**:
+When referencing other Calculation Views, the package path was incorrectly split on "." characters, creating three-level qualification instead of two-level, causing HANA [471] "invalid data source name" errors.
+
+**Root Cause - Dot Ambiguity**:
+- **Schema separators**: `"_SYS_BIC".` uses "." to separate schema from view name
+- **Package paths**: `Macabi_BI.Eligibility` uses "." as part of hierarchical package structure
+- `_quote_identifier()` splits on ALL dots, treating package path dots as schema separators
+
+**Example - WRONG (Three-Level Qualification)**:
+```sql
+-- Incorrect - package path split on dot:
+INNER JOIN "_SYS_BIC".MACABI_BI."Eligibility/CV_MD_EYPOSPER" AS cv_md_eyposper
+           ↑ schema   ↑ package ↑ view (3 parts - wrong!)
+
+-- Error: [471]: invalid data source name: _SYS_BIC
+```
+
+**Example - CORRECT (Two-Level Qualification)**:
+```sql
+-- Correct - entire package path + CV name as single identifier:
+INNER JOIN "_SYS_BIC"."Macabi_BI.Eligibility/CV_MD_EYPOSPER" AS cv_md_eyposper
+           ↑ schema   ↑ package.path/viewname (2 parts - correct!)
+```
+
+**The Rule**:
+```
+FOR Calculation View references:
+  Package path format: "Package.Subpackage/CV_NAME"
+  DO NOT use _quote_identifier() which splits on "."
+  INSTEAD directly quote entire string as single identifier
+
+Schema qualification:
+  Level 1: "_SYS_BIC" (quoted schema)
+  Level 2: "Package.Path/ViewName" (quoted as SINGLE identifier)
+  NOT: "_SYS_BIC".Package."Path/ViewName" (three levels - wrong!)
+```
+
+**Why This Breaks**:
+```python
+# WRONG approach:
+view_name_with_package = f"{package}/{cv_name}"
+# Example: "Macabi_BI.Eligibility/CV_MD_EYPOSPER"
+
+return f'"_SYS_BIC".{_quote_identifier(view_name_with_package)}'
+# _quote_identifier() splits on "." into:
+#   ["Macabi_BI", "Eligibility/CV_MD_EYPOSPER"]
+# Result: "_SYS_BIC".MACABI_BI."Eligibility/CV_MD_EYPOSPER"
+#         (3 levels - HANA rejects this)
+```
+
+**Implementation**:
+```python
+# In _render_from() function (renderer.py lines 954-962):
+if package:
+    view_name_with_package = f"{package}/{cv_name}"
+    # BUG-030: Package paths contain "." which is NOT a schema separator
+    # Don't use _quote_identifier() which would split on "."
+    # Example: "Macabi_BI.Eligibility/CV_MD_EYPOSPER" must be quoted as ONE identifier
+    return f'"_SYS_BIC"."{view_name_with_package}"'
+else:
+    # Fallback if package not found
+    ctx.warnings.append(f"Package not found for CV {cv_name}, using _SYS_BIC without path")
+    # BUG-030: Directly quote the CV name as well
+    return f'"_SYS_BIC"."{cv_name}"'
+```
+
+**Package Path Examples**:
+```
+Macabi_BI.Eligibility/CV_MD_EYPOSPER    → "_SYS_BIC"."Macabi_BI.Eligibility/CV_MD_EYPOSPER"
+EYAL.EYAL_CTL/CV_MCM_CNTRL_Q51           → "_SYS_BIC"."EYAL.EYAL_CTL/CV_MCM_CNTRL_Q51"
+Macabi_BI.Pathology/CV_TOP_PTHLGY        → "_SYS_BIC"."Macabi_BI.Pathology/CV_TOP_PTHLGY"
+```
+
+**Files Modified**:
+- `xml2sql/src/xml_to_sql/sql/renderer.py`: Lines 954-962
+
+**Validation**:
+- ✅ CV_ELIG_TRANS_01: 28ms (references CV_MD_EYPOSPER successfully)
+- ✅ All XMLs with CV-to-CV references now working
+
+**Impact**:
+- Affects ALL XMLs that reference other Calculation Views
+- Critical for CV-to-CV joins
+- Common pattern in complex calculation views
+
+---
+
 ## HANA-Specific Transformation Rules
 
 ### Rule 1: IF() to CASE WHEN (Priority 40)
