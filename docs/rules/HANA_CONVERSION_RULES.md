@@ -547,6 +547,204 @@ Macabi_BI.Pathology/CV_TOP_PTHLGY        → "_SYS_BIC"."Macabi_BI.Pathology/CV_
 
 ---
 
+### PRINCIPLE #7: Calculated Column Forward References in Aggregations (BUG-032)
+
+**⚠️ MANDATORY: EXPAND CALCULATED COLUMN REFERENCES IN AGGREGATIONS**
+
+**Discovery**: 2025-11-22, SESSION 8
+**Related Bug**: BUG-032
+**Affected Components**: Aggregation nodes with interdependent calculated columns
+
+**The Problem**:
+Calculated columns in aggregation nodes that reference OTHER calculated columns in the same SELECT clause cause HANA [260] "invalid column name" errors.
+
+**Root Cause**:
+When aggregations have calculated columns added in an outer SELECT (after GROUP BY in inner query), calculated columns may reference each other. HANA doesn't allow forward references to column aliases defined in the same SELECT.
+
+**Example - WRONG**:
+```sql
+SELECT
+    agg_inner.*,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 6) AS MONTH,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 4) AS YEAR,
+    week(agg_inner."AEDAT_EKKO") AS WEEK,
+    agg_inner."YEAR"+CASE WHEN ... END AS WEEKDAY  -- ❌ References YEAR defined above
+FROM (
+  SELECT ... GROUP BY ...
+) AS agg_inner
+
+-- Error: [260]: invalid column name: AGG_INNER.YEAR
+-- Why: YEAR doesn't exist in agg_inner - it's defined in the SAME outer SELECT
+```
+
+**Example - CORRECT**:
+```sql
+SELECT
+    agg_inner.*,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 6) AS MONTH,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 4) AS YEAR,
+    week(agg_inner."AEDAT_EKKO") AS WEEK,
+    (SUBSTRING(agg_inner."AEDAT_EKKO", 1, 4))+CASE WHEN ... END AS WEEKDAY  -- ✅ Expanded
+FROM (
+  SELECT ... GROUP BY ...
+) AS agg_inner
+```
+
+**The Rule**:
+```
+FOR aggregation nodes with calculated columns:
+  IF calculated column formula references another calculated column name
+  THEN expand the reference to the source expression
+  BEFORE qualifying with agg_inner prefix
+```
+
+**Implementation**:
+```python
+# In _render_aggregation() function (renderer.py lines 761-790):
+calc_column_map = {}  # Maps calc column name → rendered expression
+
+for calc_name, calc_attr in node.calculated_attributes.items():
+    if calc_attr.expression.expression_type == ExpressionType.RAW:
+        formula = calc_attr.expression.value
+
+        # BUG-032: Expand references to previously defined calculated columns
+        for prev_calc_name, prev_calc_expr in calc_column_map.items():
+            pattern = rf'"{re.escape(prev_calc_name)}"'
+            if re.search(pattern, formula, re.IGNORECASE):
+                formula = re.sub(pattern, f'({prev_calc_expr})', formula, flags=re.IGNORECASE)
+
+        # Then qualify remaining column refs with agg_inner
+        formula = re.sub(r'(?<!\.)"([A-Z_][A-Z0-9_]*)"', r'agg_inner."\1"', formula)
+        calc_expr = translate_raw_formula(formula, ctx)
+    else:
+        calc_expr = _render_expression(ctx, calc_attr.expression, "agg_inner")
+
+    outer_select.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
+    calc_column_map[calc_name.upper()] = calc_expr  # Store for future expansions
+```
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py`: Lines 761-790
+
+**Validation**:
+- ✅ CV_INVENTORY_STO: 59ms (WEEKDAY references YEAR successfully)
+- ✅ All previously validated XMLs still working (no regression)
+
+**Affected XMLs**:
+- CV_INVENTORY_STO.xml (WEEKDAY references YEAR, both calculated columns)
+
+**Related**: BUG-033 (same issue in JOIN nodes)
+
+---
+
+### PRINCIPLE #8: Calculated Column Forward References in JOINs (BUG-033)
+
+**⚠️ MANDATORY: EXPAND CALCULATED COLUMN REFERENCES IN JOINS**
+
+**Discovery**: 2025-11-22, SESSION 8
+**Related Bug**: BUG-033
+**Affected Components**: JOIN nodes with calculated columns referencing mapped columns
+
+**The Problem**:
+Calculated columns in JOIN nodes that reference column ALIASES (mapped columns) defined in the same SELECT clause cause HANA [260] "invalid column name" errors.
+
+**Root Cause**:
+JOIN nodes render all columns (mappings + calculated columns) in a single SELECT. When calculated column formulas reference mapped column aliases (e.g., CC_NETWR references EBELN_EKKN), HANA can't resolve the alias because it's being defined in the same SELECT statement.
+
+**Example - WRONG**:
+```sql
+SELECT
+    ekpo.EBELN AS EBELN,
+    ...
+    ekkn.NETWR AS NETWR_EKKN,
+    ekkn.EBELN AS EBELN_EKKN,           -- Line 380: Define alias
+    ekkn.EBELP AS EBELP_EKKN,           -- Line 381: Define alias
+    CASE WHEN (("EBELN_EKKN") IS NULL) AND (("EBELP_EKKN") IS NULL)
+         THEN "NETWR"
+         ELSE "NETWR_EKKN" END AS CC_NETWR  -- ❌ References aliases defined above
+FROM ekpo AS ekpo
+LEFT OUTER JOIN ekkn AS ekkn ON ...
+
+-- Error: [260]: invalid column name: EBELN_EKKN
+-- Why: EBELN_EKKN is defined in SAME SELECT where it's referenced
+```
+
+**Example - CORRECT**:
+```sql
+SELECT
+    ekpo.EBELN AS EBELN,
+    ...
+    ekkn.NETWR AS NETWR_EKKN,
+    ekkn.EBELN AS EBELN_EKKN,           -- Alias kept
+    ekkn.EBELP AS EBELP_EKKN,           -- Alias kept
+    CASE WHEN ((ekkn.EBELN) IS NULL) AND ((ekkn.EBELP) IS NULL)
+         THEN (ekpo.NETWR)
+         ELSE (ekkn.NETWR) END AS CC_NETWR  -- ✅ Expanded to source expressions
+FROM ekpo AS ekpo
+LEFT OUTER JOIN ekkn AS ekkn ON ...
+```
+
+**The Rule**:
+```
+FOR JOIN nodes with calculated columns:
+  IF calculated column formula references a mapped column alias
+  THEN expand the alias to its source expression
+  BEFORE rendering the formula
+```
+
+**Implementation**:
+```python
+# In _render_join() function (renderer.py lines 592-638):
+column_map = {}  # Map target column name → source expression
+
+for mapping in node.mappings:
+    source_expr = _render_expression(ctx, mapping.expression, source_alias)
+    columns.append(f"{source_expr} AS {_quote_identifier(mapping.target_name)}")
+
+    # BUG-033: Store mapping for calculated column expansion
+    column_map[mapping.target_name.upper()] = source_expr
+
+# BUG-033: Expand calculated column references to mapped columns
+for calc_name, calc_attr in node.calculated_attributes.items():
+    if calc_attr.expression.expression_type == ExpressionType.RAW:
+        formula = calc_attr.expression.value
+
+        # Expand references to mapped columns
+        for col_name, col_expr in column_map.items():
+            pattern = rf'"{re.escape(col_name)}"'
+            if re.search(pattern, formula, re.IGNORECASE):
+                formula = re.sub(pattern, f'({col_expr})', formula, flags=re.IGNORECASE)
+
+        calc_expr = translate_raw_formula(formula, ctx)
+    else:
+        calc_expr = _render_expression(ctx, calc_attr.expression, left_alias)
+
+    columns.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
+```
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py`: Lines 592-638
+
+**Validation**:
+- ✅ CV_PURCHASING_YASMIN: 70ms (CC_NETWR references expanded successfully)
+- ✅ All previously validated XMLs still working (no regression)
+
+**Affected XMLs**:
+- CV_PURCHASING_YASMIN.xml (CC_NETWR references EBELN_EKKN, EBELP_EKKN, NETWR_EKKN)
+
+**Related**: BUG-032 (same issue in aggregation nodes)
+
+**Key Insight**:
+Both BUG-032 and BUG-033 follow the same pattern:
+- **Root Cause**: Calculated columns reference other columns defined in same SELECT
+- **HANA Rule**: Cannot use column aliases before they're defined
+- **Solution**: Expand aliases to their source expressions during rendering
+- **Affected Nodes**: Aggregations (BUG-032) and JOINs (BUG-033)
+
+This fix pattern applies wherever calculated columns might reference aliases in the same SELECT context.
+
+---
+
 ## HANA-Specific Transformation Rules
 
 ### Rule 1: IF() to CASE WHEN (Priority 40)

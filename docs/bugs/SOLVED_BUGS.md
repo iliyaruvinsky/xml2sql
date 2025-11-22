@@ -1376,17 +1376,241 @@ INNER JOIN "_SYS_BIC"."Macabi_BI.Eligibility/CV_MD_EYPOSPER" AS cv_md_eyposper
 
 ---
 
+### BUG-032: Calculated Column Forward References in Aggregations
+
+**⚠️ PERMANENT ID**: BUG-032 (kept throughout lifecycle per new numbering system)
+
+**Discovered**: 2025-11-22, CV_INVENTORY_STO.xml
+**Resolved**: 2025-11-22 (SESSION 8)
+**Instance Type**: ColumnView
+
+**Error**:
+```
+SAP DBTech JDBC: [260]: invalid column name: AGG_INNER.YEAR: line 351 col 9 (at pos 14310)
+```
+
+**Problem**:
+```sql
+-- WRONG - Forward reference to calculated column in same SELECT
+SELECT
+    agg_inner.*,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 6) AS MONTH,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 4) AS YEAR,
+    week(agg_inner."AEDAT_EKKO") AS WEEK,
+    agg_inner."YEAR"+CASE WHEN ... END AS WEEKDAY  -- ❌ References YEAR defined above
+FROM (
+  SELECT ...
+) AS agg_inner
+```
+
+Calculated column `WEEKDAY` references `YEAR`, but `YEAR` is a calculated column defined in the SAME SELECT clause. HANA doesn't allow forward references to column aliases.
+
+**Root Cause**:
+Aggregation nodes with calculated columns rendered as:
+1. Inner query: Regular aggregations with GROUP BY
+2. Outer query: Adds calculated columns using `agg_inner.*` + calculated expressions
+
+When calculated column formulas referenced OTHER calculated columns (e.g., `WEEKDAY` references `YEAR`), the code qualified the reference with `agg_inner."YEAR"`, but `YEAR` doesn't exist in the inner query - it's defined in the SAME outer SELECT.
+
+**Solution Implemented**:
+Expand calculated column references to their source expressions BEFORE qualifying with `agg_inner.`:
+
+```python
+# In _render_aggregation() function (renderer.py lines 730-771):
+if has_calc_cols:
+    # Wrap: inner query groups, outer query adds calculated columns
+    inner_sql = f"SELECT\n    {select_clause}\nFROM {from_clause}"
+    if where_clause:
+        inner_sql += f"\nWHERE {where_clause}"
+    if group_by_clause:
+        inner_sql += f"\n{group_by_clause}"
+
+    # BUG-032: Build calc_column_map for expansion
+    calc_column_map = {}  # Maps calc column name → rendered expression
+
+    # Outer SELECT adds calculated columns
+    outer_select = ["agg_inner.*"]
+    for calc_name, calc_attr in node.calculated_attributes.items():
+        if calc_attr.expression.expression_type == ExpressionType.RAW:
+            formula = calc_attr.expression.value
+            import re
+
+            # BUG-032: Expand references to previously defined calculated columns
+            for prev_calc_name, prev_calc_expr in calc_column_map.items():
+                pattern = rf'"{re.escape(prev_calc_name)}"'
+                if re.search(pattern, formula, re.IGNORECASE):
+                    formula = re.sub(pattern, f'({prev_calc_expr})', formula, flags=re.IGNORECASE)
+
+            # Then qualify remaining column refs with agg_inner."COLUMN"
+            formula = re.sub(r'(?<!\.)"([A-Z_][A-Z0-9_]*)"', r'agg_inner."\1"', formula)
+            calc_expr = translate_raw_formula(formula, ctx)
+        else:
+            calc_expr = _render_expression(ctx, calc_attr.expression, "agg_inner")
+
+        outer_select.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
+        calc_column_map[calc_name.upper()] = calc_expr  # Store for future expansions
+
+    outer_clause = ",\n    ".join(outer_select)
+    sql = f"SELECT\n    {outer_clause}\nFROM (\n  {inner_sql.replace(chr(10), chr(10) + '  ')}\n) AS agg_inner"
+```
+
+**Result - CORRECT**:
+```sql
+SELECT
+    agg_inner.*,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 6) AS MONTH,
+    SUBSTRING(agg_inner."AEDAT_EKKO", 1, 4) AS YEAR,
+    week(agg_inner."AEDAT_EKKO") AS WEEK,
+    (SUBSTRING(agg_inner."AEDAT_EKKO", 1, 4))+CASE WHEN ... END AS WEEKDAY  -- ✅ Expanded
+FROM (
+  SELECT ...
+) AS agg_inner
+```
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py` lines 730-771: `_render_aggregation()` function
+  - Added `calc_column_map` dictionary to track calculated column expressions
+  - Expand references to other calculated columns before qualifying with `agg_inner.`
+
+**Pattern**: Similar to projection calculated column expansion (lines 397-433)
+
+**Impact**:
+- Affects aggregation nodes with calculated columns that reference other calculated columns
+- Common pattern in complex aggregations with date/time calculations
+
+**Validation**:
+- ✅ CV_INVENTORY_STO: 55ms (CREATE VIEW successful with BUG-032 fix)
+- ✅ All previously validated XMLs still working
+
+**Affected XMLs**:
+- CV_INVENTORY_STO.xml (WEEKDAY references YEAR, both calculated columns)
+
+**Related**: BUG-033 (same issue in JOIN nodes)
+
+---
+
+### BUG-033: Calculated Column Forward References in JOIN Nodes
+
+**⚠️ PERMANENT ID**: BUG-033 (kept throughout lifecycle per new numbering system)
+
+**Discovered**: 2025-11-22, CV_PURCHASING_YASMIN.xml
+**Resolved**: 2025-11-22 (SESSION 8)
+**Instance Type**: ColumnView
+
+**Error**:
+```
+SAP DBTech JDBC: [260]: invalid column name: EBELN_EKKN: line 378 col 21 (at pos 18201)
+```
+
+**Problem**:
+```sql
+-- WRONG - Forward reference to column alias in same SELECT
+SELECT
+    ekpo.EBELN AS EBELN,
+    ...
+    ekkn.NETWR AS NETWR_EKKN,
+    ekkn.EBELN AS EBELN_EKKN,           -- Line 380: Define alias
+    ekkn.EBELP AS EBELP_EKKN,           -- Line 381: Define alias
+    CASE WHEN (("EBELN_EKKN") IS NULL) AND (("EBELP_EKKN") IS NULL)
+         THEN "NETWR"
+         ELSE "NETWR_EKKN" END AS CC_NETWR  -- ❌ References aliases defined above
+FROM ekpo AS ekpo
+LEFT OUTER JOIN ekkn AS ekkn ON ...
+```
+
+Calculated column `CC_NETWR` references column aliases `EBELN_EKKN`, `EBELP_EKKN`, and `NETWR_EKKN` which are defined in the SAME SELECT clause. HANA doesn't allow forward references to column aliases.
+
+**Root Cause**:
+JOIN nodes render all columns (mappings + calculated columns) in a single SELECT. When calculated column formulas referenced mapped columns (e.g., `CC_NETWR` references `EBELN_EKKN`), the code didn't expand the alias to its source expression.
+
+This is the same pattern as BUG-032, but occurs in JOIN nodes instead of aggregation nodes.
+
+**Solution Implemented**:
+Expand calculated column references to mapped column source expressions:
+
+```python
+# In _render_join() function (renderer.py lines 592-638):
+columns: List[str] = []
+seen_targets = set()
+column_map = {}  # BUG-033: Map target column name → source expression
+
+for mapping in node.mappings:
+    # ... (skip hidden columns, duplicates, etc.)
+    source_expr = _render_expression(ctx, mapping.expression, source_alias)
+    columns.append(f"{source_expr} AS {_quote_identifier(mapping.target_name)}")
+
+    # BUG-033: Store mapping for calculated column expansion
+    column_map[mapping.target_name.upper()] = source_expr
+
+# BUG-033: Expand calculated column references to mapped columns
+for calc_name, calc_attr in node.calculated_attributes.items():
+    if calc_attr.expression.expression_type == ExpressionType.RAW:
+        formula = calc_attr.expression.value
+        import re
+
+        # Expand references to mapped columns
+        # Replace "COLUMN_NAME" with (source_expr)
+        for col_name, col_expr in column_map.items():
+            pattern = rf'"{re.escape(col_name)}"'
+            if re.search(pattern, formula, re.IGNORECASE):
+                # Wrap in parentheses for safety
+                formula = re.sub(pattern, f'({col_expr})', formula, flags=re.IGNORECASE)
+
+        calc_expr = translate_raw_formula(formula, ctx)
+    else:
+        calc_expr = _render_expression(ctx, calc_attr.expression, left_alias)
+
+    columns.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
+```
+
+**Result - CORRECT**:
+```sql
+SELECT
+    ekpo.EBELN AS EBELN,
+    ...
+    ekkn.NETWR AS NETWR_EKKN,
+    ekkn.EBELN AS EBELN_EKKN,           -- Alias kept
+    ekkn.EBELP AS EBELP_EKKN,           -- Alias kept
+    CASE WHEN ((ekkn.EBELN) IS NULL) AND ((ekkn.EBELP) IS NULL)
+         THEN (ekpo.NETWR)
+         ELSE (ekkn.NETWR) END AS CC_NETWR  -- ✅ Expanded to source expressions
+FROM ekpo AS ekpo
+LEFT OUTER JOIN ekkn AS ekkn ON ...
+```
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py` lines 592-638: `_render_join()` function
+  - Added `column_map` dictionary to track column mappings (target name → source expression)
+  - For calculated columns with RAW expressions, expand references to mapped columns before rendering
+
+**Impact**:
+- Affects JOIN nodes with calculated columns that reference mapped column aliases
+- Common pattern in JOINs with conditional logic (CASE statements)
+
+**Validation**:
+- ✅ CV_PURCHASING_YASMIN: 60ms (CREATE VIEW successful with BUG-033 fix)
+- ✅ All previously validated XMLs still working
+
+**Affected XMLs**:
+- CV_PURCHASING_YASMIN.xml (CC_NETWR references EBELN_EKKN, EBELP_EKKN, NETWR_EKKN)
+
+**Related**: BUG-032 (same issue in aggregation nodes)
+
+---
+
 ## Statistics
 
-**Total Solved**: 25 (SOLVED-001 through SOLVED-028, BUG-029, BUG-030)
+**Total Solved**: 27 (SOLVED-001 through SOLVED-028, BUG-029, BUG-030, BUG-032, BUG-033)
 **Total Pending**: 5 (BUG-019, BUG-002, BUG-003, plus 2 awaiting validation)
-**XMLs Validated**: 11 (CV_CNCLD_EVNTS, CV_INVENTORY_ORDERS, CV_PURCHASE_ORDERS, CV_EQUIPMENT_STATUSES, CV_TOP_PTHLGY, CV_MCM_CNTRL_Q51, CV_MCM_CNTRL_REJECTED, CV_COMMACT_UNION, CV_ELIG_TRANS_01, CV_UPRT_PTLG, CV_CT02_CT03)
-**Latest Success**: CV_ELIG_TRANS_01 (BW/MBD) - 28ms with BUG-029 and BUG-030 fixes
+**XMLs Validated**: 13 (CV_CNCLD_EVNTS, CV_INVENTORY_ORDERS, CV_PURCHASE_ORDERS, CV_EQUIPMENT_STATUSES, CV_TOP_PTHLGY, CV_MCM_CNTRL_Q51, CV_MCM_CNTRL_REJECTED, CV_COMMACT_UNION, CV_ELIG_TRANS_01, CV_UPRT_PTLG, CV_CT02_CT03, CV_INVENTORY_STO, CV_PURCHASING_YASMIN)
+**Latest Success**: CV_PURCHASING_YASMIN (ColumnView) - 60ms with BUG-033 fix (SESSION 8)
 
 **Time to Resolution**:
 - BUG-004: < 1 hour (same session)
 - BUG-029: Same session (discovered and fixed with surgical precision)
 - BUG-030: Same session
+- BUG-032: Same session (discovered and fixed)
+- BUG-033: Same session (discovered and fixed)
 
 ---
 

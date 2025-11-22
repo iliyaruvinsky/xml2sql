@@ -72,7 +72,15 @@ class RenderContext:
     def get_cte_alias(self, node_id: str) -> str:
         """Get or create a CTE alias for a node."""
         if node_id not in self.cte_aliases:
-            normalized = node_id.lower().replace("_", "_")
+            # CRITICAL FIX: Clean XML metadata prefixes (#/0/, #//, #/N/) before creating alias
+            # This prevents invalid SQL like "FROM 0/prj_visits" (should be "FROM prj_visits")
+            from ..parser.scenario_parser import _clean_ref
+            import re
+            cleaned = _clean_ref(node_id)
+            # Also strip bare digit+slash prefixes (e.g., "0/prj_visits" -> "prj_visits")
+            # SQL identifiers cannot start with digits, so we must remove patterns like "0/", "1/", etc.
+            cleaned = re.sub(r'^\d+/', '', cleaned)
+            normalized = cleaned.lower().replace(" ", "_").replace("/", "_")
             self.cte_aliases[node_id] = normalized
         return self.cte_aliases[node_id]
 
@@ -290,9 +298,16 @@ def _topological_sort(scenario: Scenario) -> List[str]:
     for node_id, node in scenario.nodes.items():
         all_ids.add(node_id)
         for input_id in node.inputs:
-            input_id = input_id.lstrip("#")
-            if input_id in all_ids:
-                graph[input_id].append(node_id)
+            # CRITICAL: Clean input_id using same logic as get_cte_alias to ensure matching
+            # Input IDs might be: "#/0/prj_visits", "#//prj_visits", "prj_visits"
+            # We need to normalize them all to "prj_visits" to match node_id
+            from ..parser.scenario_parser import _clean_ref
+            import re
+            cleaned_input = _clean_ref(input_id)
+            cleaned_input = re.sub(r'^\d+/', '', cleaned_input)  # Remove digit+slash prefixes
+
+            if cleaned_input in all_ids:
+                graph[cleaned_input].append(node_id)
                 in_degree[node_id] += 1
             else:
                 in_degree[node_id] += 0
@@ -548,6 +563,12 @@ def _render_join(ctx: RenderContext, node: JoinNode) -> str:
 
     left_id = node.inputs[0].lstrip("#")
     right_id = node.inputs[1].lstrip("#")
+
+    # BUG-028: Render proper FROM clauses for both CTEs and data sources
+    left_from = _render_from(ctx, left_id)
+    right_from = _render_from(ctx, right_id)
+
+    # Get aliases for column references
     left_alias = ctx.get_cte_alias(left_id)
     right_alias = ctx.get_cte_alias(right_id)
 
@@ -570,6 +591,8 @@ def _render_join(ctx: RenderContext, node: JoinNode) -> str:
 
     columns: List[str] = []
     seen_targets = set()  # Track columns already added to avoid duplicates
+    column_map = {}  # BUG-033: Map target column name → source expression for expansion
+
     for mapping in node.mappings:
         # Skip hidden columns - only include if in view_attributes list
         if node.view_attributes and mapping.target_name not in node.view_attributes:
@@ -589,8 +612,29 @@ def _render_join(ctx: RenderContext, node: JoinNode) -> str:
         source_expr = _render_expression(ctx, mapping.expression, source_alias)
         columns.append(f"{source_expr} AS {_quote_identifier(mapping.target_name)}")
 
+        # BUG-033: Store mapping for calculated column expansion
+        column_map[mapping.target_name.upper()] = source_expr
+
+    # BUG-033: Expand calculated column references to mapped columns
+    # Calculated columns may reference column aliases defined in the same SELECT
+    # HANA doesn't allow this - we must expand to the source expressions
     for calc_name, calc_attr in node.calculated_attributes.items():
-        calc_expr = _render_expression(ctx, calc_attr.expression, left_alias)
+        if calc_attr.expression.expression_type == ExpressionType.RAW:
+            formula = calc_attr.expression.value
+            import re
+
+            # Expand references to mapped columns
+            # Replace "COLUMN_NAME" with (source_expr)
+            for col_name, col_expr in column_map.items():
+                pattern = rf'"{re.escape(col_name)}"'
+                if re.search(pattern, formula, re.IGNORECASE):
+                    # Wrap in parentheses for safety
+                    formula = re.sub(pattern, f'({col_expr})', formula, flags=re.IGNORECASE)
+
+            calc_expr = translate_raw_formula(formula, ctx)
+        else:
+            calc_expr = _render_expression(ctx, calc_attr.expression, left_alias)
+
         columns.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
 
     if not columns:
@@ -606,7 +650,8 @@ def _render_join(ctx: RenderContext, node: JoinNode) -> str:
         if where_clause_stripped in ('', '()'):
             where_clause = ''
 
-    sql = f"SELECT\n    {select_clause}\nFROM {left_alias}\n{join_type_str} JOIN {right_alias} ON {on_clause}"
+    # BUG-028: Use proper FROM rendering for both CTEs and tables, with AS clauses for aliases
+    sql = f"SELECT\n    {select_clause}\nFROM {left_from} AS {left_alias}\n{join_type_str} JOIN {right_from} AS {right_alias} ON {on_clause}"
     if where_clause:
         sql += f"\nWHERE {where_clause}"
 
@@ -712,21 +757,39 @@ def _render_aggregation(ctx: RenderContext, node: AggregationNode) -> str:
             inner_sql += f"\nWHERE {where_clause}"
         if group_by_clause:
             inner_sql += f"\n{group_by_clause}"
-        
+
+        # BUG-032: Build calc_column_map for expansion (similar to projections)
+        # Some calculated columns reference OTHER calculated columns in the same SELECT
+        # Example: WEEKDAY references YEAR, both are in outer SELECT
+        calc_column_map = {}  # Maps calc column name → rendered expression
+
         # Outer SELECT adds calculated columns
         outer_select = ["agg_inner.*"]
         for calc_name, calc_attr in node.calculated_attributes.items():
             # Qualify column refs in formula with agg_inner
             if calc_attr.expression.expression_type == ExpressionType.RAW:
                 formula = calc_attr.expression.value
-                # Replace "COLUMN" with agg_inner."COLUMN"
                 import re
+
+                # BUG-032: First, expand references to previously defined calculated columns
+                # Replace "CALC_COL" with (calc_expr) before qualifying with agg_inner
+                for prev_calc_name, prev_calc_expr in calc_column_map.items():
+                    pattern = rf'"{re.escape(prev_calc_name)}"'
+                    if re.search(pattern, formula, re.IGNORECASE):
+                        formula = re.sub(pattern, f'({prev_calc_expr})', formula, flags=re.IGNORECASE)
+
+                # Then qualify remaining column refs with agg_inner."COLUMN"
+                # Only qualify if not already qualified (not preceded by .)
                 formula = re.sub(r'(?<!\.)"([A-Z_][A-Z0-9_]*)"', r'agg_inner."\1"', formula)
                 calc_expr = translate_raw_formula(formula, ctx)
             else:
                 calc_expr = _render_expression(ctx, calc_attr.expression, "agg_inner")
+
             outer_select.append(f"{calc_expr} AS {_quote_identifier(calc_name)}")
-        
+
+            # BUG-032: Store rendered expression for future expansions
+            calc_column_map[calc_name.upper()] = calc_expr
+
         outer_clause = ",\n    ".join(outer_select)
         sql = f"SELECT\n    {outer_clause}\nFROM (\n  {inner_sql.replace(chr(10), chr(10) + '  ')}\n) AS agg_inner"
     else:
@@ -884,10 +947,83 @@ def _render_from(ctx: RenderContext, input_id: str) -> str:
 
     if input_id in ctx.scenario.data_sources:
         ds = ctx.scenario.data_sources[input_id]
+
+        # BUG-025: CALCULATION_VIEW references need package path in HANA mode
+        # Regular tables: SAPABAP1."TABLE_NAME"
+        # Calculation views: "_SYS_BIC"."Package.Path/CV_NAME"
+        from ..domain.models import DataSourceType
+        from ..domain.types import DatabaseMode
+
+        if ctx.database_mode == DatabaseMode.HANA and ds.source_type == DataSourceType.CALCULATION_VIEW:
+            # Calculation view reference - use _SYS_BIC with package path
+            cv_name = ds.object_name
+            
+            # BUG-025: For entity-based CV references, schema_name contains the package path
+            # Example: schema_name="Macabi_BI.Eligibility", object_name="CV_MD_EYPOSPER"
+            if ds.schema_name and "." in ds.schema_name:
+                # Use schema_name as package path (from entity parsing)
+                package = ds.schema_name
+            else:
+                # Fall back to package mapper for data source-based CVs
+                from ..package_mapper import get_package
+                package = get_package(cv_name)
+            
+            if package:
+                view_name_with_package = f"{package}/{cv_name}"
+                return f'"_SYS_BIC".{_quote_identifier(view_name_with_package)}'
+            else:
+                # Fallback if package not found - use _SYS_BIC without package
+                ctx.warnings.append(f"Package not found for CV {cv_name}, using _SYS_BIC without path")
+                return f'"_SYS_BIC".{_quote_identifier(cv_name)}'
+
+        # BUG-025: Fallback check for CV references that weren't marked as CALCULATION_VIEW
+        # If object name starts with "CV_" in HANA mode, treat as calculation view
+        if ctx.database_mode == DatabaseMode.HANA and ds.object_name.startswith("CV_"):
+            cv_name = ds.object_name
+
+            # Check if schema_name has package path format
+            if ds.schema_name and "." in ds.schema_name:
+                # Use schema_name as package path
+                package = ds.schema_name
+            else:
+                # Fall back to package mapper
+                from ..package_mapper import get_package
+                package = get_package(cv_name)
+
+            if package:
+                view_name_with_package = f"{package}/{cv_name}"
+                # BUG-030: Package paths contain "." which is NOT a schema separator
+                # Don't use _quote_identifier() which would split on "."
+                # Example: "Macabi_BI.Eligibility/CV_MD_EYPOSPER" must be quoted as ONE identifier
+                return f'"_SYS_BIC"."{view_name_with_package}"'
+            else:
+                # Fallback if package not found
+                ctx.warnings.append(f"Package not found for CV {cv_name}, using _SYS_BIC without path")
+                # BUG-030: Directly quote the CV name as well
+                return f'"_SYS_BIC"."{cv_name}"'
+
+        # Regular table or view
         schema = ctx.resolve_schema(ds.schema_name)
         if schema:
             return f"{_quote_identifier(schema)}.{_quote_identifier(ds.object_name)}"
         return _quote_identifier(ds.object_name)
+
+    # BUG-025 PART 2: Handle external CV references in node IDs
+    # Pattern: #/0/Star Join/Package.Subpackage::CV_NAME or #/0/Package.Subpackage::CV_NAME
+    # The #/0/ prefix is XML metadata (external reference, resourceUri type) - must be stripped
+    # Example: "#/0/Macabi_BI.Eligibility::CV_MD_EYPOSPER" → "_SYS_BIC"."Macabi_BI.Eligibility/CV_MD_EYPOSPER"
+    from ..domain.types import DatabaseMode
+    if ctx.database_mode == DatabaseMode.HANA and "::" in input_id and "CV_" in input_id:
+        import re
+        # Match pattern: optional #/0/ prefix, then Package.Path::CV_NAME
+        cv_match = re.search(r'(?:#/0/(?:Star Join/)?)?([A-Za-z0-9_\.]+)::([A-Za-z0-9_]+)$', input_id)
+        if cv_match:
+            package_path = cv_match.group(1)  # e.g., "Macabi_BI.Eligibility"
+            cv_name = cv_match.group(2)        # e.g., "CV_MD_EYPOSPER"
+
+            # Convert to HANA _SYS_BIC format: "Package.Subpackage/CV_NAME"
+            hana_path = package_path + "/" + cv_name
+            return f'"_SYS_BIC".{_quote_identifier(hana_path)}'
 
     if input_id in ctx.cte_aliases:
         return ctx.cte_aliases[input_id]
@@ -906,7 +1042,14 @@ def _render_expression(ctx: RenderContext, expr: Expression, table_alias: Option
         translated = translate_raw_formula(expr.value, ctx)
         if translated != expr.value:
             return translated
-        return _substitute_placeholders(expr.value, ctx)
+        result = _substitute_placeholders(expr.value, ctx)
+        # BUG-027: Qualify bare column names in RAW expressions when table_alias provided
+        # Example: In JOIN calculated column, "CALDAY" becomes ambiguous
+        # Should be qualified as "left_alias"."CALDAY" to avoid ambiguity
+        if table_alias and result.strip('"').isidentifier() and not '(' in result:
+            # Simple column name (no function calls) - qualify it
+            return f"{table_alias}.{result}"
+        return result
     if expr.expression_type == ExpressionType.FUNCTION:
         return _render_function(ctx, expr, table_alias)
 
@@ -925,7 +1068,12 @@ def _render_column_ref(ctx: RenderContext, column_name: str, table_alias: Option
 def _render_literal(value: str, data_type: Optional[object] = None) -> str:
     """Render a literal value."""
 
-    if value.isdigit() or (value.startswith("-") and value[1:].isdigit()):
+    # BUG-026: Values with leading zeros are string codes (01, 001), not numbers
+    # Must quote them to avoid HANA type conversion errors on string columns
+    # Example: CODAPL = 01 should be CODAPL = '01'
+    has_leading_zero = value.isdigit() and len(value) > 1 and value[0] == '0'
+
+    if not has_leading_zero and (value.isdigit() or (value.startswith("-") and value[1:].isdigit())):
         return value
     if data_type and hasattr(data_type, "type"):
         from ..domain.types import SnowflakeType
@@ -1244,6 +1392,189 @@ def _cleanup_hana_parameter_conditions(where_clause: str) -> str:
         flags=re.IGNORECASE
     )
 
+    # BUG-026: Remove conditions with unsubstituted $$parameter$$ placeholders
+    # These are parameter placeholders from the XML that weren't substituted with actual values
+    # Pattern 1: ("COLUMN" = $$PARAM$$) or ($$PARAM$$) = 'value' → remove entire clause
+    # Pattern 2: standalone ($$PARAM$$) expression → remove
+    # Strategy: Remove any conditions containing $$...$$
+
+    # Remove OR/AND clauses containing $$parameter$$ patterns with balanced parentheses
+    max_param_iterations = 20
+    for _ in range(max_param_iterations):
+        # Find patterns with $$...$$
+        param_match = re.search(r'\$\$[^$]+\$\$', result)
+        if not param_match:
+            break
+
+        # Find the enclosing parenthesized clause
+        param_pos = param_match.start()
+
+        # Search backwards for opening paren
+        clause_start = param_pos
+        depth = 0
+        for i in range(param_pos - 1, -1, -1):
+            if result[i] == ')':
+                depth += 1
+            elif result[i] == '(':
+                if depth == 0:
+                    clause_start = i
+                    break
+                depth -= 1
+
+        # Search forward for closing paren
+        clause_end = param_pos
+        depth = 0
+        in_quote = False
+        for i in range(param_pos, len(result)):
+            c = result[i]
+            if c in ('"', "'") and (i == 0 or result[i-1] != '\\'):
+                in_quote = not in_quote
+            if not in_quote:
+                if c == '(':
+                    depth += 1
+                elif c == ')':
+                    if depth == 0:
+                        clause_end = i + 1
+                        break
+                    depth -= 1
+
+        # Check for AND/OR before/after the clause to remove cleanly
+        before = result[:clause_start]
+        after = result[clause_end:]
+
+        # Check for operator before
+        and_or_before = re.search(r'\s+(AND|OR)\s*$', before, re.IGNORECASE)
+        if and_or_before:
+            start = clause_start - len(and_or_before.group(0))
+        else:
+            start = clause_start
+
+        # Check for operator after
+        and_or_after = re.match(r'\s+(AND|OR)\s+', after, re.IGNORECASE)
+        if and_or_after:
+            end = clause_end + and_or_after.end()
+        else:
+            end = clause_end
+
+        result = result[:start] + result[end:]
+
+    # Clean up any remaining $$parameter$$ patterns that weren't in parentheses
+    result = re.sub(r'\$\$[^$]+\$\$', '', result)
+
+    # BUG-026 ADDITIONAL CLEANUP: Fix malformed patterns left after parameter removal
+
+    # Pattern 1: Remove orphaned IN keyword followed by comparison operator
+    # Example: "CALMONTH" IN  = '000000' → "CALMONTH" = '000000'
+    # This happens when IN $$PARAM$$ gets param removed, leaving IN  =
+    result = re.sub(r'\bIN\s+(?==)', '', result, flags=re.IGNORECASE)
+
+    # Pattern 2: Remove TO_DATE/DATE comparisons with NULL
+    # Example: TO_DATE("CALDAY") >= NULL → (remove entire expression)
+    # This happens when TO_DATE($$PARAM$$) gets param removed leaving NULL
+    result = re.sub(
+        r'(?:TO_DATE|DATE)\s*\([^)]+\)\s*(?:>=|<=|>|<|=|!=)\s*NULL',
+        '',
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Pattern 3: Clean up orphaned OR/AND before closing paren
+    # Example: (condition OR ) → (condition)
+    result = re.sub(r'\s+(?:OR|AND)\s*\)', ')', result, flags=re.IGNORECASE)
+
+    # Pattern 4: Clean up double opening parens with no content
+    # Example: (( OR → (
+    result = re.sub(r'\(\s*\(\s*(?:OR|AND)\s+', '(', result, flags=re.IGNORECASE)
+
+    # Pattern 5: Remove empty IN clauses
+    # Example: "COLUMN" IN ('') or ('') → remove
+    result = re.sub(
+        r'"\w+"\s+IN\s+\(\'\'?\)\s+(?:or|OR)\s+\(\'\'?\)',
+        '',
+        result
+    )
+
+    # Pattern 6: Remove malformed comparisons with missing left operand
+    # Example: ( = '00000000') → remove
+    # Example: AND ( = 'value') → remove
+    # This happens when parameter cleanup removes column name but leaves comparison
+    result = re.sub(
+        r'\s*(?:AND|OR)?\s*\(\s*=\s*[\'"][^\'"]*[\'"]\s*\)',
+        '',
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Pattern 7: Remove empty parentheses with just operators
+    # Example: (AND ) or (OR ) → remove
+    result = re.sub(r'\(\s*(?:AND|OR)\s*\)', '', result, flags=re.IGNORECASE)
+
+    # Pattern 8: Remove comparisons with empty string literal as left operand
+    # Example: ('') = '00000000' → remove
+    # Example: or ('') = 'value' → remove
+    # Example: ( '''' = '') → remove (SQL escaped empty string)
+    # This happens when $PARAM$ is replaced with '' leaving ('') = 'value'
+    result = re.sub(
+        r'\s*(?:AND|OR)?\s*\(\s*[\'"]+\s*=\s*[\'"]+\s*\)',
+        '',
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Pattern 9: Remove "COLUMN" IN ('') or patterns
+    # Example: "JOB" IN ('') or → remove
+    result = re.sub(
+        r'"\w+"\s+IN\s+\([\'"][\'"]?\)\s+(?:or|OR|and|AND)',
+        '',
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Pattern 10: Remove empty WHERE clauses with just nested parentheses
+    # Example: WHERE (( )) → remove entirely
+    # Example: WHERE (( ) → remove entirely
+    result = re.sub(
+        r'WHERE\s+\(\(\s*\)\s*\)',
+        '',
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Pattern 11: Remove empty WHERE clauses after all cleanup
+    # Example: WHERE () → remove
+    result = re.sub(
+        r'WHERE\s+\(\s*\)',
+        '',
+        result,
+        flags=re.IGNORECASE
+    )
+
+    # Final cleanup: remove malformed WHERE clauses after parameter removal
+    # Pattern: WHERE ((...) AND/OR) - trailing operator with no following condition
+    result = re.sub(r'WHERE\s+\(\s*\(.*?\)\s+(?:AND|OR)\s*\)', '', result, flags=re.IGNORECASE)
+
+    # Remove unbalanced closing parentheses at end of WHERE clauses
+    # Pattern: ...condition)) ) - extra closing parens
+    result = re.sub(r'\)\s*\)+(?=\s*(?:FROM|GROUP|ORDER|LIMIT|$))', ')', result, flags=re.IGNORECASE)
+
+    # Pattern 12: Balance parentheses in WHERE condition
+    # NOTE: This function receives WHERE condition WITHOUT the "WHERE" keyword
+    # Example input: "(("CALMONTH" = '000000')"  ← missing closing paren
+    # Example output: "(("CALMONTH" = '000000'))" ← balanced
+    open_count = result.count('(')
+    close_count = result.count(')')
+
+    if open_count > close_count:
+        # Add missing closing parens at the end
+        result = result + (')' * (open_count - close_count))
+    elif close_count > open_count:
+        # Remove extra closing parens from the end
+        excess = close_count - open_count
+        for _ in range(excess):
+            result = result.rstrip()
+            if result.endswith(')'):
+                result = result[:-1]
+
     return result
 
 
@@ -1303,7 +1634,17 @@ def _assemble_sql(
 
 def _generate_view_statement(view_name: str, mode: DatabaseMode, scenario: Optional[Scenario] = None) -> str:
     """Generate CREATE VIEW statement for target database with parameters if needed."""
-    quoted_name = _quote_identifier(view_name)
+    # BUG-029 FIX (SURGICAL): Always quote view names in DROP/CREATE VIEW statements
+    # Unlike _quote_identifier() which preserves case-insensitivity for column names,
+    # view names in DDL statements must be explicitly quoted to avoid HANA [321] errors
+    # Example: "_SYS_BIC".CV_ELIG_TRANS_01 → "_SYS_BIC"."CV_ELIG_TRANS_01"
+    if "." in view_name:
+        # Schema-qualified name: quote each part separately
+        parts = view_name.split(".")
+        quoted_name = ".".join(f'"{part}"' for part in parts)
+    else:
+        # Simple view name: quote it
+        quoted_name = f'"{view_name}"'
     
     if mode == DatabaseMode.SNOWFLAKE:
         return f"CREATE OR REPLACE VIEW {quoted_name} AS"

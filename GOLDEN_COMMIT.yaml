@@ -12,7 +12,7 @@ notes: "All XMLs tested before transition to MBD system"
 
 # XMLs validated in HANA Studio with this commit
 validated_xmls:
-  count: 8
+  count: 13
   success_rate: "100%"
   files:
     - name: "CV_CNCLD_EVNTS.xml"
@@ -47,6 +47,26 @@ validated_xmls:
       source: "Source (XML Files)/ECC_ON_HANA/"
       execution_time: "39ms"
       notes: "BUG-021 and BUG-022 patterns cleaned"
+    - name: "CV_UPRT_PTLG.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "27ms"
+      notes: "BUG-026 validated - parameter cleanup"
+    - name: "CV_ELIG_TRANS_01.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "28ms"
+      notes: "BUG-026, BUG-027, BUG-028, BUG-029, BUG-030 validated - complex CV with CV-to-CV references"
+    - name: "CV_COMMACT_UNION.xml"
+      source: "Source (XML Files)/HANA 1.XX XML Views/BW_ON_HANA/"
+      execution_time: "N/A"
+      notes: "Validated in SESSION 7"
+    - name: "CV_INVENTORY_STO.xml"
+      source: "Source (XML Files)/"
+      execution_time: "59ms"
+      notes: "SESSION 8 - BUG-032 validated - WEEKDAY references YEAR calculated column"
+    - name: "CV_PURCHASING_YASMIN.xml"
+      source: "Source (XML Files)/"
+      execution_time: "70ms"
+      notes: "SESSION 8 - BUG-033 validated - CC_NETWR references EBELN_EKKN, EBELP_EKKN mapped columns"
 
 # Critical patterns that MUST NOT be changed without HANA testing
 critical_patterns:
@@ -102,20 +122,49 @@ critical_patterns:
     bug_reference: "BUG-027"
     validated_commit: "e809a4d + SESSION 7 fixes"
 
+  aggregation_calc_column_expansion:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "761-790"
+    function: "_render_aggregation()"
+    why_critical: "Expands calculated column references to prevent forward references in aggregations"
+    bug_reference: "BUG-032"
+    validated_commit: "SESSION 8"
+    pattern: "WEEKDAY references YEAR - both calculated columns in same SELECT"
+    validated_xml: "CV_INVENTORY_STO.xml"
+
+  join_calc_column_expansion:
+    file: "src/xml_to_sql/sql/renderer.py"
+    lines: "592-638"
+    function: "_render_join()"
+    why_critical: "Expands calculated column references to mapped column source expressions in JOINs"
+    bug_reference: "BUG-033"
+    validated_commit: "SESSION 8"
+    pattern: "CC_NETWR references EBELN_EKKN, EBELP_EKKN - aliases defined in same SELECT"
+    validated_xml: "CV_PURCHASING_YASMIN.xml"
+
 # Golden SQL copies location
 golden_sql_location: "Target (SQL Scripts)/VALIDATED/"
-golden_sql_count: 8
+golden_sql_count: 13
 
-# Additional validated XMLs from SESSION 7 (not yet added to files list above):
-additional_validated:
-  - name: "CV_UPRT_PTLG.xml"
-    execution_time: "27ms"
-    bugs_fixed: "BUG-026 (parameter cleanup)"
-    notes: "First XML to validate BUG-026 fix"
-  - name: "CV_ELIG_TRANS_01.xml"
-    execution_time: "28ms"
-    bugs_fixed: "BUG-026, BUG-027, BUG-028, BUG-029, BUG-030"
-    notes: "Complex CV with CV-to-CV references - all fixes validated together"
+# SESSION 8 additions:
+session_8_validated:
+  - name: "CV_INVENTORY_STO.xml"
+    execution_time: "59ms"
+    bugs_fixed: "BUG-032 (aggregation calc column expansion), STRLEN function"
+    notes: "WEEKDAY references YEAR - both calculated columns in aggregation outer SELECT"
+  - name: "CV_PURCHASING_YASMIN.xml"
+    execution_time: "70ms"
+    bugs_fixed: "BUG-033 (JOIN calc column expansion), TIME function"
+    notes: "CC_NETWR references EBELN_EKKN, EBELP_EKKN - aliases in same JOIN SELECT"
+
+# Function mappings added in SESSION 8:
+session_8_function_mappings:
+  - name: "STRLEN"
+    target: "LENGTH"
+    notes: "Legacy function mapping for HANA compatibility"
+  - name: "TIME"
+    target: "TO_TIME"
+    notes: "Type conversion function mapping for HANA compatibility"
 
 # Validation commands
 validation_commands:

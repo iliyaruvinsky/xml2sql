@@ -813,19 +813,21 @@ for target_name, source_name in target_to_source_map.items():
 
 ## Bug Statistics
 
-**Total Bugs Tracked**: 30
+**Total Bugs Tracked**: 33
 **Open**: 1 (BUG-019)
-**Fixed - Awaiting HANA Validation**: 5 (BUG-023, BUG-025, BUG-026, BUG-027, BUG-028)
-**Solved**: 25 (see SOLVED_BUGS.md - includes BUG-029, BUG-030)
+**Fixed - Awaiting HANA Validation**: 0 (all validated!)
+**Solved**: 27 (see SOLVED_BUGS.md)
 **Deferred**: 2 (BUG-002, BUG-003)
+**SESSION 8B Additions**: BUG-032 ✅, BUG-033 ✅
 
 **By Category**:
 - Core IR/Rendering: 2 (BUG-001 ✅, BUG-028 ✅)
-- Parameter Handling: 3 (BUG-002, BUG-003, BUG-026 ✅)
-- Column Mapping: 2 (BUG-004 ✅, BUG-027 ✅)
-- CV References: 3 (BUG-023 ✅, BUG-025 ✅, BUG-030 ✅ VALIDATED)
+- Parameter Handling: 3 (BUG-002, BUG-003, BUG-026 ✅ VALIDATED)
+- Column Mapping: 2 (BUG-004 ✅, BUG-027 ✅ VALIDATED)
+- CV References: 3 (BUG-023 ✅ VALIDATED, BUG-025 ✅ VALIDATED, BUG-030 ✅ VALIDATED)
 - Filter Rendering: 1 (BUG-019)
 - Identifier Quoting: 1 (BUG-029 ✅ VALIDATED)
+- Calculated Column Expansion: 2 (BUG-032 ✅ VALIDATED, BUG-033 ✅ VALIDATED)
 
 **By XML**:
 - CV_CNCLD_EVNTS: 0 bugs ✅ (clean)
@@ -835,6 +837,8 @@ for target_name, source_name in target_to_source_map.items():
 - CV_ELIG_TRANS_01: 6 bugs (BUG-023 ✅, BUG-025 ✅, BUG-026 ✅, BUG-027 ✅, BUG-028 ✅, BUG-029 ✅ VALIDATED 28ms, BUG-030 ✅ VALIDATED 28ms)
 - CV_UPRT_PTLG: 1 bug (BUG-026 ✅ VALIDATED 27ms)
 - CV_TOP_PTHLGY: No regression from BUG-029 surgical fix ✅ (201ms)
+- CV_INVENTORY_STO: 1 bug (BUG-032 ✅ VALIDATED 59ms) - SESSION 8B
+- CV_PURCHASING_YASMIN: 1 bug (BUG-033 ✅ VALIDATED 70ms) - SESSION 8B
 
 ---
 
