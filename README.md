@@ -231,8 +231,7 @@ See [MANUAL_TESTING_GUIDE.md](MANUAL_TESTING_GUIDE.md) for comprehensive manual 
 - **[docs/implementation/PATTERN_MATCHING_DESIGN.md](docs/implementation/PATTERN_MATCHING_DESIGN.md)** - Pattern matching system design
 
 ### Architecture Documentation
-- **[docs/conversion_pipeline.md](docs/conversion_pipeline.md)** - Conversion pipeline architecture
-- **[docs/converter_flow.md](docs/converter_flow.md)** - Converter flow diagram
+- **[docs/CONVERSION_FLOW_MAP.md](docs/CONVERSION_FLOW_MAP.md)** - Conversion pipeline architecture and flow
 - **[docs/ir_design.md](docs/ir_design.md)** - Intermediate representation design
 
 ## Project Structure

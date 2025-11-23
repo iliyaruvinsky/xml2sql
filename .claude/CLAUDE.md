@@ -125,6 +125,63 @@ When asked to read files and unable to read most/all of them:
 - **Before ending any task or session, review recent work and ensure `docs/llm_handover.md` reflects the latest status, decisions, and next steps.**
 - **If no changes are required, explicitly confirm that the document already captures the current state.**
 
+### **RULE 12: MANDATORY BUG-CHECKING PROCEDURE**
+
+- **BEFORE working on ANY bug, ALWAYS read `.claude/MANDATORY_PROCEDURES.md` first**
+- **NEVER start implementing a fix without checking BUG_TRACKER.md and SOLVED_BUGS.md**
+- **This procedure exists because repeatedly failing to check wastes significant time and resources**
+- **NO EXCEPTIONS - even if you think you know the bug is new, CHECK FIRST**
+
+### **RULE 13: MINIMAL CODE CHANGES - SURGICAL PRECISION**
+
+- **ONLY change the EXACT lines of code needed to fix the specific bug**
+- **NEVER make "improvements" or "refactoring" while fixing bugs**
+- **NEVER touch functions or code that don't need to be touched**
+- **Every line changed must be directly related to the bug being fixed**
+- **If you changed 198 lines but only needed to change 10, you VIOLATED this rule**
+
+### **RULE 14: REGRESSION TESTING MANDATE**
+
+- **BEFORE showing results, test against ALL validated XMLs listed in GOLDEN_COMMIT.yaml**
+- **NEVER claim a fix works without testing it doesn't break existing validated XMLs**
+- **If ANY previously working XML breaks, STOP and REVERT immediately**
+- **Working code > Fixed new bug - preserving working functionality is HIGHEST priority**
+- **Test command: Check each XML from GOLDEN_COMMIT.yaml still generates identical SQL**
+
+### **RULE 15: CHANGE DOCUMENTATION PROTOCOL**
+
+- **Document EVERY line of code you change with inline comments explaining WHY**
+- **Keep a mental (or actual) list of ALL files and line numbers modified**
+- **Before reporting completion, verify you can list every single change made**
+- **Never say "I fixed the bug" without being able to enumerate every change**
+- **Example: "Modified renderer.py lines 645-654 to add column qualification in JOIN calculated columns"**
+
+### **RULE 16: CORE SQL GENERATION PROTECTION**
+
+When modifying core SQL generation files (`renderer.py`, `function_translator.py`, `converter.py`):
+- **These files control ALL SQL generation - one mistake breaks EVERYTHING**
+- **Use SURGICAL PRECISION - no exploratory changes, no "while I'm here" fixes**
+- **Test after EVERY SINGLE change, not after multiple changes**
+- **If you need to change 3 things, make 3 separate changes and test after each**
+- **Treat these files like you're performing brain surgery - ONE wrong move ruins everything**
+
+### **RULE 17: IF IT WORKS, DON'T TOUCH IT**
+
+- **NEVER modify working code while fixing a bug in different code**
+- **If 8 XMLs work correctly, and you break them while fixing a 9th XML, you FAILED**
+- **Scope discipline: Fix ONLY what's broken, leave working code UNTOUCHED**
+- **Before making ANY change, ask: "Does this line NEED to change for the bug I'm fixing?"**
+- **If answer is NO, don't touch that line**
+
+### **RULE 18: HONEST ADMISSION OF VIOLATIONS**
+
+When you realize you violated any rule:
+- **ADMIT IT IMMEDIATELY without excuses**
+- **Explain WHAT you did wrong and WHY it was wrong**
+- **Take FULL RESPONSIBILITY for the error**
+- **Don't blame "the complexity" or "the scope" - violations are YOUR fault**
+- **User is paying for professional work - violations waste their money**
+
 ---
 
 ## ENFORCEMENT MECHANISMS

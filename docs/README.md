@@ -11,8 +11,7 @@ This directory contains detailed technical documentation for developers working 
 
 ### Architecture & Design
 - **[ir_design.md](ir_design.md)** - Intermediate Representation (IR) design and data structures
-- **[conversion_pipeline.md](conversion_pipeline.md)** - Conversion pipeline architecture
-- **[converter_flow.md](converter_flow.md)** - Detailed conversion flow diagram and steps
+- **[CONVERSION_FLOW_MAP.md](CONVERSION_FLOW_MAP.md)** - Conversion pipeline architecture and detailed flow
 
 ### Project Information
 - **[llm_handover.md](llm_handover.md)** - Project status and handover information for continuation
