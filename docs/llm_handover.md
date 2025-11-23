@@ -17,7 +17,7 @@
 3. **Start web server**: Run `restart_server.bat` (Windows) or `python -m uvicorn src.xml_to_sql.web.main:app --reload`
 4. **Access UI**: http://localhost:8000
 5. **Test XML**: Upload XML, set HANA package path, convert, execute in HANA Studio
-6. **Review status**: Check `docs/TESTING_LOG.md` and `Target (SQL Scripts)/VALIDATED/README.md`
+6. **Review status**: Check `GOLDEN_COMMIT.yaml` and `docs/bugs/BUG_TRACKER.md`
 
 ### Completed Features
 
@@ -571,7 +571,7 @@ pytest tests/test_sql_validator.py -v
   2. Use "calc" when calculated columns exist - broke CV_TOP_PTHLGY
   3. Pre-scan filters for calculated column references - broke topological sort
 - **Decision**: Document as known limitation, continue testing other files
-- **Details**: See `docs/TESTING_LOG.md` and `docs/bugs/BUG_TRACKER.md`
+- **Details**: See `docs/bugs/BUG_TRACKER.md` (Note: TESTING_LOG.md has been archived, info now in GOLDEN_COMMIT.yaml)
 
 ### New Infrastructure Created
 
@@ -586,10 +586,9 @@ pytest tests/test_sql_validator.py -v
    - `check_server.bat` - Server status verification script
    - Ensures clean testing environment between tests
 
-3. **Comprehensive Documentation**:
-   - `docs/TESTING_LOG.md` - Detailed testing log with results, bugs, lessons learned
-   - `SESSION_3_SUMMARY.md` - Executive summary of session
+3. **Comprehensive Documentation** (Note: Session-specific files archived, info now in GOLDEN_COMMIT.yaml and bug trackers):
    - Updated `docs/bugs/BUG_TRACKER.md` with BUG-019
+   - Created testing infrastructure and validation baseline
 
 ### Lessons Learned
 
@@ -1064,7 +1063,7 @@ pytest tests/test_sql_validator.py -v
    - Created `docs/archive/` (14 historical documents archived)
    - Moved 3 test files to `tests/` folder
    - Created `CLAUDE.md` with project rules
-   - See `COMPREHENSIVE_AUDIT_REPORT.md`
+   - (Note: COMPREHENSIVE_AUDIT_REPORT.md archived, results incorporated into current docs)
 
 4. **Automated Validation** ✅ COMPLETE
    - Created `validate_project_consistency.py`
@@ -1086,14 +1085,13 @@ c921084 Remove old distribution archives
 
 ### Files Modified/Created
 
-**New Files**:
+**New Files** (Note: Some archived in SESSION 8B cleanup):
 - `src/xml_to_sql/catalog/data/patterns.yaml`
 - `src/xml_to_sql/catalog/pattern_loader.py`
 - `docs/implementation/PATTERN_MATCHING_DESIGN.md`
 - `UI_CLI_ALIGNMENT_AUDIT.md`
-- `COMPREHENSIVE_AUDIT_REPORT.md`
 - `validate_project_consistency.py`
-- `CLAUDE.md`
+- `CLAUDE.md` (moved to .claude/ directory)
 - `tests/test_pattern_matching.py`
 
 **Modified Files**:
@@ -1169,11 +1167,10 @@ c921084 Remove old distribution archives
    - Added SOLVED-022 entry with complete documentation
    - Total: ~160 lines added
 
-3. **FIXES_AFTER_COMMIT_4eff5fb.md**:
-   - Added BUG-021 section with fix details
-   - Added BUG-022 section with 7-part fix
-   - Updated application order and files to modify
-   - Total: ~200 lines added
+3. **Documentation Created** (Note: FIXES_AFTER_COMMIT_4eff5fb.md archived in SESSION 8B, info preserved in GOLDEN_COMMIT.yaml incident log):
+   - BUG-021 and BUG-022 fix details documented
+   - Application order and files to modify tracked
+   - Information now in GOLDEN_COMMIT.yaml and SOLVED_BUGS.md
 
 4. **iliya_hana_testing_results.md**:
    - Added CV_MCM_CNTRL_Q51 test results with BUG-021 details
@@ -1210,8 +1207,9 @@ This pattern ensures empty WHERE clauses are never added to SQL.
    - 7-part fix documentation with code samples
    - Related issues, validation results
 
-3. **FIXES_AFTER_COMMIT_4eff5fb.md**:
-   - Step-by-step reapplication guide for BUG-021 and BUG-022
+3. **Reapplication Guide** (Note: FIXES_AFTER_COMMIT_4eff5fb.md archived, see GOLDEN_COMMIT.yaml):
+   - Step-by-step process documented in GOLDEN_COMMIT.yaml incident log
+   - All fix details preserved in SOLVED_BUGS.md
    - Line numbers, code snippets, application order
 
 ### What's Ready for Next Session

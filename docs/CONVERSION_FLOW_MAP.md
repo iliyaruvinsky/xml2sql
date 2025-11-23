@@ -487,9 +487,8 @@ This is where most conversion logic lives and where our BUG fixes are located.
 ```
 
 **Key Documents for Stage 3**:
-- **GOLDEN_COMMIT.yaml**: Parameter cleanup patterns (BUG-021, BUG-022)
+- **GOLDEN_COMMIT.yaml**: Parameter cleanup patterns (BUG-021, BUG-022), incident log, validated XMLs
 - **SOLVED_BUGS.md**: Historical bug fixes
-- **FIXES_AFTER_COMMIT_4eff5fb.md**: Session 7 reapplication guide
 
 ---
 
@@ -601,10 +600,10 @@ Question: Where are we using a Calculation View name?
 │   - Key decisions                │    → Architectural insights   │
 │   - Lessons learned              │    → Future LLM reference     │
 ├──────────────────────────────────┼───────────────────────────────┤
-│  TESTING_LOG.md                  │  Test results & validation    │
-│   - Validated XMLs               │    → Proof of correctness     │
+│  BUG_TRACKER.md / SOLVED_BUGS.md │  Test results & validation    │
+│   - Bug statuses and details     │    → Active and solved bugs   │
 │   - Known issues                 │    → Limitations              │
-│   - Execution times              │    → Performance baseline     │
+│   (See GOLDEN_COMMIT.yaml for validated XMLs and execution times) │
 ├──────────────────────────────────┼───────────────────────────────┤
 │  MANDATORY_PROCEDURES.md         │  Process enforcement          │
 │   (.claude directory)            │    → Bug checking workflow    │

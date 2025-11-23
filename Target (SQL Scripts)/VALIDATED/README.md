@@ -68,7 +68,7 @@ diff "UI_GENERATED_SQL.txt" "Target (SQL Scripts)/VALIDATED/CV_FILENAME.sql"
 |------|--------------|-------|------------|
 | CV_CT02_CT03.sql | ECC_ON_HANA | Syntax error in REGEXP_LIKE filters | Calculated columns in WHERE need subquery alias 'calc' |
 
-**Details**: See `docs/TESTING_LOG.md` for full analysis and attempted fixes.
+**Details**: See `docs/bugs/BUG_TRACKER.md` for full analysis. Validated XMLs tracked in `GOLDEN_COMMIT.yaml`.
 
 ---
 
@@ -85,8 +85,7 @@ diff "UI_GENERATED_SQL.txt" "Target (SQL Scripts)/VALIDATED/CV_FILENAME.sql"
 - This README updated with strict protection workflow
 
 **References**:
-- `FIXES_AFTER_COMMIT_4eff5fb.md` - All fixes applied after golden commit
-- `GOLDEN_COMMIT.yaml` - Commit tracking and validation status
+- `GOLDEN_COMMIT.yaml` - Commit tracking, validation status, and incident log (includes Session 7 details)
 
 ---
 

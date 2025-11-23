@@ -55,8 +55,7 @@ Follow these steps in order to get started as a developer.
 
 **Action:** Read these documents in order:
 1. [docs/ir_design.md](docs/ir_design.md) - Understand the data structures
-2. [docs/conversion_pipeline.md](docs/conversion_pipeline.md) - Understand the pipeline
-3. [docs/converter_flow.md](docs/converter_flow.md) - Understand the flow
+2. [docs/CONVERSION_FLOW_MAP.md](docs/CONVERSION_FLOW_MAP.md) - Understand the pipeline and flow
 
 ---
 
@@ -106,8 +105,7 @@ Here's what each developer document contains and when to read it:
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
 | **docs/ir_design.md** | Intermediate Representation design | When you need to understand data structures |
-| **docs/conversion_pipeline.md** | Conversion pipeline architecture | When you need to understand the flow |
-| **docs/converter_flow.md** | Detailed conversion flow | When you need step-by-step flow details |
+| **docs/CONVERSION_FLOW_MAP.md** | Conversion pipeline architecture and flow | When you need to understand the pipeline and flow |
 | **docs/llm_handover.md** | Project status and handover | When you need project context |
 
 ### Code Structure
@@ -137,7 +135,7 @@ Here's what each developer document contains and when to read it:
 
 - **I want to convert XML files** → Read [QUICK_START.md](QUICK_START.md)
 - **I want to run tests** → See [docs/TESTING.md](docs/TESTING.md)
-- **I want to understand the architecture** → Read [docs/conversion_pipeline.md](docs/conversion_pipeline.md)
+- **I want to understand the architecture** → Read [docs/CONVERSION_FLOW_MAP.md](docs/CONVERSION_FLOW_MAP.md)
 - **I want to extend the tool** → Explore `src/xml_to_sql/` and technical docs
 - **I want to understand data structures** → Read [docs/ir_design.md](docs/ir_design.md)
 

@@ -218,7 +218,7 @@ SAP DBTech JDBC: [257]: sql syntax error: incorrect syntax near "AND": line 29 c
 
 **Next Steps**: Test more ECC_ON_HANA XMLs, analyze pattern, consider if acceptable limitation
 
-**Details**: See `docs/TESTING_LOG.md` for full analysis
+**Details**: See GOLDEN_COMMIT.yaml for validated XMLs and SOLVED_BUGS.md for related bugs
 
 ---
 

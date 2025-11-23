@@ -984,10 +984,10 @@ Target:  WHERE (calc."COLUMN" = 'value')
 - `function_translator.py::_substitute_placeholders()` - Replace with ''
 - `renderer.py::_cleanup_hana_parameter_conditions()` - Remove clauses
 
-**Limitations**: 
+**Limitations**:
 - Complex DATE() patterns may leave fragments
 - Nested parameters may cause orphaned parens
-- See CV_MCM_CNTRL_Q51_DEBUGGING_NOTES.md
+- See GOLDEN_COMMIT.yaml for CV_MCM_CNTRL_Q51 validation details and BUG-021 critical pattern
 
 ---
 
