@@ -2158,4 +2158,209 @@ pip install -e ".[dev]"
 
 ---
 
-**Last Updated**: 2025-11-23 (SESSION 8B COMPLETE - Documentation cleanup finished)
+## Next Session Preparation (For New Computer)
+
+### Git Repository State
+
+**Branch**: `main` (pushed to origin/main)
+**Latest Commit**: `e1ab3b8` - Merge SESSION 8B
+**Remote**: `origin` → https://github.com/iliyaruvinsky/xml2sql.git
+**Status**: All SESSION 8B work committed and pushed
+
+**Recent Commits** (newest to oldest):
+```
+e1ab3b8 - Merge SESSION 8B: BUG-032, BUG-033 validated + documentation cleanup
+122e16d - DOCS: Update llm_handover.md with SESSION 8B completion status
+2c4f878 - CLEANUP: Remove 9 redundant documentation files and update references
+ab463c5 - Update GOLDEN_COMMIT after SESSION 8B HANA validation
+91d7b7c - DOCS: SESSION 8B documentation alignment - BUG-032 & BUG-033
+5ed3b77 - Update GOLDEN_COMMIT after SESSION 7 HANA validation
+```
+
+### Setup Steps on New Computer
+
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/iliyaruvinsky/xml2sql.git
+   cd xml2sql
+   ```
+
+2. **Verify You Have Latest Code**:
+   ```bash
+   git log --oneline -3
+   # Should show: e1ab3b8 Merge SESSION 8B...
+
+   git status
+   # Should show: On branch main, Your branch is up to date with 'origin/main'
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   pip install -e ".[dev]"
+   ```
+
+4. **Start Web Server**:
+   ```bash
+   # Windows:
+   restart_server.bat
+
+   # Or manually:
+   python -m uvicorn src.xml_to_sql.web.main:app --reload
+   ```
+
+5. **Access UI**:
+   - Open browser to: http://localhost:8000
+   - Upload XML file
+   - Set HANA package path
+   - Convert and test in HANA Studio
+
+### What to Verify After Pull
+
+**Critical Files to Check**:
+```bash
+# 1. GOLDEN_COMMIT.yaml should show 13 validated XMLs
+cat GOLDEN_COMMIT.yaml | grep "count:"
+# Should output: count: 13
+
+# 2. Check last validated commit
+cat GOLDEN_COMMIT.yaml | grep "last_validated_commit:"
+# Should output: last_validated_commit: "91d7b7c"
+
+# 3. Verify BUG-032 and BUG-033 code is present
+grep -n "BUG-032" src/xml_to_sql/sql/renderer.py
+# Should show lines 761-790 (aggregation calc column expansion)
+
+grep -n "BUG-033" src/xml_to_sql/sql/renderer.py
+# Should show lines 592-638 (JOIN calc column expansion)
+
+# 4. Verify documentation cleanup (these should NOT exist)
+ls BUG-020-FIX-SUMMARY.md 2>/dev/null
+ls FIXES_AFTER_COMMIT_4eff5fb.md 2>/dev/null
+ls docs/TESTING_LOG.md 2>/dev/null
+# Should all return "No such file or directory"
+```
+
+### Key Documentation References (Read These First)
+
+**For Current Status**:
+1. **GOLDEN_COMMIT.yaml** - Last validated commit, all 13 XMLs, critical patterns
+2. **This file** (llm_handover.md) - Complete session history through SESSION 8B
+3. **docs/bugs/BUG_TRACKER.md** - 1 active bug (BUG-019), statistics
+4. **docs/bugs/SOLVED_BUGS.md** - All 27 solved bugs with solutions
+
+**For Understanding Codebase**:
+1. **.claude/MANDATORY_PROCEDURES.md** - NON-NEGOTIABLE process rules
+2. **.claude/CLAUDE.md** - 18 mandatory behavior rules for development
+3. **docs/rules/HANA_CONVERSION_RULES.md** - All 8 PRINCIPLES + 17 transformation rules
+4. **docs/CONVERSION_FLOW_MAP.md** - Complete conversion pipeline architecture
+
+**For Development**:
+1. **DEVELOPER_GUIDE.md** - Developer navigation and quick start
+2. **README.md** - Project overview and features
+
+### Next Recommended Actions
+
+**Option 1: Continue Testing More XMLs**
+- Test additional XML files from different SAP instances
+- Follow MANDATORY_PROCEDURES.md for bug checking
+- Document any new bugs in BUG_TRACKER.md
+- Update GOLDEN_COMMIT.yaml after HANA validation
+
+**Option 2: Deploy to Production**
+- All 13 XMLs validated with 100% success rate
+- Code is stable and production-ready
+- Follow deployment guides in DEVELOPER_GUIDE.md
+
+**Option 3: Address BUG-019 (Only Active Bug)**
+- **BUG-019**: REGEXP_LIKE filters with calculated columns
+- Status: Active (3 attempted fixes failed)
+- Decision: Documented as known limitation
+- See BUG_TRACKER.md for full analysis
+
+### Important Reminders
+
+**Before ANY Code Changes**:
+1. ✅ Read `.claude/MANDATORY_PROCEDURES.md` - ALWAYS check bug tracker first
+2. ✅ Read `.claude/CLAUDE.md` - 18 mandatory behavior rules
+3. ✅ Never modify code without reading files first (RULE 1)
+4. ✅ Always verify changes with Read tool after Edit (RULE 3)
+5. ✅ Test against ALL validated XMLs before claiming success (RULE 14)
+
+**Critical Code Sections** (DO NOT TOUCH without testing):
+- `src/xml_to_sql/sql/renderer.py` lines 592-638: BUG-033 (JOIN calc columns)
+- `src/xml_to_sql/sql/renderer.py` lines 761-790: BUG-032 (aggregation calc columns)
+- `src/xml_to_sql/sql/renderer.py` lines 1156-1193: Parameter cleanup (12 patterns)
+- `src/xml_to_sql/sql/renderer.py` lines 1594-1606: View creation (DROP/CREATE)
+
+**When Encountering HANA Errors**:
+1. Read LATEST_SQL_FROM_DB.txt yourself (never ask user to paste)
+2. Check BUG_TRACKER.md and SOLVED_BUGS.md FIRST
+3. Only create new bug if not already documented
+4. Follow bug documentation template in BUG_TRACKER.md
+
+### Current Project Statistics
+
+**Validation**:
+- Validated XMLs: 13 (100% success rate)
+- Execution times: 27ms to 201ms
+- Total execution time: ~1 second for all 13 XMLs
+
+**Bug Resolution**:
+- Total bugs tracked: 33
+- Solved: 27 (82%)
+- Active: 1 (BUG-019 - known limitation)
+- Deferred: 2 (BUG-002, BUG-003 - parameter edge cases)
+- Fixed awaiting validation: 0 (all validated!)
+
+**Code Coverage**:
+- Core node types: Projection, Aggregation, Join, Union ✅
+- Calculated columns: Forward references fixed ✅
+- Parameter cleanup: 12 comprehensive patterns ✅
+- CV-to-CV references: Package path handling ✅
+- Function mappings: 60+ functions translated ✅
+
+**Documentation**:
+- Conversion rules: 8 PRINCIPLES + 17 transformation rules
+- Mandatory procedures: 5 critical workflows documented
+- Behavior rules: 18 rules for LLM development
+- Session history: 8 sessions fully documented
+
+### Environment Notes
+
+**Python Version**: 3.11+
+**Package Manager**: pip with pyproject.toml
+**Web Framework**: FastAPI with Uvicorn
+**Frontend**: React
+**Database Targets**: SAP HANA (primary), Snowflake (future)
+
+**Development Scripts**:
+- `restart_server.bat` - Hard restart with process kill and cache clear
+- `check_server.bat` - Server status verification
+- `validate_project_consistency.py` - Documentation consistency validation
+
+### Quick Reference Commands
+
+```bash
+# Test single XML in CLI mode
+python -m xml_to_sql.cli.app convert \
+  --config config.yaml \
+  --mode hana \
+  --file "Source (XML Files)/CV_EXAMPLE.xml"
+
+# Run tests
+pytest
+
+# Check git status
+git status
+git log --oneline -5
+
+# View critical patterns
+cat GOLDEN_COMMIT.yaml | grep -A 20 "critical_patterns:"
+
+# Check bug statistics
+cat docs/bugs/BUG_TRACKER.md | grep -A 10 "Bug Statistics"
+```
+
+---
+
+**Last Updated**: 2025-11-23 (SESSION 8B COMPLETE - Ready for pull on new computer)
