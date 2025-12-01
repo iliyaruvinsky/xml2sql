@@ -154,6 +154,7 @@ class ConversionResponse(BaseModel):
     filename: str
     scenario_id: Optional[str] = None
     sql_content: str
+    abap_content: Optional[str] = None  # Generated ABAP Report program
     xml_content: Optional[str] = None  # Original XML file content
     warnings: List[WarningResponse] = Field(default_factory=list)
     metadata: Optional[ConversionMetadata] = None
@@ -173,6 +174,7 @@ class HistoryDetailResponse(BaseModel):
     filename: str
     scenario_id: Optional[str] = None
     sql_content: str
+    abap_content: Optional[str] = None  # Generated ABAP Report program
     xml_content: Optional[str] = None  # Original XML file content
     config_json: Optional[str] = None
     warnings: List[WarningResponse] = Field(default_factory=list)

@@ -20,6 +20,7 @@ class Conversion(Base):
     filename = Column(String, nullable=False, index=True)
     scenario_id = Column(String, nullable=True, index=True)
     sql_content = Column(Text, nullable=False)
+    abap_content = Column(Text, nullable=True)  # Generated ABAP Report program
     xml_content = Column(Text, nullable=True)  # Original XML file content
     config_json = Column(Text, nullable=True)  # JSON string of config used
     warnings = Column(Text, nullable=True)  # JSON array of warnings

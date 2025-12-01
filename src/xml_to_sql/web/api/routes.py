@@ -6,6 +6,7 @@ import json
 import uuid
 from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from typing import List
 from zipfile import ZipFile
 
@@ -16,6 +17,8 @@ from sqlalchemy.orm import Session
 from ...web.database import get_db, Conversion, BatchConversion, BatchFile
 from ...web.services.converter import convert_xml_to_sql, ConversionResult
 from ...web.services.xml_utils import prettify_xml
+from ...package_mapper import get_package
+from ...package_mapping_db import PackageMappingDB
 from .models import (
     ConversionConfig,
     ConversionRequest,
@@ -36,6 +39,25 @@ from .models import (
 )
 
 router = APIRouter(prefix="/api", tags=["conversion"])
+
+
+def write_latest_sql_to_file(sql_content: str, scenario_id: str) -> None:
+    """Write generated SQL to LATEST_SQL_FROM_DB.txt for Claude Code analysis."""
+    try:
+        # Get xml2sql root (5 levels up from routes.py: api->web->xml_to_sql->src->xml2sql)
+        # Path: routes.py is in src/xml_to_sql/web/api/
+        # We want: xml2sql/LATEST_SQL_FROM_DB.txt
+        xml2sql_root = Path(__file__).parent.parent.parent.parent.parent
+        latest_sql_file = xml2sql_root / "LATEST_SQL_FROM_DB.txt"
+
+        # Write SQL with scenario_id comment
+        with open(latest_sql_file, "w", encoding="utf-8") as f:
+            f.write(f"-- Last generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"-- Scenario ID: {scenario_id}\n\n")
+            f.write(sql_content)
+    except Exception as e:
+        # Don't fail the conversion if file write fails
+        print(f"Warning: Failed to write LATEST_SQL_FROM_DB.txt: {e}")
 
 
 # NOTE: More specific routes must come BEFORE less specific ones in FastAPI
@@ -63,6 +85,14 @@ async def convert_single_stream(
     # Read file content
     xml_content_bytes = await file.read()
 
+    # Auto-detect package if not provided and database mode is HANA
+    hana_package = config.hana_package
+    if not hana_package and config.database_mode.lower() == "hana" and file.filename:
+        cv_name = Path(file.filename).stem
+        auto_package = get_package(cv_name)
+        if auto_package:
+            hana_package = auto_package
+
     async def event_generator():
         """Generate SSE events as conversion progresses."""
         import asyncio
@@ -89,7 +119,7 @@ async def convert_single_stream(
                         xml_content=xml_content_bytes,
                         database_mode=config.database_mode,
                         hana_version=config.hana_version,
-                        hana_package=config.hana_package,
+                        hana_package=hana_package,
                         client=config.client,
                         language=config.language,
                         schema_overrides=config.schema_overrides,
@@ -119,6 +149,7 @@ async def convert_single_stream(
                     scenario_id=result.scenario_id,
                     xml_content=xml_content_bytes.decode('utf-8', errors='ignore'),
                     sql_content=result.sql_content or "",
+                    abap_content=result.abap_content,
                     status="success",
                     database_mode=config.database_mode,
                     created_at=datetime.now(),
@@ -127,10 +158,14 @@ async def convert_single_stream(
                 db.commit()
                 db.refresh(conversion)
 
+                # Write SQL to LATEST_SQL_FROM_DB.txt for Claude Code analysis
+                write_latest_sql_to_file(result.sql_content, result.scenario_id)
+
                 yield format_sse_message("complete", {
                     "conversion_id": conversion.id,
                     "scenario_id": result.scenario_id,
                     "sql_content": result.sql_content,
+                    "abap_content": result.abap_content,
                     "warnings": [w.message for w in result.warnings] if result.warnings else [],
                 })
 
@@ -178,13 +213,21 @@ async def convert_single(
     
     # Format XML for storage
     xml_content_formatted = prettify_xml(xml_content_bytes)
-    
+
+    # Auto-detect package if not provided and database mode is HANA
+    hana_package = config.hana_package
+    if not hana_package and config.database_mode.lower() == "hana" and file.filename:
+        cv_name = Path(file.filename).stem
+        auto_package = get_package(cv_name)
+        if auto_package:
+            hana_package = auto_package
+
     # Convert XML to SQL
     result = convert_xml_to_sql(
         xml_content=xml_content_bytes,
         database_mode=config.database_mode,
         hana_version=config.hana_version,
-        hana_package=config.hana_package,
+        hana_package=hana_package,
         client=config.client,
         language=config.language,
         schema_overrides=config.schema_overrides,
@@ -304,6 +347,7 @@ async def convert_single(
         filename=file.filename or "unknown.xml",
         scenario_id=result.scenario_id,
         sql_content=result.sql_content,
+        abap_content=result.abap_content,
         xml_content=xml_content_formatted,
         config_json=config_json,
         warnings=json.dumps([w for w in result.warnings]),
@@ -315,12 +359,16 @@ async def convert_single(
     db.add(conversion)
     db.commit()
     db.refresh(conversion)
-    
+
+    # Write SQL to LATEST_SQL_FROM_DB.txt for Claude Code analysis
+    write_latest_sql_to_file(result.sql_content, result.scenario_id)
+
     return ConversionResponse(
         id=conversion.id,
         filename=conversion.filename,
         scenario_id=conversion.scenario_id,
         sql_content=conversion.sql_content,
+        abap_content=conversion.abap_content,
         xml_content=conversion.xml_content,
         warnings=warnings,
         metadata=metadata,
@@ -392,13 +440,21 @@ async def convert_batch(
         
         # Format XML for storage
         xml_content_formatted = prettify_xml(xml_content_bytes)
-        
+
+        # Auto-detect package if not provided and database mode is HANA
+        hana_package = config.hana_package
+        if not hana_package and config.database_mode.lower() == "hana" and file.filename:
+            cv_name = Path(file.filename).stem
+            auto_package = get_package(cv_name)
+            if auto_package:
+                hana_package = auto_package
+
         # Convert XML to SQL
         result = convert_xml_to_sql(
             xml_content=xml_content_bytes,
             database_mode=config.database_mode,
             hana_version=config.hana_version,
-            hana_package=config.hana_package,
+            hana_package=hana_package,
             client=config.client,
             language=config.language,
             schema_overrides=config.schema_overrides,
@@ -446,6 +502,7 @@ async def convert_batch(
                 filename=file.filename or "unknown.xml",
                 scenario_id=result.scenario_id,
                 sql_content=result.sql_content,
+                abap_content=result.abap_content,
                 xml_content=xml_content_formatted,
                 config_json=config_json,
                 warnings=json.dumps([w for w in result.warnings]),
@@ -455,7 +512,10 @@ async def convert_batch(
             db.add(conversion)
             db.commit()
             db.refresh(conversion)
-            
+
+            # Write SQL to LATEST_SQL_FROM_DB.txt for Claude Code analysis
+            write_latest_sql_to_file(result.sql_content, result.scenario_id)
+
             # Link to batch
             batch_file = BatchFile(
                 batch_id=batch_id,
@@ -490,20 +550,87 @@ async def download_sql(
     db: Session = Depends(get_db),
 ) -> StreamingResponse:
     """Download SQL file for a conversion."""
-    
+
     conversion = db.query(Conversion).filter(Conversion.id == conversion_id).first()
     if not conversion:
         raise HTTPException(status_code=404, detail="Conversion not found")
-    
+
     if conversion.status != "success":
         raise HTTPException(status_code=400, detail="Conversion was not successful")
-    
+
     # Generate filename
     filename = conversion.filename.rsplit(".", 1)[0] + ".sql" if "." in conversion.filename else conversion.filename + ".sql"
-    
+
     return StreamingResponse(
         BytesIO(conversion.sql_content.encode("utf-8")),
         media_type="application/sql",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/generate-abap/{conversion_id}")
+async def generate_abap(
+    conversion_id: int,
+    db: Session = Depends(get_db),
+) -> dict:
+    """Generate ABAP Report for a conversion on demand."""
+    from ...abap import generate_abap_report
+
+    conversion = db.query(Conversion).filter(Conversion.id == conversion_id).first()
+    if not conversion:
+        raise HTTPException(status_code=404, detail="Conversion not found")
+
+    if conversion.status != "success":
+        raise HTTPException(status_code=400, detail="Conversion was not successful")
+
+    if not conversion.sql_content:
+        raise HTTPException(status_code=400, detail="No SQL content available for ABAP generation")
+
+    # Generate ABAP Report
+    try:
+        abap_content = generate_abap_report(
+            sql_content=conversion.sql_content,
+            scenario_id=conversion.scenario_id or "GENERATED_VIEW",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"ABAP generation failed: {str(e)}")
+
+    # Save to database
+    conversion.abap_content = abap_content
+    db.commit()
+
+    return {
+        "success": True,
+        "conversion_id": conversion_id,
+        "abap_content": abap_content,
+        "program_name": f"Z_XDS_{conversion.scenario_id}".upper()[:30] if conversion.scenario_id else "Z_XDS_EXPORT",
+    }
+
+
+@router.get("/download/{conversion_id}/abap")
+async def download_abap(
+    conversion_id: int,
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    """Download ABAP Report file for a conversion."""
+
+    conversion = db.query(Conversion).filter(Conversion.id == conversion_id).first()
+    if not conversion:
+        raise HTTPException(status_code=404, detail="Conversion not found")
+
+    if conversion.status != "success":
+        raise HTTPException(status_code=400, detail="Conversion was not successful")
+
+    if not conversion.abap_content:
+        raise HTTPException(status_code=404, detail="ABAP content not available for this conversion. Generate it first.")
+
+    # Generate filename - ABAP programs use .abap extension
+    base_name = conversion.filename.rsplit(".", 1)[0] if "." in conversion.filename else conversion.filename
+    filename = f"Z_XDS_{base_name}.abap".upper()
+
+    return StreamingResponse(
+        BytesIO(conversion.abap_content.encode("utf-8")),
+        media_type="text/plain",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
@@ -627,6 +754,7 @@ async def get_history_detail(
         filename=conversion.filename,
         scenario_id=conversion.scenario_id,
         sql_content=conversion.sql_content,
+        abap_content=conversion.abap_content,
         xml_content=conversion.xml_content,
         config_json=conversion.config_json,
         warnings=warnings,
@@ -699,10 +827,264 @@ async def delete_history_bulk(
     return {"message": "All conversion history deleted successfully", "deleted": deleted}
 
 
+# Package Mapping Endpoints
+
+@router.post("/package-mappings/upload")
+async def upload_package_mapping(
+    file: UploadFile = File(..., description="Excel file with package mappings"),
+    instance_name: str = Form(None, description="HANA instance name (auto-detected from filename if not provided)"),
+    instance_type: str = Form(None, description="Instance type (ECC, BW, S4HANA, etc.)"),
+) -> dict:
+    """Upload and import package mapping Excel file."""
+
+    # Validate file type
+    if not file.filename or not file.filename.lower().endswith((".xlsx", ".xls")):
+        raise HTTPException(status_code=400, detail="File must be an Excel file (.xlsx or .xls)")
+
+    try:
+        # Auto-detect instance name from filename if not provided
+        if not instance_name:
+            # Expected format: HANA_CV_MBD.xlsx → "MBD (ECC)"
+            import re
+            match = re.match(r'HANA_CV_(\w+)\.xlsx?', file.filename, re.IGNORECASE)
+            if match:
+                code = match.group(1)
+                instance_name = f"{code} (ECC)"  # Default to ECC if type not provided
+            else:
+                instance_name = Path(file.filename).stem  # Use filename without extension
+
+        # Save uploaded file to uploads folder
+        project_root = Path(__file__).parent.parent.parent.parent.parent
+        uploads_dir = project_root / "package_mappings" / "uploads"
+        uploads_dir.mkdir(parents=True, exist_ok=True)
+
+        file_path = uploads_dir / file.filename
+
+        # Write file to disk
+        with open(file_path, "wb") as f:
+            content = await file.read()
+            f.write(content)
+
+        # Import into database
+        db = PackageMappingDB()
+        result = db.import_from_excel(file_path, instance_name, instance_type)
+
+        if result["status"] == "SUCCESS":
+            # Move to processed folder (use replace() to overwrite existing files on re-upload)
+            processed_dir = project_root / "package_mappings" / "processed"
+            processed_dir.mkdir(parents=True, exist_ok=True)
+
+            processed_path = processed_dir / file.filename
+            file_path.replace(processed_path)  # replace() overwrites existing files
+
+            return {
+                "status": "success",
+                "message": f"Successfully imported {result['cv_count']} CVs for instance '{instance_name}'",
+                "instance_name": instance_name,
+                "instance_id": result["instance_id"],
+                "cv_count": result["cv_count"],
+                "source_file": file.filename
+            }
+        else:
+            # Move to failed folder (use replace() to overwrite existing files on re-upload)
+            failed_dir = project_root / "package_mappings" / "failed"
+            failed_dir.mkdir(parents=True, exist_ok=True)
+
+            failed_path = failed_dir / file.filename
+            file_path.replace(failed_path)  # replace() overwrites existing files
+
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to import mappings: {result.get('error', 'Unknown error')}"
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+
+@router.get("/package-mappings/instances")
+async def get_instances() -> dict:
+    """Get list of all HANA instances with package mappings."""
+
+    try:
+        db = PackageMappingDB()
+        instances = db.get_instances()
+
+        return {
+            "instances": instances,
+            "total": len(instances)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get instances: {str(e)}")
+
+
+@router.get("/package-mappings/instance/{instance_id}")
+async def get_instance_details(instance_id: int) -> dict:
+    """Get detailed information about a specific instance."""
+
+    try:
+        db = PackageMappingDB()
+
+        # Get instance info
+        instances = db.get_instances()
+        instance = next((i for i in instances if i["instance_id"] == instance_id), None)
+
+        if not instance:
+            raise HTTPException(status_code=404, detail="Instance not found")
+
+        # Get statistics for this instance
+        import sqlite3
+        with sqlite3.connect(db.db_path) as conn:
+            cursor = conn.cursor()
+
+            # Get CV count
+            cursor.execute("""
+                SELECT COUNT(*) FROM package_mappings
+                WHERE instance_id = ? AND is_active = 1
+            """, (instance_id,))
+            cv_count = cursor.fetchone()[0]
+
+            # Get unique packages count
+            cursor.execute("""
+                SELECT COUNT(DISTINCT package_path) FROM package_mappings
+                WHERE instance_id = ? AND is_active = 1
+            """, (instance_id,))
+            package_count = cursor.fetchone()[0]
+
+            # Get top packages
+            cursor.execute("""
+                SELECT package_path, COUNT(*) as cv_count
+                FROM package_mappings
+                WHERE instance_id = ? AND is_active = 1
+                GROUP BY package_path
+                ORDER BY cv_count DESC
+                LIMIT 10
+            """, (instance_id,))
+            top_packages = [{"package": row[0], "cv_count": row[1]} for row in cursor.fetchall()]
+
+            # Get recent CVs
+            cursor.execute("""
+                SELECT cv_name, package_path, import_date
+                FROM package_mappings
+                WHERE instance_id = ? AND is_active = 1
+                ORDER BY import_date DESC
+                LIMIT 20
+            """, (instance_id,))
+            recent_cvs = [
+                {"cv_name": row[0], "package_path": row[1], "import_date": row[2]}
+                for row in cursor.fetchall()
+            ]
+
+        return {
+            **instance,
+            "cv_count": cv_count,
+            "package_count": package_count,
+            "top_packages": top_packages,
+            "recent_cvs": recent_cvs
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get instance details: {str(e)}")
+
+
+@router.delete("/package-mappings/instance/{instance_id}")
+async def delete_instance(instance_id: int) -> dict:
+    """Delete a HANA instance and all its package mappings."""
+
+    try:
+        db = PackageMappingDB()
+
+        import sqlite3
+        with sqlite3.connect(db.db_path) as conn:
+            cursor = conn.cursor()
+
+            # Check if instance exists
+            cursor.execute("SELECT instance_name FROM hana_instances WHERE instance_id = ?", (instance_id,))
+            row = cursor.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail="Instance not found")
+
+            instance_name = row[0]
+
+            # Delete mappings
+            cursor.execute("DELETE FROM package_mappings WHERE instance_id = ?", (instance_id,))
+            mappings_deleted = cursor.rowcount
+
+            # Delete import history
+            cursor.execute("DELETE FROM import_history WHERE instance_id = ?", (instance_id,))
+
+            # Delete instance
+            cursor.execute("DELETE FROM hana_instances WHERE instance_id = ?", (instance_id,))
+
+            conn.commit()
+
+        return {
+            "message": f"Instance '{instance_name}' deleted successfully",
+            "instance_id": instance_id,
+            "mappings_deleted": mappings_deleted
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete instance: {str(e)}")
+
+
+@router.get("/package-mappings/search")
+async def search_mappings(
+    q: str = Query(..., description="Search query for CV name"),
+    instance_name: str = Query(None, description="Filter by instance name")
+) -> dict:
+    """Search for package mappings by CV name."""
+
+    try:
+        db = PackageMappingDB()
+        results = db.search_cv(q, instance_name)
+
+        return {
+            "query": q,
+            "results": results,
+            "count": len(results)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+
+@router.get("/package-mappings/statistics")
+async def get_statistics() -> dict:
+    """Get overall package mapping statistics."""
+
+    try:
+        db = PackageMappingDB()
+        stats = db.get_statistics()
+
+        return stats
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get statistics: {str(e)}")
+
+
+@router.get("/package-mappings/history")
+async def get_import_history(limit: int = Query(10, description="Number of history entries to return")) -> dict:
+    """Get import history."""
+
+    try:
+        db = PackageMappingDB()
+        history = db.get_import_history(limit)
+
+        return {
+            "history": history,
+            "count": len(history)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get history: {str(e)}")
+
+
 @router.get("/config/defaults")
 async def get_default_config() -> dict:
     """Get default configuration template."""
-    
+
     return {
         "client": "PROD",
         "language": "EN",

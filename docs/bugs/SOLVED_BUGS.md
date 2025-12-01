@@ -1598,12 +1598,225 @@ LEFT OUTER JOIN ekkn AS ekkn ON ...
 
 ---
 
+### BUG-034: Filter `including="false"` Not Negating Operators
+
+**⚠️ PERMANENT ID**: BUG-034 (kept throughout lifecycle per new numbering system)
+
+**Discovered**: 2025-11-30, DATA_SOURCES.XML
+**Resolved**: 2025-11-30 (SESSION 9)
+**Instance Type**: ECC (ECC_DATA_SOURCES)
+
+**Error**:
+```
+View compiled but returned NO DATA - filters incorrectly matching excluded values
+```
+
+**Problem**:
+```sql
+-- WRONG - Equality instead of inequality
+WHERE SAPK5D.ROOSOURCE.TYPE = 'HIER'
+WHERE SAPK5D.ROOSFIELD.NOTEXREL = 'N'
+
+-- CORRECT - Should be exclusion (not equal)
+WHERE SAPK5D.ROOSOURCE.TYPE <> 'HIER'
+WHERE SAPK5D.ROOSFIELD.NOTEXREL <> 'N'
+```
+
+The XML contained `<filter ... including="false">` which means EXCLUDE matching values, but the generated SQL was using `=` (equality) instead of `<>` (inequality).
+
+**Root Cause**:
+The `_render_filters()` function in renderer.py was completely ignoring the `pred.including` attribute on filter predicates. It always rendered the operator as-is without checking if it should be negated.
+
+**XML Structure** (DATA_SOURCES.XML):
+```xml
+<filter xsi:type="AccessControl:SingleValueFilter" including="false" columnName="TYPE">
+  <value>HIER</value>
+</filter>
+```
+
+The `including="false"` attribute indicates exclusion, but this was being ignored during SQL rendering.
+
+**Solution Implemented**:
+Added operator negation logic to handle `including=False` filters:
+
+```python
+# New function in renderer.py lines 1116-1151:
+def _negate_operator(op: str) -> str:
+    """Negate a comparison operator for including=False filters (BUG-034)."""
+    negation_map = {
+        "=": "<>",
+        "<>": "=",
+        "!=": "=",
+        ">": "<=",
+        ">=": "<",
+        "<": ">=",
+        "<=": ">",
+        "IN": "NOT IN",
+        "NOT IN": "IN",
+        "LIKE": "NOT LIKE",
+        "NOT LIKE": "LIKE",
+        "BETWEEN": "NOT BETWEEN",
+        "NOT BETWEEN": "BETWEEN",
+    }
+    op_upper = op.upper()
+    if op_upper in negation_map:
+        return negation_map[op_upper]
+    return f"NOT {op}"
+
+# In _render_filters() function (lines 1166-1169):
+# BUG-034: Handle including=False by negating the operator
+if not pred.including:
+    op = _negate_operator(op)
+```
+
+**Result - CORRECT**:
+```sql
+WHERE SAPK5D.ROOSOURCE.TYPE <> 'HIER'
+WHERE SAPK5D.ROOSFIELD.NOTEXREL <> 'N'
+```
+
+**Files Modified**:
+- `src/xml_to_sql/sql/renderer.py` lines 1116-1151: Added `_negate_operator()` function
+- `src/xml_to_sql/sql/renderer.py` lines 1166-1169: Added check in `_render_filters()`
+
+**Impact**:
+- Affects ALL XMLs with `including="false"` filters
+- Critical for exclusion filters (TYPE <> 'HIER', etc.)
+- Without this fix, views return incorrect data
+
+**Validation**:
+- ✅ DATA_SOURCES.XML: Generated correct SQL with exclusion operators
+- ✅ User verified: "worked correctly"
+
+**Affected XMLs**:
+- DATA_SOURCES.XML (discovered - TYPE filter, NOTEXREL filter)
+- Any XML with exclusion filters
+
+**Related**: BUG-035 (ListValueFilter with operands parsing)
+
+---
+
+### BUG-035: ListValueFilter with `<operands>` Not Parsed
+
+**⚠️ PERMANENT ID**: BUG-035 (kept throughout lifecycle per new numbering system)
+
+**Discovered**: 2025-11-30, DATA_SOURCES.XML
+**Resolved**: 2025-11-30 (SESSION 9)
+**Instance Type**: ECC (ECC_DATA_SOURCES)
+
+**Error**:
+```
+Missing NOT IN filter in projection_3 - entire filter clause skipped
+```
+
+**Problem**:
+```sql
+-- WRONG - Filter completely missing
+projection_3 AS (
+  SELECT ...
+  FROM SAPK5D.ROOSFIELD
+  -- No WHERE clause!
+)
+
+-- CORRECT - Should have NOT IN filter
+projection_3 AS (
+  SELECT ...
+  FROM SAPK5D.ROOSFIELD
+  WHERE "FIELDNAME" NOT IN ('LOGSYS', 'DATAPAKID', 'RECORD', 'REQUID', 'RECORDMODE')
+)
+```
+
+The parser was skipping `<filter xsi:type="AccessControl:ListValueFilter">` elements that had `<operands>` children instead of a direct `value` attribute.
+
+**Root Cause**:
+The `_parse_filters()` function in scenario_parser.py only looked for a direct `value` attribute on filter elements. When the filter used `<operands>` children (each with their own `value` attribute), the parser skipped the entire filter.
+
+**XML Structure** (DATA_SOURCES.XML):
+```xml
+<filter xsi:type="AccessControl:ListValueFilter" including="false" columnName="FIELDNAME">
+  <operands xsi:type="SQL:NullExpression"/>
+  <operands xsi:type="SQL:ValueExpression" value="LOGSYS"/>
+  <operands xsi:type="SQL:ValueExpression" value="DATAPAKID"/>
+  <operands xsi:type="SQL:ValueExpression" value="RECORD"/>
+  <operands xsi:type="SQL:ValueExpression" value="REQUID"/>
+  <operands xsi:type="SQL:ValueExpression" value="RECORDMODE"/>
+</filter>
+```
+
+The parser was looking for `filter_el.get("value")` which returned None, so it skipped the filter entirely.
+
+**Solution Implemented**:
+Enhanced `_parse_filters()` to handle `<operands>` children:
+
+```python
+# In _parse_filters() function (scenario_parser.py lines 458-482):
+# BUG-035: Check for ListValueFilter with <operands> children
+operands = filter_el.findall("./acc:operands", namespaces=_NS)
+if not operands:
+    operands = filter_el.findall(".//operands")
+if operands:
+    values = []
+    for operand in operands:
+        op_value = operand.get("value")
+        if op_value is not None:
+            values.append(f"'{op_value}'")
+    if values:
+        in_list = f"({', '.join(values)})"
+        right_expr = Expression(ExpressionType.RAW, in_list, "VARCHAR")
+        predicates.append(
+            Predicate(
+                kind=PredicateKind.COMPARISON,
+                left=left_expr,
+                operator="IN",  # Will be negated to NOT IN if including=False
+                right=right_expr,
+                including=including,
+            )
+        )
+```
+
+**Logic**:
+1. Check for `<operands>` children in the filter element
+2. Try both namespaced (`acc:operands`) and unnamespaced (`operands`) XPath
+3. Collect all `value` attributes from operands (skip NullExpression)
+4. Build IN list: `('LOGSYS', 'DATAPAKID', 'RECORD', 'REQUID', 'RECORDMODE')`
+5. Create predicate with `operator="IN"` and `including` flag from XML
+6. BUG-034 fix negates to `NOT IN` when `including=False`
+
+**Result - CORRECT**:
+```sql
+projection_3 AS (
+  SELECT ...
+  FROM SAPK5D.ROOSFIELD
+  WHERE "FIELDNAME" NOT IN ('LOGSYS', 'DATAPAKID', 'RECORD', 'REQUID', 'RECORDMODE')
+)
+```
+
+**Files Modified**:
+- `src/xml_to_sql/parser/scenario_parser.py` lines 458-482: Added operands parsing
+
+**Impact**:
+- Affects XMLs with `ListValueFilter` elements using `<operands>` children
+- Without this fix, entire filter clauses are silently skipped
+- Critical for views that need to exclude multiple values
+
+**Validation**:
+- ✅ DATA_SOURCES.XML: Generated correct SQL with NOT IN filter
+- ✅ User verified: "worked correctly"
+
+**Affected XMLs**:
+- DATA_SOURCES.XML (discovered - FIELDNAME exclusion list)
+- Any XML with ListValueFilter using operands
+
+**Related**: BUG-034 (operator negation for including=False)
+
+---
+
 ## Statistics
 
-**Total Solved**: 27 (SOLVED-001 through SOLVED-028, BUG-029, BUG-030, BUG-032, BUG-033)
-**Total Pending**: 5 (BUG-019, BUG-002, BUG-003, plus 2 awaiting validation)
-**XMLs Validated**: 13 (CV_CNCLD_EVNTS, CV_INVENTORY_ORDERS, CV_PURCHASE_ORDERS, CV_EQUIPMENT_STATUSES, CV_TOP_PTHLGY, CV_MCM_CNTRL_Q51, CV_MCM_CNTRL_REJECTED, CV_COMMACT_UNION, CV_ELIG_TRANS_01, CV_UPRT_PTLG, CV_CT02_CT03, CV_INVENTORY_STO, CV_PURCHASING_YASMIN)
-**Latest Success**: CV_PURCHASING_YASMIN (ColumnView) - 60ms with BUG-033 fix (SESSION 8)
+**Total Solved**: 29 (SOLVED-001 through SOLVED-028, BUG-029, BUG-030, BUG-032, BUG-033, BUG-034, BUG-035)
+**Total Pending**: 3 (BUG-019, BUG-002, BUG-003)
+**XMLs Validated**: 14 (CV_CNCLD_EVNTS, CV_INVENTORY_ORDERS, CV_PURCHASE_ORDERS, CV_EQUIPMENT_STATUSES, CV_TOP_PTHLGY, CV_MCM_CNTRL_Q51, CV_MCM_CNTRL_REJECTED, CV_COMMACT_UNION, CV_ELIG_TRANS_01, CV_UPRT_PTLG, CV_CT02_CT03, CV_INVENTORY_STO, CV_PURCHASING_YASMIN, DATA_SOURCES)
+**Latest Success**: DATA_SOURCES (ECC_DATA_SOURCES) - BUG-034 + BUG-035 fixes (SESSION 9)
 
 **Time to Resolution**:
 - BUG-004: < 1 hour (same session)

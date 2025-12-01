@@ -1,0 +1,41 @@
+# GOLDEN COMMIT - Last Known Good State
+# This file tracks the git commit that produced all validated SQL files
+# Use this for rollback if regressions occur: git checkout <commit>
+
+commit: e809a4d31677b91c0aa5dbea5648a2b5838a9f6a
+date: 2025-11-21
+session: 1
+
+# Files that have been validated in HANA and are known to work
+validated_files: []
+  # Format: - filename.sql (execution_time_ms, validated_date)
+  # Example:
+  # - CV_ELIG_TRANS_01_HANA.sql (82ms, 2025-11-21)
+
+# Bugs fixed in this commit
+bugs_fixed:
+  - BUG-023: Package Path Format - CREATE VIEW uses view name without package path
+  - BUG-025: CV Reference Format - CV references use _SYS_BIC with package path
+  - Node ID Cleaning - Strip #/0/, #//, #/N/ prefixes to prevent invalid SQL identifiers
+  - Bytes Encoding - Handle both string and bytes input from web UI and CLI
+
+# Critical files modified
+files_modified:
+  - src/xml_to_sql/web/services/converter.py (bytes handling, package path fix)
+  - src/xml_to_sql/parser/column_view_parser.py (:: separator parsing)
+  - src/xml_to_sql/parser/scenario_parser.py (_clean_ref function, CV type detection)
+  - src/xml_to_sql/sql/renderer.py (get_cte_alias fix, CV reference rendering)
+
+# Known remaining issues
+known_issues:
+  - BUG-026: Filter Value Type Mismatch (WHERE clause syntax errors)
+  - BUG-024: Column Ambiguity in Calculated Columns
+  - BUG-019: REGEXP_LIKE Calculated Columns
+  - BUG-002: Complex Parameter Pattern Cleanup
+
+# Notes
+notes: |
+  This commit includes critical fixes for node ID cleaning and CV reference formatting.
+  The get_cte_alias() method now calls _clean_ref() to prevent invalid SQL like "0/prj_visits".
+  All XML to SQL conversions should now produce syntactically valid HANA SQL,
+  though WHERE clause parameter handling still needs work.

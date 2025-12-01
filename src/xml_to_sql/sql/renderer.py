@@ -1113,6 +1113,44 @@ def _render_function(ctx: RenderContext, expr: Expression, table_alias: Optional
     return f"{func_name}({', '.join(arg_strs)})"
 
 
+def _negate_operator(op: str) -> str:
+    """Negate a comparison operator for including=False filters (BUG-034).
+
+    When a filter has including="false", the operator must be negated:
+    - = becomes <>
+    - <> becomes =
+    - > becomes <=
+    - >= becomes <
+    - < becomes >=
+    - <= becomes >
+    - IN becomes NOT IN
+    - NOT IN becomes IN
+    - LIKE becomes NOT LIKE
+    - BETWEEN becomes NOT BETWEEN
+    """
+    negation_map = {
+        "=": "<>",
+        "<>": "=",
+        "!=": "=",
+        ">": "<=",
+        ">=": "<",
+        "<": ">=",
+        "<=": ">",
+        "IN": "NOT IN",
+        "NOT IN": "IN",
+        "LIKE": "NOT LIKE",
+        "NOT LIKE": "LIKE",
+        "BETWEEN": "NOT BETWEEN",
+        "NOT BETWEEN": "BETWEEN",
+    }
+    # Handle case-insensitive matching
+    op_upper = op.upper()
+    if op_upper in negation_map:
+        return negation_map[op_upper]
+    # If operator not in map, prefix with NOT (fallback)
+    return f"NOT {op}"
+
+
 def _render_filters(ctx: RenderContext, filters: List[Predicate], table_alias: Optional[str] = None) -> str:
     """Render WHERE clause from filters."""
 
@@ -1124,6 +1162,12 @@ def _render_filters(ctx: RenderContext, filters: List[Predicate], table_alias: O
         if pred.kind == PredicateKind.COMPARISON:
             left = _render_expression(ctx, pred.left, table_alias)
             op = pred.operator or "="
+
+            # BUG-034: Handle including=False by negating the operator
+            # When including="false" in XML, the filter should EXCLUDE matching values
+            if not pred.including:
+                op = _negate_operator(op)
+
             if pred.right:
                 right = _render_expression(ctx, pred.right, table_alias)
                 conditions.append(f"{left} {op} {right}")

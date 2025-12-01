@@ -272,6 +272,86 @@ def _remove_parameter_clauses_hana(formula: str) -> str:
     result = formula
     max_iterations = 20  # Prevent infinite loops
 
+    # BUG-031: Handle IF() expressions with parameter checks
+    # Must match BEFORE IF() is converted to CASE WHEN
+    # Original: if('$$IP_TRTNUM$$' != '', lpad('$$IP_TRTNUM$$', 30, '0'), '')
+    # After substitution: if('''' != '', lpad('''', 30, '0'), '')
+    # Result: NULL
+
+    # Use same parenthesis-counting logic as _convert_if_to_case_for_hana()
+    # to properly handle nested function calls with commas
+    for _ in range(max_iterations):
+        # Find IF( with parameter check patterns
+        # Pattern 1: if('$$IP_XXX$$' ...) or Pattern 2: if('''' ...) or if('' ...)
+        if_match = re.search(r'\bif\s*\(\s*\'(?:\$\$IP_[A-Z_]+\$\$|\'{0,3})\'\s*(!?=)\s*\'\'', result, re.IGNORECASE)
+        if not if_match:
+            break
+
+        if_start = if_match.start()
+        args_start = if_match.end()
+
+        # Extract the three arguments using parenthesis counting
+        args = []
+        current = []
+        depth = 1  # Already inside the IF(
+        in_quote = False
+        i = args_start
+
+        while i < len(result) and depth > 0:
+            c = result[i]
+
+            # Track quote state
+            if c == '"' or c == "'":
+                in_quote = not in_quote
+
+            if not in_quote:
+                if c == '(':
+                    depth += 1
+                elif c == ')':
+                    depth -= 1
+                    if depth == 0:
+                        # End of IF() function
+                        val = ''.join(current).strip()
+                        if val:
+                            args.append(val)
+                        break
+                elif c == ',' and depth == 1:
+                    # Argument separator at top level
+                    val = ''.join(current).strip()
+                    if val:
+                        args.append(val)
+                    current = []
+                    i += 1
+                    continue
+
+            current.append(c)
+            i += 1
+
+        if len(args) != 2:
+            # Not a valid IF with 3 args (condition already consumed), skip
+            break
+
+        # BUG-031: Evaluate the IF() condition to return correct branch
+        # When parameter is empty (''), evaluate the condition:
+        #   if('' = '', then_val, else_val) → condition TRUE → return then_val
+        #   if('' != '', then_val, else_val) → condition FALSE → return else_val
+        if_end = i  # Position of closing )
+        operator = if_match.group(1)  # Extract '=' or '!=' from regex capture group
+
+        if operator == '=':
+            # Condition: '' = '' → TRUE → return then_value (args[0])
+            replacement = args[0] if args else "NULL"
+        else:  # operator == '!='
+            # Condition: '' != '' → FALSE → return else_value (args[1])
+            replacement = args[1] if len(args) > 1 else "NULL"
+
+        # Convert empty string literals to NULL for HANA SQL compatibility
+        # HANA doesn't accept bare '' in calculated columns
+        if replacement.strip() in ("''", "''''", '""'):
+            replacement = "NULL"
+
+        result = result[:if_start] + replacement + result[if_end + 1:]
+
     for iteration in range(max_iterations):
         # Track if we made any changes
         changed = False

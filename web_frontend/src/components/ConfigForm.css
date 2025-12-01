@@ -84,6 +84,24 @@
   font-size: 0.95rem;
 }
 
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #333333;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
 .help-icon {
   font-size: 0.9rem;
   opacity: 0.7;
@@ -204,14 +222,30 @@
   border-top: 1px solid #e0e0e0;
 }
 
+.form-section-primary {
+  background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+  border-top: 3px solid #4a90e2;
+}
+
 .form-section h3 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: #1a1a1a;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem 0;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.section-description {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: -0.5rem 0 1.5rem 0;
+  line-height: 1.4;
 }
 
 .checkbox-label {
@@ -239,10 +273,140 @@
 .field-hint {
   font-size: 0.85rem;
   color: #666;
-  margin-top: 0;
-  margin-left: 1.7rem;
-  font-style: italic;
+  margin-top: 0.5rem;
   line-height: 1.4;
   padding-top: 0.25rem;
 }
 
+.field-hint code {
+  background: #f0f0f0;
+  padding: 0.15rem 0.3rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #d73502;
+}
+
+/* Mode-Specific Sections */
+.mode-specific-section {
+  background: linear-gradient(to bottom, #f8fafb, #ffffff);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #4a90e2;
+}
+
+.hana-section {
+  border-left-color: #00a0e3;
+  background: linear-gradient(to bottom, #f0f8ff, #ffffff);
+}
+
+.snowflake-section {
+  border-left-color: #29b5e8;
+  background: linear-gradient(to bottom, #f0f9ff, #ffffff);
+}
+
+.section-header-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-header-with-badge h3 {
+  margin: 0;
+}
+
+/* Badges */
+.mode-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hana-badge {
+  background: #00a0e3;
+  color: white;
+}
+
+.snowflake-badge {
+  background: #29b5e8;
+  color: white;
+}
+
+.optional-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: #f0f0f0;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-left: 0.5rem;
+}
+
+/* Advanced Fields */
+.advanced-field {
+  background: #fafbfc;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px dashed #d0d0d0;
+}
+
+.advanced-field label {
+  color: #666;
+}
+
+/* Collapsible Section */
+.collapsible-section {
+  border-top: 2px dashed #e0e0e0;
+}
+
+.collapsible-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+  padding: 0.5rem;
+  margin: -0.5rem;
+  border-radius: 6px;
+}
+
+.collapsible-header:hover {
+  background: #f8f9fa;
+}
+
+.collapsible-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.collapse-icon {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.collapsible-content {
+  margin-top: 1rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
+}

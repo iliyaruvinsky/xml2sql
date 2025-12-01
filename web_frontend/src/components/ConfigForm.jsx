@@ -4,31 +4,35 @@ import './ConfigForm.css'
 const fieldHelpContent = {
   client: {
     tooltip:
-      "Purpose: Replaces $$client$$ placeholders in the XML with your specified value.\nDefault: PROD\nWhen to change: If your XML has client-specific logic (e.g., WHERE MANDT = '$$client$$').\nExample: If your XML contains WHERE MANDT = '$$client$$' and you set Client to 100, the generated SQL will have WHERE MANDT = '100'.",
+      "⚠️ Rarely needed - only if your XML uses $$client$$ placeholders.\nPurpose: Replaces $$client$$ placeholders in the XML with your specified value.\nDefault: PROD (sufficient for most cases)\nWhen to change: Only if your XML has dynamic client filters (e.g., WHERE MANDT = '$$client$$').\nNote: Most XMLs use hardcoded client values, not placeholders.",
     content: (
       <div className="field-help">
+        <strong>⚠️ Rarely Needed:</strong> Only change if your XML files actually contain <code>$$client$$</code> placeholders (which is uncommon).
+        <br />
         <strong>Purpose:</strong> Replaces <code>$$client$$</code> placeholders in the XML with your specified value.
         <br />
-        <strong>Default:</strong> PROD
+        <strong>Default:</strong> PROD (works for 95%+ of cases)
         <br />
-        <strong>When to change:</strong> If your XML has client-specific logic (e.g., <code>WHERE MANDT = '$$client$$'</code>).
+        <strong>When to change:</strong> Only if your XML has dynamic client logic like <code>WHERE MANDT = '$$client$$'</code>.
         <br />
-        <strong>Example:</strong> If your XML contains <code>WHERE MANDT = '$$client$$'</code> and you set Client to <code>100</code>, the generated SQL will have <code>WHERE MANDT = '100'</code>.
+        <strong>Note:</strong> Most SAP XMLs use hardcoded values (e.g., <code>WHERE MANDT = '100'</code>), not placeholders.
       </div>
     ),
   },
   language: {
     tooltip:
-      "Purpose: Replaces $$language$$ placeholders in the XML with your specified value.\nDefault: EN\nWhen to change: If your XML has language-specific fields or filters.\nExample: If your XML has WHERE SPRAS = '$$language$$' and you set Language to DE, the generated SQL will have WHERE SPRAS = 'DE'.",
+      "💡 Needed for multi-language deployments - only if your XML uses $$language$$ placeholders.\nPurpose: Replaces $$language$$ placeholders in the XML with your specified value.\nDefault: EN (sufficient for single-language deployments)\nWhen to change: For multi-language SAP systems or if your XML filters by language (e.g., WHERE SPRAS = '$$language$$').\nNote: Default 'EN' works fine for English-only deployments.",
     content: (
       <div className="field-help">
+        <strong>💡 Multi-Language Feature:</strong> Only needed if your XML contains <code>$$language$$</code> placeholders or you have multi-language requirements.
+        <br />
         <strong>Purpose:</strong> Replaces <code>$$language$$</code> placeholders in the XML with your specified value.
         <br />
-        <strong>Default:</strong> EN
+        <strong>Default:</strong> EN (works for English/single-language deployments)
         <br />
-        <strong>When to change:</strong> If your XML has language-specific fields or filters.
+        <strong>When to change:</strong> Multi-language SAP deployments with language-specific filters like <code>WHERE SPRAS = '$$language$$'</code>.
         <br />
-        <strong>Example:</strong> If your XML has <code>WHERE SPRAS = '$$language$$'</code> and you set Language to <code>DE</code>, the generated SQL will have <code>WHERE SPRAS = 'DE'</code>.
+        <strong>Example:</strong> Set to 'DE' for German, 'FR' for French, etc.
       </div>
     ),
   },
@@ -56,29 +60,29 @@ const fieldHelpContent = {
         <br />
         <strong>When to use:</strong> Only if your calculation views perform currency conversion. Leave empty if not applicable.
         <br />
-        <strong>Note:</strong> These settings tell the converter what names to use in the generated SQL for currency conversion functions and tables.
+        <strong>Note:</strong> These settings apply to both HANA and Snowflake modes. They tell the converter what names to use in the generated SQL for currency conversion functions and tables.
       </div>
     ),
   },
   currencyUdf: {
     tooltip:
-      'Purpose: Name of your currency conversion function in Snowflake.\nExample: CONVERT_CURRENCY or MY_CURRENCY_CONVERT.\nNote: This should match the actual UDF name in your Snowflake environment.',
+      'Purpose: Name of your currency conversion function.\nExample: CONVERT_CURRENCY or MY_CURRENCY_CONVERT.\nNote: This should match the actual UDF name in your target database.',
     content: (
       <div className="field-help">
-        <strong>Purpose:</strong> Name of your currency conversion function in Snowflake.
+        <strong>Purpose:</strong> Name of your currency conversion function.
         <br />
         <strong>Example:</strong> <code>CONVERT_CURRENCY</code> or <code>MY_CURRENCY_CONVERT</code>
         <br />
-        <strong>Note:</strong> This should match the actual UDF name in your Snowflake environment.
+        <strong>Note:</strong> This should match the actual UDF name in your target database environment.
       </div>
     ),
   },
   currencyTable: {
     tooltip:
-      'Purpose: Name of your exchange rates table in Snowflake.\nExample: EXCHANGE_RATES or CURRENCY_RATES.\nNote: This table should contain currency exchange rate data used by the UDF.',
+      'Purpose: Name of your exchange rates table.\nExample: EXCHANGE_RATES or CURRENCY_RATES.\nNote: This table should contain currency exchange rate data used by the UDF.',
     content: (
       <div className="field-help">
-        <strong>Purpose:</strong> Name of your exchange rates table in Snowflake.
+        <strong>Purpose:</strong> Name of your exchange rates table.
         <br />
         <strong>Example:</strong> <code>EXCHANGE_RATES</code> or <code>CURRENCY_RATES</code>
         <br />
@@ -101,7 +105,7 @@ const fieldHelpContent = {
   },
   hanaPackage: {
     tooltip:
-      'Purpose: HANA repository package path where the calculation view is stored.\nFormat: Use dot notation (.) for the package hierarchy, e.g., Macabi_BI.EYAL.EYAL_CDS\nWhen to use: For HANA mode, specify the package path to generate the correct view name.\nExample: If your CV is in Macabi_BI → EYAL → EYAL_CDS folder, enter: Macabi_BI.EYAL.EYAL_CDS\nResult: Generated view will be "_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_NAME"',
+      'Purpose: HANA repository package path where the calculation view is stored.\nFormat: Use dot notation (.) for the package hierarchy, e.g., Macabi_BI.EYAL.EYAL_CDS\nAuto-Detection: Leave empty to auto-detect from uploaded package mappings (if available).\nExample: If your CV is in Macabi_BI → EYAL → EYAL_CDS folder, enter: Macabi_BI.EYAL.EYAL_CDS\nResult: Generated view will be "_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_NAME"',
     content: (
       <div className="field-help">
         <strong>Purpose:</strong> HANA repository package path where the calculation view is stored.
@@ -110,24 +114,39 @@ const fieldHelpContent = {
         <br />
         <strong>Example:</strong> <code>Macabi_BI.EYAL.EYAL_CDS</code>
         <br />
-        <strong>When to use:</strong> For HANA mode, this specifies the package folder structure where your calculation view lives in HANA Studio.
+        <strong>Auto-Detection:</strong> Leave empty to auto-detect from uploaded package mappings (if available in the Mappings tab).
         <br />
         <strong>Result:</strong> The generated view will be <code>"_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_NAME"</code>
         <br />
-        <strong>Note:</strong> Leave empty to use just the view name without package path.
+        <strong>Note:</strong> Only used when View Schema is set to <code>_SYS_BIC</code>.
+      </div>
+    ),
+  },
+  viewSchema: {
+    tooltip:
+      'Purpose: Schema where the generated HANA view should be created.\nDefault: _SYS_BIC (for catalog calculation views)\nWhen to change: If you want to create views in a different schema.\nNote: When using _SYS_BIC, the package path is required for proper view naming.',
+    content: (
+      <div className="field-help">
+        <strong>Purpose:</strong> Schema where the generated HANA view should be created.
+        <br />
+        <strong>Default:</strong> <code>_SYS_BIC</code> (for catalog calculation views)
+        <br />
+        <strong>When to change:</strong> If you want to create views in a different schema.
+        <br />
+        <strong>Note:</strong> When using <code>_SYS_BIC</code>, the package path is required for proper view naming.
       </div>
     ),
   },
   autoCorrection: {
     tooltip:
-      'What it does: Automatically fixes common SQL syntax and semantic issues in the generated SQL.\n\nWhen to apply: Enable this BEFORE converting your XML to SQL if you want the system to automatically correct issues during conversion. This setting affects the conversion process itself.\n\nWhy to apply: Saves time by resolving frequent SQL errors, making the generated SQL more production-ready for Snowflake. Particularly useful for migrating legacy HANA SQL patterns that may have compatibility issues.\n\nExamples of fixes:\n• Reserved keywords: ORDER becomes `ORDER` (quoted)\n• String concatenation: "text1" + "text2" becomes "text1" || "text2"\n• Function translation: IF(condition, val1, val2) becomes IFF(condition, val1, val2)\n\nConfidence levels: The system applies high-confidence fixes automatically. All corrections are shown in the SQL Preview after conversion.',
+      'What it does: Automatically fixes common SQL syntax and semantic issues in the generated SQL.\n\nWhen to apply: Enable this BEFORE converting your XML to SQL if you want the system to automatically correct issues during conversion. This setting affects the conversion process itself.\n\nWhy to apply: Saves time by resolving frequent SQL errors, making the generated SQL more production-ready. Particularly useful for migrating legacy HANA SQL patterns that may have compatibility issues.\n\nExamples of fixes:\n• Reserved keywords: ORDER becomes `ORDER` (quoted)\n• String concatenation: "text1" + "text2" becomes "text1" || "text2"\n• Function translation: IF(condition, val1, val2) becomes IFF(condition, val1, val2)\n\nConfidence levels: The system applies high-confidence fixes automatically. All corrections are shown in the SQL Preview after conversion.',
     content: (
       <div className="field-help">
         <strong>What it does:</strong> Automatically fixes common SQL syntax and semantic issues in the generated SQL.
         <br /><br />
         <strong>When to apply:</strong> Enable this <strong>BEFORE</strong> converting your XML to SQL if you want the system to automatically correct issues during conversion. This setting affects the conversion process itself, so it must be enabled before clicking "Convert to SQL".
         <br /><br />
-        <strong>Why to apply:</strong> Saves time by resolving frequent SQL errors, making the generated SQL more production-ready for Snowflake. Particularly useful for migrating legacy HANA SQL patterns that may have compatibility issues.
+        <strong>Why to apply:</strong> Saves time by resolving frequent SQL errors, making the generated SQL more production-ready. Particularly useful for migrating legacy HANA SQL patterns that may have compatibility issues.
         <br /><br />
         <strong>Examples of fixes:</strong>
         <ul style={{ marginTop: '0.5rem', marginBottom: '0.5rem', paddingLeft: '1.5rem' }}>
@@ -135,7 +154,7 @@ const fieldHelpContent = {
           <li><strong>String concatenation:</strong> <code>"text1" + "text2"</code> becomes <code>"text1" || "text2"</code></li>
           <li><strong>Function translation:</strong> <code>IF(condition, val1, val2)</code> becomes <code>IFF(condition, val1, val2)</code></li>
         </ul>
-        <strong>Confidence levels:</strong> The system applies <strong>high-confidence fixes</strong> automatically. All corrections are shown in the SQL Preview after conversion with before/after diffs.
+        <strong>Note:</strong> Different validation and correction rules apply based on the selected database mode (HANA vs. Snowflake).
       </div>
     ),
   },
@@ -146,6 +165,7 @@ function ConfigForm({ config, onConfigChange }) {
     Object.entries(config.schema_overrides || {}).map(([key, value]) => ({ key, value }))
   )
   const [showHelp, setShowHelp] = useState(false)
+  const [currencyExpanded, setCurrencyExpanded] = useState(false)
 
   const updateConfig = (updates) => {
     onConfigChange({ ...config, ...updates })
@@ -185,7 +205,7 @@ function ConfigForm({ config, onConfigChange }) {
       <div className="card">
         <div className="config-header">
           <h2>Configuration</h2>
-          <button 
+          <button
             className="help-toggle-btn"
             onClick={() => setShowHelp(!showHelp)}
             title="Toggle help"
@@ -198,61 +218,22 @@ function ConfigForm({ config, onConfigChange }) {
           <div className="config-help-overview">
             <h3>About Configuration</h3>
             <p>
-              This tool generates SQL files that you execute in Snowflake. The configuration below 
-              controls how the SQL is generated to match your Snowflake environment. You don't need 
-              to connect to Snowflake here—just configure the settings, generate SQL, then execute 
-              it in Snowflake using Snowflake's web UI, SnowSQL, or your preferred tool.
+              This tool generates SQL files that you execute in your target database (HANA or Snowflake).
+              The configuration below controls how the SQL is generated to match your database environment.
+              You don't need to connect to the database here—just configure the settings, generate SQL,
+              then execute it using your preferred tool.
             </p>
             <p>
-              <strong>Note:</strong> Most fields have default values and can be left unchanged unless 
-              your XML files use specific placeholders or your Snowflake schemas differ from the XML.
+              <strong>Note:</strong> Most fields have default values and can be left unchanged unless
+              your XML files use specific placeholders or your database schemas differ from the XML.
             </p>
           </div>
         )}
 
-        <div className="form-group">
-          <label htmlFor="client">
-            Client
-            <span 
-              className="help-icon" 
-              title={fieldHelpContent.client.tooltip}
-            >
-              ℹ️
-            </span>
-          </label>
-          {showHelp && fieldHelpContent.client.content}
-          <input
-            id="client"
-            type="text"
-            value={config.client || 'PROD'}
-            onChange={(e) => updateConfig({ client: e.target.value })}
-            placeholder="PROD"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="language">
-            Language
-            <span 
-              className="help-icon" 
-              title={fieldHelpContent.language.tooltip}
-            >
-              ℹ️
-            </span>
-          </label>
-          {showHelp && fieldHelpContent.language.content}
-          <input
-            id="language"
-            type="text"
-            value={config.language || 'EN'}
-            onChange={(e) => updateConfig({ language: e.target.value })}
-            placeholder="EN"
-          />
-        </div>
-
-        <div className="form-section">
+        {/* Target Database Section */}
+        <div className="form-section form-section-primary">
           <h3>Target Database</h3>
-          
+
           <div className="form-group">
             <label htmlFor="database_mode">
               Database Mode
@@ -269,70 +250,73 @@ function ConfigForm({ config, onConfigChange }) {
               Select the target database system for SQL generation. This determines syntax, functions, and data types used in the generated SQL.
             </p>
           </div>
-
-          {config.database_mode === 'hana' && (
-            <>
-              <div className="form-group">
-                <label htmlFor="hana_version">
-                  HANA Version
-                </label>
-                <select
-                  id="hana_version"
-                  value={config.hana_version || '2.0'}
-                  onChange={(e) => updateConfig({ hana_version: e.target.value })}
-                >
-                  <option value="1.0">HANA 1.0</option>
-                  <option value="2.0">HANA 2.0</option>
-                  <option value="2.0_SPS01">HANA 2.0 SPS01</option>
-                  <option value="2.0_SPS03">HANA 2.0 SPS03</option>
-                  <option value="2.0_SPS04">HANA 2.0 SPS04</option>
-                </select>
-                <p className="field-hint">
-                  Select HANA version for version-specific SQL syntax and features. Older versions may not support all features.
-                </p>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="hana_package">
-                  HANA Package Path (Optional)
-                  <span
-                    className="help-icon"
-                    title={fieldHelpContent.hanaPackage.tooltip}
-                  >
-                    ℹ️
-                  </span>
-                </label>
-                {showHelp && fieldHelpContent.hanaPackage.content}
-                <input
-                  id="hana_package"
-                  type="text"
-                  value={config.hana_package || ''}
-                  onChange={(e) => updateConfig({ hana_package: e.target.value || null })}
-                  placeholder="e.g., Macabi_BI.EYAL.EYAL_CDS"
-                />
-                <p className="field-hint">
-                  Enter the HANA repository package path (folder structure) where your calculation view is stored.
-                  Example: <code>Macabi_BI.EYAL.EYAL_CDS</code> will generate view name <code>"_SYS_BIC"."Macabi_BI.EYAL.EYAL_CDS/CV_NAME"</code>
-                </p>
-              </div>
-            </>
-          )}
         </div>
 
+        {/* General Settings Section */}
         <div className="form-section">
-          <h3>
-            Auto-Correction
-            <span 
-              className="help-icon" 
-              title={fieldHelpContent.autoCorrection.tooltip}
-            >
-              ℹ️
-            </span>
-          </h3>
-          {showHelp && fieldHelpContent.autoCorrection.content}
+          <h3>General Settings</h3>
+          <p className="section-description">These settings apply to all database modes.</p>
+
           <div className="form-group">
+            <label htmlFor="client">
+              Client <span className="optional-badge">Advanced • Rarely Needed</span>
+              <span
+                className="help-icon"
+                title={fieldHelpContent.client.tooltip}
+              >
+                ℹ️
+              </span>
+            </label>
+            {showHelp && fieldHelpContent.client.content}
+            <input
+              id="client"
+              type="text"
+              value={config.client || 'PROD'}
+              onChange={(e) => updateConfig({ client: e.target.value })}
+              placeholder="PROD"
+            />
+            <p className="field-hint">
+              ⚠️ Only needed if your XML uses <code>$$client$$</code> placeholders. Default "PROD" works for 95%+ of cases.
+            </p>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="language">
+              Language <span className="optional-badge">Advanced • Multi-Language</span>
+              <span
+                className="help-icon"
+                title={fieldHelpContent.language.tooltip}
+              >
+                ℹ️
+              </span>
+            </label>
+            {showHelp && fieldHelpContent.language.content}
+            <input
+              id="language"
+              type="text"
+              value={config.language || 'EN'}
+              onChange={(e) => updateConfig({ language: e.target.value })}
+              placeholder="EN"
+            />
+            <p className="field-hint">
+              💡 Only change for multi-language deployments or if your XML uses <code>$$language$$</code> placeholders. Default "EN" works for most cases.
+            </p>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="auto_fix">
+              Auto-Correction <span className="optional-badge">Optional • Recommended for Production</span>
+              <span
+                className="help-icon"
+                title={fieldHelpContent.autoCorrection.tooltip}
+              >
+                ℹ️
+              </span>
+            </label>
+            {showHelp && fieldHelpContent.autoCorrection.content}
             <label className="checkbox-label">
               <input
+                id="auto_fix"
                 type="checkbox"
                 checked={config.auto_fix || false}
                 onChange={(e) => updateConfig({ auto_fix: e.target.checked })}
@@ -340,124 +324,231 @@ function ConfigForm({ config, onConfigChange }) {
               <span>Enable auto-correction of SQL issues</span>
             </label>
             <p className="field-hint">
-              Automatically fix common SQL issues such as reserved keywords, string concatenation, and function translations.
+              ✨ Optional time-saver. Automatically fixes common SQL issues (reserved keywords, string concatenation, function translations). Conversion works without it, but enables production-ready SQL output.
             </p>
           </div>
         </div>
 
-        {config.database_mode === 'snowflake' && (
-          <div className="form-group">
-            <label>
-              Schema Overrides
-              <span
-                className="help-icon"
-                title={fieldHelpContent.schemaOverrides.tooltip}
+        {/* HANA-Specific Settings */}
+        {config.database_mode === 'hana' && (
+          <div className="form-section mode-specific-section hana-section">
+            <div className="section-header-with-badge">
+              <h3>HANA Settings</h3>
+              <span className="mode-badge hana-badge">HANA Only</span>
+            </div>
+            <p className="section-description">These settings only apply when generating SQL for SAP HANA.</p>
+
+            <div className="form-group">
+              <label htmlFor="hana_version">
+                HANA Version
+              </label>
+              <select
+                id="hana_version"
+                value={config.hana_version || '2.0'}
+                onChange={(e) => updateConfig({ hana_version: e.target.value })}
               >
-                ℹ️
-              </span>
-            </label>
-            {showHelp && fieldHelpContent.schemaOverrides.content}
-            {schemaOverrides.map((override, index) => (
-              <div key={index} className="schema-override-row">
-                <input
-                  type="text"
-                  placeholder="Original schema (e.g., SAPK5D)"
-                  value={override.key}
-                  onChange={(e) => updateSchemaOverride(index, 'key', e.target.value)}
-                />
-                <span>→</span>
-                <input
-                  type="text"
-                  placeholder="Snowflake schema (e.g., PRODUCTION_DATA)"
-                  value={override.value}
-                  onChange={(e) => updateSchemaOverride(index, 'value', e.target.value)}
-                />
-                <button
-                  className="remove-override-btn"
-                  onClick={() => removeSchemaOverride(index)}
-                  title="Remove this override"
+                <option value="1.0">HANA 1.0</option>
+                <option value="2.0">HANA 2.0</option>
+                <option value="2.0_SPS01">HANA 2.0 SPS01</option>
+                <option value="2.0_SPS03">HANA 2.0 SPS03</option>
+                <option value="2.0_SPS04">HANA 2.0 SPS04</option>
+              </select>
+              <p className="field-hint">
+                Select HANA version for version-specific SQL syntax and features. Older versions may not support all features.
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="hana_package">
+                HANA Package Path (Optional)
+                <span
+                  className="help-icon"
+                  title={fieldHelpContent.hanaPackage.tooltip}
                 >
-                  ×
-                </button>
-              </div>
-            ))}
-            <button className="add-override-btn" onClick={addSchemaOverride}>
-              + Add Schema Override
-            </button>
+                  ℹ️
+                </span>
+              </label>
+              {showHelp && fieldHelpContent.hanaPackage.content}
+              <input
+                id="hana_package"
+                type="text"
+                value={config.hana_package || ''}
+                onChange={(e) => updateConfig({ hana_package: e.target.value || null })}
+                placeholder="e.g., Macabi_BI.EYAL.EYAL_CDS"
+              />
+              <p className="field-hint">
+                💡 <strong>Auto-Detection:</strong> Leave empty to auto-detect from uploaded package mappings (Mappings tab).
+                <br />
+                Enter the HANA repository package path if you want to specify it manually. Example: <code>Macabi_BI.EYAL.EYAL_CDS</code>
+              </p>
+            </div>
+
+            <div className="form-group advanced-field">
+              <label htmlFor="view_schema">
+                View Schema <span className="optional-badge">Advanced</span>
+                <span
+                  className="help-icon"
+                  title={fieldHelpContent.viewSchema.tooltip}
+                >
+                  ℹ️
+                </span>
+              </label>
+              {showHelp && fieldHelpContent.viewSchema.content}
+              <input
+                id="view_schema"
+                type="text"
+                value={config.view_schema || '_SYS_BIC'}
+                onChange={(e) => updateConfig({ view_schema: e.target.value || '_SYS_BIC' })}
+                placeholder="_SYS_BIC"
+              />
+              <p className="field-hint">
+                Schema for generated views. Default is <code>_SYS_BIC</code> for catalog calculation views.
+                Only change if you need views in a different schema.
+              </p>
+            </div>
           </div>
         )}
 
-        <div className="form-section">
-          <h3>
-            Currency Settings
-            <span 
-              className="help-icon" 
-              title={fieldHelpContent.currencyOverview.tooltip}
-            >
-              ℹ️
-            </span>
-          </h3>
-          {showHelp && fieldHelpContent.currencyOverview.content}
-          
-          <div className="form-group">
-            <label htmlFor="currency_udf">
-              UDF Name
-              <span 
-                className="help-icon" 
-                title={fieldHelpContent.currencyUdf.tooltip}
+        {/* Snowflake-Specific Settings */}
+        {config.database_mode === 'snowflake' && (
+          <div className="form-section mode-specific-section snowflake-section">
+            <div className="section-header-with-badge">
+              <h3>Snowflake Settings</h3>
+              <span className="mode-badge snowflake-badge">Snowflake Only</span>
+            </div>
+            <p className="section-description">These settings only apply when generating SQL for Snowflake.</p>
+
+            <div className="form-group">
+              <label>
+                Schema Overrides
+                <span
+                  className="help-icon"
+                  title={fieldHelpContent.schemaOverrides.tooltip}
+                >
+                  ℹ️
+                </span>
+              </label>
+              {showHelp && fieldHelpContent.schemaOverrides.content}
+              {schemaOverrides.map((override, index) => (
+                <div key={index} className="schema-override-row">
+                  <input
+                    type="text"
+                    placeholder="Original schema (e.g., SAPK5D)"
+                    value={override.key}
+                    onChange={(e) => updateSchemaOverride(index, 'key', e.target.value)}
+                  />
+                  <span>→</span>
+                  <input
+                    type="text"
+                    placeholder="Snowflake schema (e.g., PRODUCTION_DATA)"
+                    value={override.value}
+                    onChange={(e) => updateSchemaOverride(index, 'value', e.target.value)}
+                  />
+                  <button
+                    className="remove-override-btn"
+                    onClick={() => removeSchemaOverride(index)}
+                    title="Remove this override"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button className="add-override-btn" onClick={addSchemaOverride}>
+                + Add Schema Override
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Currency Settings - Collapsible */}
+        <div className="form-section collapsible-section">
+          <div
+            className="collapsible-header"
+            onClick={() => setCurrencyExpanded(!currencyExpanded)}
+          >
+            <h3>
+              <span className="collapse-icon">{currencyExpanded ? '▼' : '▶'}</span>
+              Currency Conversion Settings
+              <span className="optional-badge">Advanced • Optional</span>
+              <span
+                className="help-icon"
+                title={fieldHelpContent.currencyOverview.tooltip}
+                onClick={(e) => e.stopPropagation()}
               >
                 ℹ️
-            </span>
-            </label>
-            {showHelp && fieldHelpContent.currencyUdf.content}
-            <input
-              id="currency_udf"
-              type="text"
-              value={config.currency_udf_name || ''}
-              onChange={(e) => updateConfig({ currency_udf_name: e.target.value || null })}
-              placeholder="CONVERT_CURRENCY"
-            />
+              </span>
+            </h3>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="currency_table">
-              Rates Table
-              <span 
-                className="help-icon" 
-                title={fieldHelpContent.currencyTable.tooltip}
-              >
-                ℹ️
-            </span>
-            </label>
-            {showHelp && fieldHelpContent.currencyTable.content}
-            <input
-              id="currency_table"
-              type="text"
-              value={config.currency_rates_table || ''}
-              onChange={(e) => updateConfig({ currency_rates_table: e.target.value || null })}
-              placeholder="EXCHANGE_RATES"
-            />
-          </div>
+          {currencyExpanded && (
+            <div className="collapsible-content">
+              {showHelp && fieldHelpContent.currencyOverview.content}
+              <p className="section-description">
+                Configure currency conversion settings if your calculation views use currency conversion.
+                Leave empty if not applicable. These settings apply to both HANA and Snowflake modes.
+              </p>
 
-          <div className="form-group">
-            <label htmlFor="currency_schema">
-              Schema
-              <span 
-                className="help-icon" 
-                title={fieldHelpContent.currencySchema.tooltip}
-              >
-                ℹ️
-            </span>
-            </label>
-            {showHelp && fieldHelpContent.currencySchema.content}
-            <input
-              id="currency_schema"
-              type="text"
-              value={config.currency_schema || ''}
-              onChange={(e) => updateConfig({ currency_schema: e.target.value || null })}
-              placeholder="UTILITY"
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="currency_udf">
+                  UDF Name
+                  <span
+                    className="help-icon"
+                    title={fieldHelpContent.currencyUdf.tooltip}
+                  >
+                    ℹ️
+                </span>
+                </label>
+                {showHelp && fieldHelpContent.currencyUdf.content}
+                <input
+                  id="currency_udf"
+                  type="text"
+                  value={config.currency_udf_name || ''}
+                  onChange={(e) => updateConfig({ currency_udf_name: e.target.value || null })}
+                  placeholder="CONVERT_CURRENCY"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="currency_table">
+                  Rates Table
+                  <span
+                    className="help-icon"
+                    title={fieldHelpContent.currencyTable.tooltip}
+                  >
+                    ℹ️
+                </span>
+                </label>
+                {showHelp && fieldHelpContent.currencyTable.content}
+                <input
+                  id="currency_table"
+                  type="text"
+                  value={config.currency_rates_table || ''}
+                  onChange={(e) => updateConfig({ currency_rates_table: e.target.value || null })}
+                  placeholder="EXCHANGE_RATES"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="currency_schema">
+                  Schema
+                  <span
+                    className="help-icon"
+                    title={fieldHelpContent.currencySchema.tooltip}
+                  >
+                    ℹ️
+                </span>
+                </label>
+                {showHelp && fieldHelpContent.currencySchema.content}
+                <input
+                  id="currency_schema"
+                  type="text"
+                  value={config.currency_schema || ''}
+                  onChange={(e) => updateConfig({ currency_schema: e.target.value || null })}
+                  placeholder="UTILITY"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -465,4 +556,3 @@ function ConfigForm({ config, onConfigChange }) {
 }
 
 export default ConfigForm
-

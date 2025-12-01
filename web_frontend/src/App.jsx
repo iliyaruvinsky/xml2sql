@@ -6,10 +6,11 @@ import SqlPreview from './components/SqlPreview'
 import HistoryPanel from './components/HistoryPanel'
 import BatchConverter from './components/BatchConverter'
 import BatchResults from './components/BatchResults'
+import PackageMappingUpload from './components/PackageMappingUpload'
 import './App.css'
 
 function App() {
-  const [mode, setMode] = useState('single') // 'single' or 'batch'
+  const [mode, setMode] = useState('single') // 'single', 'batch', 'mappings', or 'history'
   const [singleFiles, setSingleFiles] = useState([])
   const [singleResult, setSingleResult] = useState(null)
   const [singleLoading, setSingleLoading] = useState(false)
@@ -30,7 +31,6 @@ function App() {
     currency_schema: null,
     auto_fix: false,
   })
-  const [showHistory, setShowHistory] = useState(false)
 
   const handleConfigChange = (newConfig) => {
     setConfig(newConfig)
@@ -49,24 +49,32 @@ function App() {
             className={mode === 'single' ? 'active' : ''}
             onClick={() => setMode('single')}
           >
-            Single File
+            Convert
           </button>
           <button
             className={mode === 'batch' ? 'active' : ''}
             onClick={() => setMode('batch')}
           >
-            Batch Conversion
+            Batch
           </button>
           <button
-            className={showHistory ? 'active' : ''}
-            onClick={() => setShowHistory(!showHistory)}
+            className={mode === 'mappings' ? 'active' : ''}
+            onClick={() => setMode('mappings')}
+          >
+            Mappings
+          </button>
+          <button
+            className={mode === 'history' ? 'active' : ''}
+            onClick={() => setMode('history')}
           >
             History
           </button>
         </div>
 
-        {showHistory ? (
-          <HistoryPanel onClose={() => setShowHistory(false)} />
+        {mode === 'history' ? (
+          <HistoryPanel onClose={() => setMode('single')} />
+        ) : mode === 'mappings' ? (
+          <PackageMappingUpload />
         ) : (
           <>
             <div className="main-content">

@@ -136,12 +136,12 @@ export const downloadSql = async (conversionId) => {
   const response = await api.get(`/download/${conversionId}`, {
     responseType: 'blob',
   })
-  
+
   // Create download link
   const url = window.URL.createObjectURL(new Blob([response.data]))
   const link = document.createElement('a')
   link.href = url
-  
+
   // Extract filename from Content-Disposition header
   const contentDisposition = response.headers['content-disposition']
   if (contentDisposition) {
@@ -152,7 +152,41 @@ export const downloadSql = async (conversionId) => {
   } else {
     link.setAttribute('download', `conversion_${conversionId}.sql`)
   }
-  
+
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
+// Generate ABAP Report on demand
+export const generateAbap = async (conversionId) => {
+  const response = await api.post(`/generate-abap/${conversionId}`)
+  return response.data
+}
+
+// Download ABAP Report file
+export const downloadAbap = async (conversionId) => {
+  const response = await api.get(`/download/${conversionId}/abap`, {
+    responseType: 'blob',
+  })
+
+  // Create download link
+  const url = window.URL.createObjectURL(new Blob([response.data]))
+  const link = document.createElement('a')
+  link.href = url
+
+  // Extract filename from Content-Disposition header
+  const contentDisposition = response.headers['content-disposition']
+  if (contentDisposition) {
+    const filenameMatch = contentDisposition.match(/filename="(.+)"/)
+    if (filenameMatch) {
+      link.setAttribute('download', filenameMatch[1])
+    }
+  } else {
+    link.setAttribute('download', `Z_XDS_${conversionId}.abap`)
+  }
+
   document.body.appendChild(link)
   link.click()
   link.remove()
@@ -208,6 +242,64 @@ export const deleteHistoryBulk = async (ids = []) => {
 // Get default config
 export const getDefaultConfig = async () => {
   const response = await api.get('/config/defaults')
+  return response.data
+}
+
+// Package Mapping APIs
+
+// Upload package mapping Excel file
+export const uploadPackageMapping = async (file, instanceName, instanceType) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  if (instanceName) formData.append('instance_name', instanceName)
+  if (instanceType) formData.append('instance_type', instanceType)
+
+  const response = await api.post('/package-mappings/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+  return response.data
+}
+
+// Get all HANA instances
+export const getInstances = async () => {
+  const response = await api.get('/package-mappings/instances')
+  return response.data
+}
+
+// Get instance details
+export const getInstanceDetails = async (instanceId) => {
+  const response = await api.get(`/package-mappings/instance/${instanceId}`)
+  return response.data
+}
+
+// Delete instance
+export const deleteInstance = async (instanceId) => {
+  const response = await api.delete(`/package-mappings/instance/${instanceId}`)
+  return response.data
+}
+
+// Search package mappings
+export const searchMappings = async (query, instanceName = null) => {
+  const params = { q: query }
+  if (instanceName) params.instance_name = instanceName
+
+  const response = await api.get('/package-mappings/search', { params })
+  return response.data
+}
+
+// Get statistics
+export const getStatistics = async () => {
+  const response = await api.get('/package-mappings/statistics')
+  return response.data
+}
+
+// Get import history
+export const getImportHistory = async (limit = 10) => {
+  const response = await api.get('/package-mappings/history', {
+    params: { limit },
+  })
   return response.data
 }
 

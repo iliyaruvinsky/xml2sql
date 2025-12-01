@@ -485,13 +485,30 @@ def _collect_aggregations(elements: Dict[str, ElementInfo]) -> Tuple[List[str], 
 
 def _parse_entity(value: str) -> Tuple[Optional[str], Optional[str]]:
     text = value.strip()
+    # Strip XML metadata prefixes: #// or #/0/ or #/N/
     if text.startswith("#//"):
         text = text[3:]
+    elif text.startswith("#/"):
+        # Strip #/0/ or #/N/ prefix (external reference notation)
+        slash_pos = text.find("/", 2)
+        if slash_pos > 0:
+            text = text[slash_pos + 1:]
 
     schema_name: Optional[str] = None
     object_name: Optional[str] = None
 
-    if text.startswith('"'):
+    # BUG-025 PARSER FIX: Handle CV references with :: separator
+    # Example: "Macabi_BI.Eligibility::CV_MD_EYPOSPER"
+    # Package path before :: → schema_name (for CV reference context)
+    # CV name after :: → object_name
+    if "::" in text and not text.startswith('"'):
+        parts = text.split("::", 1)
+        if len(parts) == 2:
+            schema_name = parts[0]  # e.g., "Macabi_BI.Eligibility"
+            object_name = parts[1]  # e.g., "CV_MD_EYPOSPER"
+        else:
+            object_name = text
+    elif text.startswith('"'):
         # Pattern: "SCHEMA".OBJECT or "SCHEMA"./BIC/OBJ
         end_quote = text.find('"', 1)
         schema_name = text[1:end_quote]

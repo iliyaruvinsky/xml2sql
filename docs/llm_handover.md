@@ -1,15 +1,15 @@
 # LLM Handover Summary
 
-## Current State (Updated: 2025-11-23 - End of SESSION 8B)
+## Current State (Updated: 2025-12-01 - End of SESSION 10)
 
 ### Project Status
 - **Project**: XML to SQL Converter - SAP HANA Calculation Views to SQL (HANA & Snowflake)
-- **Status**: ✅ PRODUCTION READY - 13 XMLs validated with 100% success rate
+- **Status**: ✅ PRODUCTION READY - 14 XMLs validated with 100% success rate
 - **Repository**: https://github.com/iliyaruvinsky/xml2sql
-- **Version**: v2.3.0 (BUG-032, BUG-033 validated + documentation cleanup)
-- **Last Validated Commit**: `91d7b7c` (SESSION 8B - 2025-11-22)
-- **Current Phase**: Ready for deployment and testing of additional XMLs
-- **Next Action**: Continue testing more XML files, or deploy to production
+- **Version**: v2.5.0 (ABAP on-demand generation feature)
+- **Last Validated Commit**: SESSION 10 - 2025-12-01
+- **Current Phase**: ABAP Report generation feature complete, documentation cleaned
+- **Next Action**: Test ABAP generation with production XMLs, continue XML validation
 
 ### Quick Start for New Computer
 
@@ -177,7 +177,77 @@
 - `config.yaml` - Configuration file
 - `run_server.py` - Development server launcher
 
-### Latest Session Notes (2025-11-13)
+### SESSION 10 Notes (2025-12-01)
+
+**New Feature: ABAP On-Demand Generation**
+
+The converter now supports generating ABAP Report programs (for SAP SE38 transaction) from converted SQL:
+
+1. **Backend Implementation**:
+   - New module: `src/xml_to_sql/abap/` with `generator.py` and `__init__.py`
+   - Endpoint: `POST /api/generate-abap/{conversion_id}` in routes.py:571-605
+   - Generates ABAP Report with EXEC SQL/ENDEXEC for ECC compatibility
+   - Creates temporary view from SQL, fetches data via cursor, exports to CSV
+   - ABAP content stored in database for later download
+
+2. **Frontend Implementation**:
+   - ABAP tab always visible in SqlPreview.jsx (not conditional on existing content)
+   - "Generate ABAP Report" button when no ABAP content exists
+   - On-demand generation (not automatic during conversion)
+   - `generateAbap()` function in api.js:163-166
+
+3. **Key Files Modified**:
+   - `src/xml_to_sql/web/api/routes.py` - Added generate-abap endpoint
+   - `src/xml_to_sql/web/services/converter.py` - Removed automatic ABAP generation
+   - `web_frontend/src/components/SqlPreview.jsx` - Added ABAP tab with generate button
+   - `web_frontend/src/components/SqlPreview.css` - Added ABAP generate section styles
+   - `web_frontend/src/services/api.js` - Added generateAbap() function
+   - `src/xml_to_sql/web/api/models.py` - Added abap_content field
+   - `src/xml_to_sql/web/database/models.py` - Added abap_content column
+
+4. **Documentation Cleanup**:
+   - Deleted duplicate `HANA_CDS_RESEARCH/` folder (was copy of xml2sql/docs/)
+   - Deleted 8 obsolete root-level md files (package mapping session docs)
+   - Kept `BeX_TO_SQL_RESEARCH/` (separate project phase)
+
+**Usage**:
+1. Convert XML to SQL as usual
+2. Click "ABAP" tab in the result view
+3. Click "Generate ABAP Report" button
+4. ABAP Report is generated and displayed
+5. Use Download or Copy buttons to get the ABAP code
+6. Paste into SAP SE38 and execute
+
+---
+
+### SESSION 9 Notes (2025-11-30)
+
+**Bugs Fixed:**
+
+1. **BUG-034: Filter `including="false"` Not Negating Operators**
+   - **Problem**: XML filters with `including="false"` were generating `=` instead of `<>`, returning wrong data
+   - **Solution**: Added `_negate_operator()` function in renderer.py (lines 1116-1151)
+   - **Files**: `src/xml_to_sql/sql/renderer.py`
+   - **Validation**: DATA_SOURCES.XML works correctly
+
+2. **BUG-035: ListValueFilter with `<operands>` Not Parsed**
+   - **Problem**: Filters using `<operands>` children (for IN lists) were completely skipped
+   - **Solution**: Added operands parsing in `_parse_filters()` in scenario_parser.py (lines 458-482)
+   - **Files**: `src/xml_to_sql/parser/scenario_parser.py`
+   - **Validation**: DATA_SOURCES.XML NOT IN filter works correctly
+
+**Other Fixes:**
+- Package mapping XLSX re-upload: Changed `Path.rename()` to `Path.replace()` in routes.py (lines 805, 821)
+
+**Statistics:**
+- Total Solved Bugs: 29 (was 27)
+- Total Validated XMLs: 14 (added DATA_SOURCES.XML)
+
+**User Request**: Wants to discuss "some new feature" after documentation complete.
+
+---
+
+### Previous Session Notes (2025-11-13)
 
 - Restored full project context (handover/architecture/testing docs) and enforced RULE 11 in `.cursorrules`.
 - Implemented structured legacy helper catalog (`src/xml_to_sql/catalog/data/functions.yaml`), hooked into `translate_raw_formula()` for automatic rewrites (LEFTSTR→SUBSTRING, RIGHTSTR→RIGHT, in(...)→IN, match(...)→REGEXP_LIKE, lpad(...)→LPAD).

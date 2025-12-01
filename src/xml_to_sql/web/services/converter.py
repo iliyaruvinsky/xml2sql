@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -11,6 +12,8 @@ from pathlib import Path
 from typing import Optional
 
 from lxml import etree
+
+logger = logging.getLogger(__name__)
 
 from ...domain.types import DatabaseMode, HanaVersion
 from ...parser.xml_format_detector import detect_xml_format, get_recommended_hana_version
@@ -27,6 +30,7 @@ from ...sql.validator import (
     validate_sql,
     validate_sql_structure,
 )
+from ...abap import generate_abap_report
 
 
 @dataclass
@@ -57,6 +61,7 @@ class ConversionResult:
         validation_logs: Optional[list[str]] = None,
         corrections: Optional[CorrectionResult] = None,
         stages: Optional[list[ConversionStage]] = None,
+        abap_content: Optional[str] = None,
     ):
         self.sql_content = sql_content
         self.scenario_id = scenario_id
@@ -67,6 +72,7 @@ class ConversionResult:
         self.validation_logs = validation_logs or []
         self.corrections = corrections
         self.stages = stages or []
+        self.abap_content = abap_content
 
 
 def convert_xml_to_sql(
@@ -240,7 +246,11 @@ def convert_xml_to_sql(
         import tempfile
 
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".xml", delete=False) as tmp:
-            tmp.write(xml_content)
+            # Handle both string and bytes input
+            if isinstance(xml_content, str):
+                tmp.write(xml_content.encode('utf-8'))
+            else:
+                tmp.write(xml_content)
             tmp_path = Path(tmp.name)
 
         try:
@@ -310,20 +320,13 @@ def convert_xml_to_sql(
                 effective_view_schema = "_SYS_BIC"
 
         # Build qualified view name
-        # For HANA catalog calculation views in _SYS_BIC, package paths are REQUIRED
-        # Format: _SYS_BIC."PACKAGE.PATH/VIEW_NAME"
-        # For other schemas, use simple schema.viewname format
-        # NOTE: Do NOT add quotes here - the SQL renderer's _quote_identifier will handle quoting
-        # BUG-019: Package paths only apply to _SYS_BIC catalog
-        if hana_package and effective_view_schema == "_SYS_BIC":
-            # Catalog calculation view with package path
-            view_name_with_package = f"{hana_package}/{scenario_id}"
-            qualified_view_name = f'{effective_view_schema}.{view_name_with_package}'
-        else:
-            # Simple view name without package path
-            qualified_view_name = (
-                f"{effective_view_schema}.{scenario_id}" if effective_view_schema else scenario_id
-            )
+        # CRITICAL HANA RULE: CREATE VIEW uses simple name only, package paths are for CV REFERENCES
+        # - CREATE VIEW statement: "_SYS_BIC"."CV_NAME" AS ...
+        # - CV references in JOINs: JOIN "_SYS_BIC"."Package.Path/CV_NAME" ON ...
+        # Package mappings are applied later in SQL renderer for CV references, NOT here
+        qualified_view_name = (
+            f"{effective_view_schema}.{scenario_id}" if effective_view_schema else scenario_id
+        )
 
         # Stage 3: Generate SQL
         start_ms, start_dt = _start_stage("Generate SQL")
@@ -485,7 +488,8 @@ def convert_xml_to_sql(
             "total_issues": len(validation_result.errors) + len(validation_result.warnings),
             "auto_fix_applied": auto_fix and correction_result is not None and len(correction_result.corrections_applied) > 0,
         })
-        
+
+        # ABAP generation is now on-demand via separate API endpoint
         return ConversionResult(
             sql_content=final_sql,
             scenario_id=scenario_id,
@@ -495,6 +499,7 @@ def convert_xml_to_sql(
             validation_logs=validation_logs,
             corrections=correction_result,
             stages=stages,
+            abap_content=None,  # Generated on-demand
         )
 
     except etree.XMLSyntaxError as xml_error:

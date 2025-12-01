@@ -125,7 +125,16 @@ def _parse_data_sources(ctx: ParseContext, root: etree._Element) -> None:
         if resource is not None:
             resource_uri = (resource.text or "") or resource.get("{http://www.w3.org/1999/xlink}href", "")
             if resource_uri:
+                # BUG-027: Strip internal HANA Studio folder paths from resourceUri
+                # These folders (/calculationviews/, /analyticviews/, /attributeviews/) are
+                # XML organization folders in HANA Studio, not part of the actual view path
+                # Example: /KMDM/calculationviews/MATERIAL_DETAILS -> KMDM/MATERIAL_DETAILS
                 object_name = resource_uri
+                for internal_folder in ['/calculationviews/', '/analyticviews/', '/attributeviews/']:
+                    object_name = object_name.replace(internal_folder, '/')
+                # Strip leading slash - resourceUri paths start with / but SQL references don't
+                if object_name.startswith('/'):
+                    object_name = object_name[1:]
 
         mapped_type = _map_data_source_type(ds_type)
         ctx.scenario.data_sources[source_id] = DataSource(
@@ -141,7 +150,90 @@ def _parse_nodes(ctx: ParseContext, root: etree._Element) -> None:
     for node_el in _find_children(root, "calculationViews", "calculationView"):
         xsi_type = node_el.get(f"{{{_NS['xsi']}}}type", "")
         node_id = node_el.get("id")
-        inputs = [_clean_ref(inp.get("node", "")) for inp in _find_children(node_el, "input")]
+
+        # BUG-028 FIX: Handle both view node references and table entity inputs
+        inputs = []
+        for inp in _find_children(node_el, "input"):
+            # Check if input has a 'node' attribute (old-style reference)
+            node_ref = inp.get("node", "")
+            if node_ref:
+                inputs.append(_clean_ref(node_ref))
+                continue
+
+            # Check if input has viewNode/dataSource child element (new-style reference)
+            view_node_el = _find_child(inp, "viewNode")
+            if view_node_el is not None and view_node_el.text:
+                inputs.append(_clean_ref(view_node_el.text))
+                continue
+
+            data_source_el = _find_child(inp, "dataSource")
+            if data_source_el is not None and data_source_el.text:
+                inputs.append(_clean_ref(data_source_el.text))
+                continue
+
+            # Check if input has an entity element (table reference)
+            entity_el = _find_child(inp, "entity")
+            if entity_el is not None and entity_el.text:
+                # Parse entity to get schema and table name
+                from ..parser.column_view_parser import _parse_entity
+                schema_name, object_name = _parse_entity(entity_el.text)
+
+                # Get or create alias for this table
+                alias = inp.get("alias", object_name.lower() if object_name else "table")
+
+                # Create a synthetic projection node ID for this table
+                synthetic_node_id = f"_synthetic_proj_{alias}"
+
+                # Create DataSource if not exists
+                if synthetic_node_id not in ctx.scenario.data_sources:
+                    # BUG-025: Detect CV references and set correct source_type
+                    # CV references have "CV_" prefix in object name or "::" in original entity text
+                    is_cv_reference = (object_name and object_name.startswith("CV_")) or (entity_el.text and "::" in entity_el.text)
+                    source_type = DataSourceType.CALCULATION_VIEW if is_cv_reference else DataSourceType.DATA_BASE_TABLE
+                    
+                    ctx.scenario.data_sources[synthetic_node_id] = DataSource(
+                        source_id=synthetic_node_id,
+                        source_type=source_type,
+                        schema_name=schema_name or "",
+                        object_name=object_name or "",
+                        resource_uri=None,
+                    )
+
+                # Create synthetic projection node with mappings from input element
+                mappings_from_input = []
+                for mapping_el in _find_children(inp, "mapping"):
+                    target_name = mapping_el.get("targetName", "")
+                    source_name = mapping_el.get("sourceName", "")
+                    if target_name and source_name:
+                        mappings_from_input.append(
+                            AttributeMapping(
+                                target_name=target_name,
+                                source_name=None,
+                                expression=Expression(
+                                    expression_type=ExpressionType.COLUMN,
+                                    value=source_name,
+                                    data_type=None,
+                                ),
+                                data_type=None,
+                            )
+                        )
+
+                # Create synthetic projection node
+                synthetic_projection = Node(
+                    node_id=synthetic_node_id,
+                    kind=NodeKind.PROJECTION,
+                    inputs=[synthetic_node_id],  # Reference the data source
+                    mappings=mappings_from_input,
+                    filters=[],
+                    view_attributes=[],
+                    calculated_attributes={},
+                )
+
+                # Add synthetic projection to scenario
+                ctx.scenario.add_node(synthetic_projection)
+
+                # Use synthetic projection node ID as input
+                inputs.append(synthetic_node_id)
 
         node_type = xsi_type.split(":")[-1] if xsi_type else ""
         if node_type.endswith("ProjectionView"):
@@ -342,21 +434,53 @@ def _parse_filters(node_el: etree._Element) -> List[Predicate]:
         filter_el = attr_el.find("./acc:filter", namespaces=_NS) or _find_child(attr_el, "filter")
         if filter_el is None:
             continue
-        value = filter_el.get("value")
-        if value is None:
-            continue
-        literal_type = guess_literal_type(value) or guess_attribute_type(column_name)
+
+        # Get the including attribute (default True)
+        including = filter_el.get("including", "true").lower() == "true"
         left_expr = Expression(ExpressionType.COLUMN, column_name, guess_attribute_type(column_name))
-        right_expr = Expression(ExpressionType.LITERAL, value, literal_type)
-        predicates.append(
-            Predicate(
-                kind=PredicateKind.COMPARISON,
-                left=left_expr,
-                operator=_map_filter_operator(filter_el.get("operator")),
-                right=right_expr,
-                including=filter_el.get("including", "true").lower() == "true",
+
+        # Check for SingleValueFilter (direct value attribute)
+        value = filter_el.get("value")
+        if value is not None:
+            literal_type = guess_literal_type(value) or guess_attribute_type(column_name)
+            right_expr = Expression(ExpressionType.LITERAL, value, literal_type)
+            predicates.append(
+                Predicate(
+                    kind=PredicateKind.COMPARISON,
+                    left=left_expr,
+                    operator=_map_filter_operator(filter_el.get("operator")),
+                    right=right_expr,
+                    including=including,
+                )
             )
-        )
+            continue
+
+        # BUG-035: Check for ListValueFilter with <operands> children
+        operands = filter_el.findall("./acc:operands", namespaces=_NS)
+        if not operands:
+            operands = filter_el.findall(".//operands")
+        if operands:
+            # Collect all operand values
+            values = []
+            for operand in operands:
+                op_value = operand.get("value")
+                if op_value is not None:
+                    # Quote string values
+                    values.append(f"'{op_value}'")
+            if values:
+                # Create IN list expression like "('value1', 'value2')"
+                in_list = f"({', '.join(values)})"
+                right_expr = Expression(ExpressionType.RAW, in_list, "VARCHAR")
+                predicates.append(
+                    Predicate(
+                        kind=PredicateKind.COMPARISON,
+                        left=left_expr,
+                        operator="IN",  # Will be negated to NOT IN if including=False
+                        right=right_expr,
+                        including=including,
+                    )
+                )
+
     return predicates
 
 
@@ -699,7 +823,30 @@ def _map_data_source_type(source_type: str) -> DataSourceType:
 
 
 def _clean_ref(value: str) -> str:
-    return value[1:] if value.startswith("#") else value
+    """Clean node reference by stripping XML metadata prefixes.
+
+    Examples:
+        #/0/Star Join/Join_1 -> Star Join/Join_1
+        #//Aggregation_1 -> Aggregation_1
+        #/Projection_1 -> Projection_1
+        Aggregation_1 -> Aggregation_1
+    """
+    text = value.strip()
+    # Strip #// prefix
+    if text.startswith("#//"):
+        return text[3:]
+    # Strip #/N/ prefix (e.g., #/0/, #/1/, etc.)
+    if text.startswith("#/"):
+        # Find the second slash and strip up to that point
+        second_slash = text.find("/", 2)
+        if second_slash > 0:
+            return text[second_slash + 1:]
+        # If no second slash, just strip #/
+        return text[2:]
+    # Strip single # prefix
+    if text.startswith("#"):
+        return text[1:]
+    return text
 
 
 def _map_join_type(value: str) -> JoinType:
