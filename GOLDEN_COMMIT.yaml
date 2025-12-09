@@ -5,10 +5,10 @@
 last_validated_commit: "e809a4d"
 commit_date: "2025-11-22"
 commit_message: "SESSION 7 HANA validation - BUG-021, BUG-022, BUG-026, BUG-027, BUG-028, BUG-029, BUG-030 validated"
-validation_date: "2025-11-22"
-validated_by: "User (HANA Studio execution)"
+validation_date: "2025-12-08"
+validated_by: "User (HANA Studio execution - revalidated)"
 instance_type: "BW BID system"
-notes: "All XMLs tested before transition to MBD system"
+notes: "CRITICAL REQUIREMENT: config.yaml MUST have 'schema_overrides: ABAP: SAPABAP1'. Without this, SQL uses wrong schema. Commit e809a4d at HEAD 5ed3b77 with correct config generates SQL matching VALIDATED folder. CV_TOP_PTHLGY revalidated 2025-12-08 at 200ms."
 
 # XMLs validated in HANA Studio with this commit
 validated_xmls:
